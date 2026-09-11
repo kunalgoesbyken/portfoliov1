@@ -28,6 +28,10 @@ import {
   SiFlutter,
   SiAwsamplify,
   SiOnnx,
+  SiNumba,
+  SiPydantic,
+  SiFastapi,
+  SiTradingview,
 } from "react-icons/si";
 
 export type TechKey =
@@ -58,7 +62,11 @@ export type TechKey =
   | "rust"
   | "flutter"
   | "aws"
-  | "onnx";
+  | "onnx"
+  | "numba"
+  | "pydantic"
+  | "fastapi"
+  | "tradingview";
 
 export const iconMap: Record<TechKey, IconType> = {
   next: SiNextdotjs,
@@ -89,6 +97,10 @@ export const iconMap: Record<TechKey, IconType> = {
   flutter: SiFlutter,
   aws: SiAwsamplify,
   onnx: SiOnnx,
+  numba: SiNumba,
+  pydantic: SiPydantic,
+  fastapi: SiFastapi,
+  tradingview: SiTradingview,
 };
 
 export const techNames: Record<TechKey, string> = {
@@ -120,4 +132,8 @@ export const techNames: Record<TechKey, string> = {
   flutter: "Flutter",
   aws: "AWS",
   onnx: "ONNX",
+  numba: "Numba",
+  pydantic: "Pydantic",
+  fastapi: "FastAPI",
+  tradingview: "TradingView",
 };

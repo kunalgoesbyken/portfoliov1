@@ -13,16 +13,65 @@ interface ExperienceItem {
   date: string;
   description: string;
   logo: string;
+  logoDark?: string;
   logoWidth?: number;
   logoHeight?: number;
   href?: string;
   tech?: TechKey[];
 }
 
+const CompanyLogo = ({ experience }: { experience: ExperienceItem }) => {
+  const { company, logo, logoDark, logoWidth = 48, logoHeight = 48, href } = experience;
+  const className = "size-12 rounded-lg object-contain";
+
+  const images = (
+    <>
+      <Image
+        src={logo}
+        alt={company}
+        width={logoWidth}
+        height={logoHeight}
+        className={logoDark ? `${className} dark:hidden` : className}
+      />
+      {logoDark && (
+        <Image
+          src={logoDark}
+          alt={company}
+          width={logoWidth}
+          height={logoHeight}
+          className={`${className} hidden dark:block`}
+        />
+      )}
+    </>
+  );
+
+  if (!href) return images;
+
+  return (
+    <Link href={href} target="_blank" onClick={(e) => e.stopPropagation()} className="block">
+      {images}
+    </Link>
+  );
+};
+
 export const Timeline = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const experiences: ExperienceItem[] = [
+    {
+      company: "FinStocks AI",
+      designation: "Lead Software Engineer",
+      date: "July 2026 - Present",
+      description: `First employee. Architected a natural-language-to-strategy backtesting engine, leading a 3-engineer team — LLM output constrained to a typed Pydantic IR over 185 indicators and 148 patterns, with deterministic compilation and static validation.
+Accelerated backtesting with runtime Numba-JIT kernels and whole-universe fused execution over struct-of-arrays float32 Parquet; liveness analysis loads only strategy-referenced columns.
+Unified backtest and live execution through the same IR and compiler — tick coalescing for bounded evaluation latency, Redis Lua for atomic capital allocation across workers.
+Built an LLM chart terminal with 85 typed operations and symbolic price references, enforcing level provenance through a 1.4k-line validator that prevents fabricated chart levels.
+Engineered transactional push on Postgres with SKIP LOCKED, visibility leases and idempotent partial indexes; cut market-data queries from 13.6s to 48-135ms and 5.9s to 782ms, streaming bars via Redis Pub/Sub to a TradingView datafeed.`,
+      logo: "/images/logos/finstocks-light.png",
+      logoDark: "/images/logos/finstocks-dark.png",
+      href: "https://finstocks.ai/",
+      tech: ["python", "pydantic", "numba", "postgres", "redis", "fastapi", "tradingview", "ts"],
+    },
     {
       company: "CollectEdge",
       designation: "Software Development Engineer",
@@ -103,30 +152,7 @@ Optimized SQL pagination for near-instant retrieval.`,
             >
               {/* Logo */}
               <div className="relative shrink-0 mt-1 z-10">
-                {exp.href ? (
-                  <Link
-                    href={exp.href}
-                    target="_blank"
-                    onClick={(e) => e.stopPropagation()}
-                    className="block"
-                  >
-                    <Image
-                      src={exp.logo}
-                      alt={exp.company}
-                      width={exp.logoWidth ?? 48}
-                      height={exp.logoHeight ?? 48}
-                      className="size-12 rounded-lg object-contain"
-                    />
-                  </Link>
-                ) : (
-                    <Image
-                      src={exp.logo}
-                      alt={exp.company}
-                      width={exp.logoWidth ?? 48}
-                      height={exp.logoHeight ?? 48}
-                      className="size-12 rounded-lg object-contain"
-                    />
-                )}
+                <CompanyLogo experience={exp} />
               </div>
 
               {/* Content Container */}

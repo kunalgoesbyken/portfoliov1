@@ -200,7 +200,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                        </p>
                     </div>
                     <div className="flex flex-wrap gap-2 justify-center mt-2">
-                      {["Skills & tech stack", "What did you build at CollectEdge?", "How to reach Kunal"].map((suggestion) => (
+                      {["Skills & tech stack", "What is Kunal building at FinStocks AI?", "How to reach Kunal"].map((suggestion) => (
                         <button
                           key={suggestion}
                           onClick={() => setInput(suggestion)}
