@@ -1,3 +1,5 @@
+import { GITHUB_USERNAME } from "@/lib/social-links";
+
 
 export interface PR {
     id: number;
@@ -20,7 +22,7 @@ export interface GithubData {
 
 export async function getGithubData(): Promise<GithubData> {
     const query = `query {
-    merged: search(query: "author:krockxz type:pr is:merged", type: ISSUE, first: 12) {
+    merged: search(query: "author:${GITHUB_USERNAME} type:pr is:merged", type: ISSUE, first: 12) {
       edges {
         node {
           ... on PullRequest {
@@ -38,7 +40,7 @@ export async function getGithubData(): Promise<GithubData> {
         }
       }
     }
-    open: search(query: "author:krockxz type:pr is:open", type: ISSUE, first: 12) {
+    open: search(query: "author:${GITHUB_USERNAME} type:pr is:open", type: ISSUE, first: 12) {
       edges {
         node {
           ... on PullRequest {
@@ -56,7 +58,7 @@ export async function getGithubData(): Promise<GithubData> {
         }
       }
     }
-    closed: search(query: "author:krockxz type:pr is:closed is:unmerged", type: ISSUE, first: 12) {
+    closed: search(query: "author:${GITHUB_USERNAME} type:pr is:closed is:unmerged", type: ISSUE, first: 12) {
       edges {
         node {
           ... on PullRequest {

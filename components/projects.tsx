@@ -40,7 +40,7 @@ const DEPLOYED_PROJECTS: Project[] = [
     description:
       "A native, privacy-first API client built with Wails (Go + React). 10x lighter than Postman with native support for REST, GraphQL, and WebSockets. 100% local and private.",
     tech: ["go", "react"],
-    github: "https://github.com/krockxz/gostman",
+    github: "https://github.com/kunalgoesbyken/gostman",
     live: "https://gostman.vercel.app/",
   },
   {
@@ -52,7 +52,7 @@ const DEPLOYED_PROJECTS: Project[] = [
     description:
       "Async team coordination hub for tracking work handoffs across timezones. Real-time task updates, bulk operations, analytics dashboard, GitHub OAuth & issue sync, and self-hostable with Docker.",
     tech: ["next", "ts", "supabase", "prisma"],
-    github: "https://github.com/krockxz/TaskFlow",
+    github: "https://github.com/kunalgoesbyken/TaskFlow",
     live: "https://taskflow-deploy-eta.vercel.app",
   },
   {
@@ -61,7 +61,7 @@ const DEPLOYED_PROJECTS: Project[] = [
     description:
       "AI email assistant with Gmail integration and CopilotKit for natural-language control. 30-second auto-sync and AI-powered drafting.",
     tech: ["react", "ts", "tailwind", "gmail"],
-    github: "https://github.com/krockxz/MailFlowAI",
+    github: "https://github.com/kunalgoesbyken/MailFlowAI",
     live: "https://ai-mail-app-pearl.vercel.app/",
   },
 ];
@@ -72,21 +72,21 @@ const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
     description:
       "Next.js core features — SSR, hydration, and file-system routing — reimplemented from scratch to show how the meta-framework actually works.",
     tech: ["bun", "react", "ts"],
-    github: "https://github.com/krockxz/Un-nexted",
+    github: "https://github.com/kunalgoesbyken/Un-nexted",
   },
   {
     title: "codebase-indexer",
     description:
       "Offline semantic code search. Walks a codebase, chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and indexes for hybrid BM25 + vector search with RRF fusion.",
     tech: ["rust", "onnx"],
-    github: "https://github.com/krockxz/codebase-indexer",
+    github: "https://github.com/kunalgoesbyken/codebase-indexer",
   },
   {
     title: "pdf2docx-healer",
     description:
       "A drop-in replacement for pdf2docx that preserves formatting — heals bullet lists, hyperlinks, CJK fonts, and scanned PDFs via OCR in a post-processing pass. Published on PyPI.",
     tech: ["python"],
-    github: "https://github.com/krockxz/pdf2docx-healer",
+    github: "https://github.com/kunalgoesbyken/pdf2docx-healer",
     pypi: "https://pypi.org/project/pdf2docx-healer/",
   },
 ];

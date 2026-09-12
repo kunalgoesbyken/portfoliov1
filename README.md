@@ -123,7 +123,7 @@ All images use the `next/image` component with:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/krockxz/Portfoliov1.git
+   git clone https://github.com/kunalgoesbyken/Portfoliov1.git
    cd Portfoliov1
    ```
 

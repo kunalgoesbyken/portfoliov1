@@ -8,7 +8,7 @@ Kunal Roy Choudhury is a backend systems architect who also builds frontends —
 - Cares about the reliability work most people skip
 
 # Contact & Social
-- GitHub: https://github.com/krockxz
+- GitHub: https://github.com/kunalgoesbyken
 - LinkedIn: https://www.linkedin.com/in/kunal-roy-choudhury-7407211a7/
 - X (Twitter): https://x.com/kunalgoesbyken
 - Email: kunalrc.workmail7@gmail.com
@@ -59,7 +59,7 @@ AI email assistant with Gmail integration and CopilotKit for natural-language co
 - Gmail integration with 30-second auto-sync
 - CopilotKit AI assistant for natural-language control and drafting
 - Built with React 19 and Tailwind CSS v4
-- GitHub: https://github.com/krockxz/MailFlowAI
+- GitHub: https://github.com/kunalgoesbyken/MailFlowAI
 - Live: https://ai-mail-app-pearl.vercel.app/
 
 ## Gostman
@@ -67,19 +67,19 @@ A native, privacy-first API client built with Wails (Go + React).
 - 10x lighter than Postman
 - Native REST, GraphQL, and WebSocket support
 - 100% local and private — no data leaves your machine
-- GitHub: https://github.com/krockxz/gostman
+- GitHub: https://github.com/kunalgoesbyken/gostman
 - Live: https://gostman.vercel.app/
 
 ## TaskFlow
 Async team coordination hub for tracking work handoffs across timezones.
 - Real-time task updates and bulk operations
 - GitHub OAuth & issue sync
-- GitHub: https://github.com/krockxz/TaskFlow
+- GitHub: https://github.com/kunalgoesbyken/TaskFlow
 
 ## Un-Nexted
 Next.js core features reimplemented from scratch to show how the meta-framework actually works.
 - SSR, hydration, and file-system routing from first principles
-- GitHub: https://github.com/krockxz/Un-nexted
+- GitHub: https://github.com/kunalgoesbyken/Un-nexted
 
 # Technical Skills
 - Languages: Go, Rust, Python, Java, TypeScript, SQL

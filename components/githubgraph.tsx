@@ -5,6 +5,7 @@ import Separator from "@/components/separator";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import { GithubData, PR } from "@/lib/github";
+import { GITHUB_USERNAME } from "@/lib/social-links";
 
 // Dynamic imports for code splitting - these load separately from the PR list
 const GitHubCalendar = dynamic(() => import("react-github-calendar").then(mod => ({ default: mod.GitHubCalendar })), {
@@ -66,7 +67,7 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
           {mounted && (
             <>
               <GitHubCalendar
-                username="krockxz"
+                username={GITHUB_USERNAME}
                 colorScheme={theme === "dark" ? "dark" : "light"}
                 blockSize={isMobile ? 6 : 10}
                 blockMargin={isMobile ? 2 : 3}
