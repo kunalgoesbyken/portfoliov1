@@ -150,12 +150,17 @@ const useVideoPlayback = (isInView: boolean) => {
   return { videoRef, isReady, handleCanPlay, play, pause };
 };
 
-const cardMotion = (idx: number) => ({
-  initial: { opacity: 0, filter: "blur(10px)" },
-  whileInView: { opacity: 1, filter: "blur(0px)" },
-  transition: { duration: 0.6, ease: "easeOut" as const, delay: idx * 0.12 },
-  viewport: { once: true, amount: 0.2 },
-});
+// First cards are above the fold on most screens: render them visible from
+// the server HTML so LCP doesn't wait for hydration + the motion feature chunk.
+const cardMotion = (idx: number) =>
+  idx < 2
+    ? { initial: false as const }
+    : {
+        initial: { opacity: 0 },
+        whileInView: { opacity: 1 },
+        transition: { duration: 0.5, ease: "easeOut" as const },
+        viewport: { once: true, amount: 0.2 },
+      };
 
 function CardShell({
   idx,
