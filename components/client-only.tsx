@@ -1,20 +1,24 @@
 "use client";
 
-import { useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
-const emptySubscribe = () => () => {};
-
-function useIsMounted() {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
-}
-
+// Renders children only on the client, after the browser is idle, so heavy
+// non-critical widgets never compete with first paint and hydration.
 export default function ClientOnly({ children }: { children: ReactNode }) {
-  const mounted = useIsMounted();
+  const [ready, setReady] = useState(false);
 
-  if (!mounted) return null;
-  return <>{children}</>;
+  useEffect(() => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(() => setReady(true), { timeout: 2500 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = setTimeout(() => setReady(true), 1200);
+    return () => clearTimeout(id);
+  }, []);
+
+  return ready ? <>{children}</> : null;
 }

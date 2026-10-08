@@ -221,7 +221,12 @@ export default function FractalTree() {
             }
         };
 
+        // Freeze the drawing after a while: an endless full-screen canvas loop
+        // with a CSS mask keeps the main thread and compositor busy forever.
+        const stopAt = performance.now() + 10000;
+
         const frame = () => {
+            if (performance.now() > stopAt) return;
             // Stop animation if shouldAnimate is false, prefers reduced motion, or not visible
             if (!shouldAnimate || prefersReducedMotion || !isVisible) {
                 return;

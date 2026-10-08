@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: "Kunal's Portfolio",
     images: [
       {
-        url: "/images/kunal.jpg",
+        url: "/images/kunal-sm.jpg",
         width: 800,
         height: 600,
         alt: "Kunal Roy Choudhury",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     title: "Kunal ",
     description: "Backend systems architect building AI tools.",
     creator: "@kunalgoesbyken",
-    images: ["/images/kunal.jpg"],
+    images: ["/images/kunal-sm.jpg"],
   },
 };
 

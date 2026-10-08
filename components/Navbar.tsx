@@ -103,7 +103,7 @@ const Navbar = () => {
         <Link href="/" className="hover:opacity-75 transition-opacity duration-300">
           <Image
             className="w-9 h-9 rounded-full shadow-sm"
-            src="/images/kunal.jpg"
+            src="/images/kunal-sm.jpg"
             width={100}
             height={100}
             alt="Kunal Roy Choudhury"

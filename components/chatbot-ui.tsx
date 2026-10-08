@@ -145,7 +145,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
                 <img
-                  src="/images/kunal.jpg"
+                  src="/images/kunal-sm.jpg"
                   alt="Kunal"
                   className="w-full h-full object-cover"
                 />
@@ -186,7 +186,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                   <div className="flex flex-col items-center justify-center h-full text-center space-y-3">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
                       <img
-                        src="/images/kunal.jpg"
+                        src="/images/kunal-sm.jpg"
                         alt="Kunal"
                         className="w-full h-full object-cover"
                       />
@@ -225,7 +225,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                     {msg.role === "model" && (
                       <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
                         <img
-                          src="/images/kunal.jpg"
+                          src="/images/kunal-sm.jpg"
                           alt="Kunal"
                           className="w-full h-full object-cover"
                         />
@@ -285,7 +285,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                   >
                     <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
                       <img
-                        src="/images/kunal.jpg"
+                        src="/images/kunal-sm.jpg"
                         alt="Kunal"
                         className="w-full h-full object-cover"
                       />
@@ -318,7 +318,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                   >
                     <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
                       <img
-                        src="/images/kunal.jpg"
+                        src="/images/kunal-sm.jpg"
                         alt="Kunal"
                         className="w-full h-full object-cover"
                       />
