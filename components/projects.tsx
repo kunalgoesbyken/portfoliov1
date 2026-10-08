@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type ReactNode, type Ref } from "react";
 import Image from "next/image";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { Globe } from "lucide-react";
 import { SiPypi } from "react-icons/si";
 import GithubIcon from "@/components/ui/github-icon";
@@ -171,7 +171,7 @@ function CardShell({
   children: ReactNode;
 }) {
   return (
-    <motion.div
+    <m.div
       ref={ref}
       {...cardMotion(idx)}
       onMouseEnter={onMouseEnter}
@@ -180,7 +180,7 @@ function CardShell({
     >
       <div className="card-radial-overlay" />
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 

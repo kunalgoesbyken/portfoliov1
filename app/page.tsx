@@ -4,6 +4,7 @@ import Separator from "@/components/separator";
 import { getGithubData } from "@/lib/github";
 import PageBorder from "@/components/ui/page-border";
 import { Suspense } from "react";
+import MountOnVisible from "@/components/ui/mount-on-visible";
 
 import dynamic from "next/dynamic";
 
@@ -86,7 +87,9 @@ export default async function Home() {
         <Separator className="mt-12" />
 
         <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
-          <Skills />
+          <MountOnVisible minHeight={300}>
+            <Skills />
+          </MountOnVisible>
         </Suspense></div>
 
         <Separator className="mt-4" />

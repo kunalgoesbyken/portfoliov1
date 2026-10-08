@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
 import { X } from "lucide-react";
 
 export interface MediaItem {
@@ -18,14 +19,14 @@ export function Lightbox({ media, onClose }: LightboxProps) {
   return (
     <AnimatePresence>
       {media && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
           className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 cursor-pointer"
         >
-          <motion.div
+          <m.div
             initial={{ scale: 0.92, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.92, opacity: 0 }}
@@ -59,8 +60,8 @@ export function Lightbox({ media, onClose }: LightboxProps) {
                 />
               </div>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );
