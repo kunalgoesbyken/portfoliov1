@@ -3,8 +3,7 @@ import "./globals.css";
 import Footer from "@/components/footer";
 import Navbar from "@/components/Navbar";
 import { Instrument_Serif, Instrument_Sans } from "next/font/google";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import DeferredAnalytics from "@/components/deferred-analytics";
 import { ThemeProvider } from "@/components/theme-provider";
 import ClientOnly from "@/components/client-only";
 import FractalTree from "@/components/ui/fractal-tree";
@@ -63,7 +62,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://github-contributions-api.jogruber.de" />
       </head>{/* 🛠 Important for dark mode */}
       <body
         suppressHydrationWarning
@@ -71,8 +69,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <MotionProvider>
-          <Analytics />
-          <SpeedInsights />
+          <DeferredAnalytics />
           <ClientOnly delay={2500}>
             <FractalTree />
           </ClientOnly>

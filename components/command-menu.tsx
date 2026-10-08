@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
@@ -33,22 +33,17 @@ import {
     CommandShortcut,
 } from "@/components/ui/command"
 
-export function CommandMenu() {
-    const [open, setOpen] = React.useState(false)
+// Heavy part (cmdk + radix dialog). Loaded lazily by `command-menu-trigger.tsx`,
+// which owns the open state and the ⌘K listener.
+export function CommandMenu({
+    open,
+    onOpenChange: setOpen,
+}: {
+    open: boolean
+    onOpenChange: (open: boolean) => void
+}) {
     const router = useRouter()
     const { setTheme } = useTheme()
-
-    React.useEffect(() => {
-        const down = (e: KeyboardEvent) => {
-            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault()
-                setOpen((open) => !open)
-            }
-        }
-
-        document.addEventListener("keydown", down)
-        return () => document.removeEventListener("keydown", down)
-    }, [])
 
     const runCommand = React.useCallback((command: () => unknown) => {
         setOpen(false)
@@ -118,17 +113,6 @@ export function CommandMenu() {
 
     return (
         <>
-            <button
-                onClick={() => setOpen(true)}
-                className="hidden sm:flex group items-center gap-2 px-2 py-1.5 text-sm font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-            >
-                <span className="inline-block text-xs text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 px-1.5 font-mono text-[10px] font-medium opacity-100">
-                        <span className="text-xs">⌘</span>K
-                    </kbd>
-                </span>
-            </button>
-
             <CommandDialog open={open} onOpenChange={setOpen} className="font-custom2">
                 {/* Header Section */}
                 <div className="flex items-center gap-4 p-4 border-b border-neutral-100 dark:border-neutral-800">

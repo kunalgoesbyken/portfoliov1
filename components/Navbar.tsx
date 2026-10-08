@@ -1,48 +1,44 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import Container from "@/components/containers";
-import * as m from "motion/react-m";
-import { useScroll, useMotionValueEvent, type Variants } from "motion/react";
 import { ThemeToggleButton } from "@/components/ui/skiper-ui/skiper26";
+import { CommandMenuTrigger } from "@/components/command-menu-trigger";
 
-const CommandMenu = dynamic(() => import("@/components/command-menu").then(mod => ({ default: mod.CommandMenu })), {
-  ssr: false,
-});
+const NAV_ITEMS = [
+  { title: "Projects", href: "/projects" },
+  { title: "Blog", href: "/blog" },
+  { title: "Contact", href: "/contact" },
+];
+
+type Pill = { left: number; top: number; width: number; height: number } | null;
+
+const PILL_CLASS =
+  "absolute rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10 pointer-events-none motion-reduce:transition-none";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const navItems = [
-    { title: "Projects", href: "/projects" },
-    { title: "Blog", href: "/blog" },
-    { title: "Contact", href: "/contact" }
+  const [scrolled, setScrolled] = useState(false);
+  const [pill, setPill] = useState<Pill>(null);
+  const [pillVisible, setPillVisible] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
 
-  ];
-
-  const [hovered, setHovered] = useState<number | null>(null);
-  const { scrollY } = useScroll();
-  const [scrolled, setScrolled] = useState<boolean>(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(latest > 20);
-  });
-
+  // Tiny passive scroll listener; only touches React state when the threshold flips.
   useEffect(() => {
-    // Check for reduced motion preference
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
+    let last = window.scrollY > 20;
+    setScrolled(last);
+    const onScroll = () => {
+      const next = window.scrollY > 20;
+      if (next !== last) {
+        last = next;
+        setScrolled(next);
+      }
     };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const isActiveLink = (href: string) => {
@@ -50,56 +46,28 @@ const Navbar = () => {
     return pathname === href || (href !== "/" && pathname.startsWith(href));
   };
 
-  const THEME_TOGGLE_INDEX = 3;
-  const COMMAND_MENU_INDEX = 4;
-
-  // Animation variants based on motion preference
-  const navVariants: Variants | undefined = prefersReducedMotion
-    ? undefined
-    : {
-        scrolled: {
-          scaleY: 0.95,
-          translateY: -4,
-          transition: {
-            duration: 0.3,
-            ease: "easeOut",
-          },
-        },
-        top: {
-          scaleY: 1,
-          translateY: 0,
-          transition: {
-            duration: 0.3,
-            ease: "easeOut",
-          },
-        },
-      };
+  // CSS-driven sliding hover pill (replaces framer layoutId).
+  const showPill = (e: MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    setPill({ left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight });
+    setPillVisible(true);
+  };
 
   return (
     <Container>
-      <m.nav
+      <nav
         aria-label="Main navigation"
-        initial={false}
-        animate={scrolled ? "scrolled" : "top"}
-        variants={navVariants}
-        className="fixed left-0 right-0 top-0 z-50 mx-auto flex max-w-4xl items-center justify-between gap-4 rounded-[2.5rem] bg-neutral-50/80 px-4 py-3 max-md:rounded-none max-md:border-b max-md:border-neutral-200/80 max-md:dark:border-neutral-800 max-md:bg-neutral-50/90 max-md:dark:bg-neutral-950/90 max-md:px-3 max-md:py-1.5 max-md:pt-[max(0.375rem,env(safe-area-inset-top))] max-md:!transform-none font-custom text-neutral-900 backdrop-blur-lg transition-opacity duration-300 dark:bg-neutral-950/70 dark:text-neutral-50 md:gap-8 md:px-6"
-        style={{
-          // Use transform-origin for scale animation to anchor from top
-          transformOrigin: "top center",
-          // Use will-change to hint browser for optimization
-          willChange: prefersReducedMotion ? "auto" : "transform"
-        }}
+        className={`fixed left-0 right-0 top-0 z-50 mx-auto flex max-w-4xl origin-top items-center justify-between gap-4 rounded-[2.5rem] bg-neutral-50/80 px-4 py-3 max-md:rounded-none max-md:border-b max-md:border-neutral-200/80 max-md:dark:border-neutral-800 max-md:bg-neutral-50/90 max-md:dark:bg-neutral-950/90 max-md:px-3 max-md:py-1.5 max-md:pt-[max(0.375rem,env(safe-area-inset-top))] font-custom text-neutral-900 backdrop-blur-lg transition-[transform,translate,scale] duration-300 ease-out motion-reduce:transition-none dark:bg-neutral-950/70 dark:text-neutral-50 md:gap-8 md:px-6 ${
+          scrolled ? "md:-translate-y-1 md:scale-y-95 motion-reduce:!translate-y-0 motion-reduce:!scale-y-100" : ""
+        }`}
       >
-        {/* Box shadow overlay - animated via opacity instead of box-shadow property */}
-        {!prefersReducedMotion && (
-          <m.div
-            className="absolute inset-0 rounded-[2.5rem] max-md:hidden shadow-[var(--shadow-input)] pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: scrolled ? 1 : 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            style={{ zIndex: -1 }}
-          />
-        )}
+        {/* Shadow overlay, faded via opacity */}
+        <div
+          aria-hidden="true"
+          className={`absolute inset-0 rounded-[2.5rem] max-md:hidden motion-reduce:hidden shadow-[var(--shadow-input)] pointer-events-none -z-10 transition-opacity duration-300 ease-out ${
+            scrolled ? "opacity-100" : "opacity-0"
+          }`}
+        />
 
         <Link href="/" aria-label="Home" className="hover:opacity-75 transition-opacity duration-300 max-md:p-1">
           <Image
@@ -112,8 +80,19 @@ const Navbar = () => {
         </Link>
 
         {/* Navigation links on the right */}
-        <div className="ml-auto flex items-center justify-end gap-2 max-md:gap-0" onMouseLeave={() => setHovered(null)}>
-          {navItems.map((item, idx) => {
+        <div
+          ref={rowRef}
+          className="relative ml-auto flex items-center justify-end gap-2 max-md:gap-0"
+          onMouseLeave={() => setPillVisible(false)}
+        >
+          <span
+            aria-hidden="true"
+            className={`${PILL_CLASS} max-md:hidden transition-[left,top,width,height,opacity] duration-200 ease-out ${
+              pillVisible ? "opacity-100" : "opacity-0"
+            }`}
+            style={pill ?? { left: 0, top: 0, width: 0, height: 0 }}
+          />
+          {NAV_ITEMS.map((item) => {
             const isActive = isActiveLink(item.href);
             return (
               <Link
@@ -122,23 +101,12 @@ const Navbar = () => {
                     : "text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-50"
                   }`}
                 href={item.href}
-                key={idx}
-                onMouseEnter={() => setHovered(idx)}
+                key={item.href}
+                onMouseEnter={showPill}
               >
-                {hovered === idx && (
-                  <m.span
-                    layoutId="nav-item-pill"
-                    className="absolute inset-0 rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10"
-                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                  />
-                )}
                 {item.title}
                 {isActive && (
-                  <m.span
-                    layoutId="nav-active-underline"
-                    className="absolute left-3 right-3 -bottom-1 max-md:left-2.5 max-md:right-2.5 max-md:bottom-1.5 h-px bg-neutral-900 dark:bg-neutral-50"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
+                  <span className="absolute left-3 right-3 -bottom-1 max-md:left-2.5 max-md:right-2.5 max-md:bottom-1.5 h-px bg-neutral-900 dark:bg-neutral-50" />
                 )}
               </Link>
             );
@@ -148,43 +116,18 @@ const Navbar = () => {
           <div className="h-5 w-px bg-neutral-300/40 dark:bg-neutral-700/50 mx-1 max-md:mx-0.5" />
 
           {/* Theme Toggle */}
-          <div
-            className="relative px-1 py-1 max-md:p-2"
-            onMouseEnter={() => setHovered(THEME_TOGGLE_INDEX)}
-          >
-            {hovered === THEME_TOGGLE_INDEX && (
-              <m.span
-                layoutId="nav-item-pill"
-                className="absolute inset-0 rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10"
-                transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              />
-            )}
-            <m.div
-              animate={{ scale: 1 }}
-              whileHover={{ scale: 1.08 }}
-              transition={{ duration: 0.2, type: "spring", stiffness: 300 }}
-            >
+          <div className="relative px-1 py-1 max-md:p-2" onMouseEnter={showPill}>
+            <div className="transition-transform duration-200 ease-out hover:scale-[1.08]">
               <ThemeToggleButton variant="circle" start="top-right" />
-            </m.div>
+            </div>
           </div>
 
           {/* Command Menu */}
-          <div
-            className="relative px-1 py-1 hidden sm:block"
-            onMouseEnter={() => setHovered(COMMAND_MENU_INDEX)}
-          >
-            {hovered === COMMAND_MENU_INDEX && (
-              <m.span
-                layoutId="nav-item-pill"
-                className="absolute inset-0 rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10"
-                transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              />
-            )}
-            <CommandMenu />
+          <div className="relative px-1 py-1 hidden sm:block" onMouseEnter={showPill}>
+            <CommandMenuTrigger />
           </div>
         </div>
-      </m.nav>
-
+      </nav>
     </Container>
   );
 };

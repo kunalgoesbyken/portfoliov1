@@ -17,6 +17,8 @@ const ChatbotUI = dynamic(() => import("./chatbot-ui"), {
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  // The chat UI chunk (react-markdown etc.) is only requested on first open.
+  const [hasOpened, setHasOpened] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const hasShownTooltip = useRef(false);
@@ -79,6 +81,7 @@ export default function Chatbot() {
   }, [revealButton]);
 
   const handleOpenChat = () => {
+    setHasOpened(true);
     setIsOpen(true);
     // Hide tooltip when user interacts
     setShowTooltip(false);
@@ -139,7 +142,7 @@ export default function Chatbot() {
       </AnimatePresence>
 
       {/* Chat UI - lazy loaded on first interaction */}
-      <ChatbotUI isOpen={isOpen} onClose={handleCloseChat} />
+      {hasOpened && <ChatbotUI isOpen={isOpen} onClose={handleCloseChat} />}
     </>
   );
 }

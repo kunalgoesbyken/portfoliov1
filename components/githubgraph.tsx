@@ -2,6 +2,7 @@
 
 import { useEffect, useState, cloneElement } from "react";
 import Separator from "@/components/separator";
+import MountOnVisible from "@/components/ui/mount-on-visible";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import { GithubData, PR } from "@/lib/github";
@@ -29,13 +30,11 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
 
   const [showAll, setShowAll] = useState(false);
   const [filterType, setFilterType] = useState<"merged" | "open" | "closed">("merged");
-  const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   const initialCount = 2;
 
   useEffect(() => {
-    setMounted(true);
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -64,7 +63,7 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
       {/* Graph Component */}
       <div className="w-full flex justify-center">
         <div className="flex w-full justify-center">
-          {mounted && (
+          <MountOnVisible minHeight={isMobile ? 120 : 160} rootMargin="300px">
             <>
               <GitHubCalendar
                 username={GITHUB_USERNAME}
@@ -96,7 +95,7 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
                 border={theme === "dark" ? "1px solid #404040" : "1px solid #e5e5e5"}
               />
             </>
-          )}
+          </MountOnVisible>
         </div>
       </div>
 

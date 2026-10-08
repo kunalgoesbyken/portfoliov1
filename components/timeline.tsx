@@ -1,10 +1,8 @@
-"use client";
-
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { TechKey } from "@/lib/tech-icons";
+import { ExpandableItem } from "@/components/timeline-item";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 
 interface ExperienceItem {
@@ -48,15 +46,13 @@ const CompanyLogo = ({ experience }: { experience: ExperienceItem }) => {
   if (!href) return images;
 
   return (
-    <Link href={href} target="_blank" onClick={(e) => e.stopPropagation()} className="block">
+    <Link href={href} target="_blank" className="block">
       {images}
     </Link>
   );
 };
 
 export const Timeline = () => {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-
   const experiences: ExperienceItem[] = [
     {
       company: "FinStocks AI",
@@ -119,10 +115,6 @@ Optimized SQL pagination for near-instant retrieval.`,
     }
   ];
 
-  const toggleExpand = (index: number) => {
-    setExpandedIndex(expandedIndex === index ? null : index);
-  };
-
   return (
     <div className="max-w-4xl mx-auto mb-0">
       <h1 className="text-3xl font-bold font-custom tracking-tight text-neutral-900 dark:text-neutral-50 py-2">
@@ -131,82 +123,55 @@ Optimized SQL pagination for near-instant retrieval.`,
       <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
 
       <div className="flex flex-col gap-4 max-md:gap-0 max-md:divide-y max-md:divide-dashed max-md:divide-neutral-200 max-md:dark:divide-neutral-800 px-4 max-md:px-0 md:px-0 my-6 max-md:my-3">
-        {experiences.map((exp, idx) => (
-          <div
+        {experiences.map((exp) => (
+          <ExpandableItem
             key={exp.company}
-            className="group relative rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors duration-200 border border-transparent hover:border-neutral-100 dark:hover:border-neutral-800"
-          >
-            {/* Main Row */}
-            <div
-              className="flex items-start max-md:items-center max-md:relative gap-4 max-md:gap-3 p-4 max-md:px-0 max-md:py-3.5 max-md:min-h-14 cursor-pointer"
-              onClick={() => toggleExpand(idx)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  toggleExpand(idx);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-expanded={expandedIndex === idx}
-            >
-              {/* Logo */}
-              <div className="relative shrink-0 mt-1 max-md:mt-0 z-10">
-                <CompanyLogo experience={exp} />
-              </div>
-
-              {/* Content Container */}
-              <div className="flex flex-col md:flex-row md:justify-between flex-1 gap-2 md:gap-4 max-md:gap-0.5 max-md:pr-9 min-w-0">
-                {/* Left Side: Company & Designation */}
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-lg max-md:text-base font-bold text-neutral-900 dark:text-neutral-50 font-custom tracking-wide">
-                    {exp.company}
-                  </h3>
-                  <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 font-custom2">
-                    {exp.designation}
-                  </p>
+            header={
+              <>
+                {/* Logo */}
+                <div className="relative shrink-0 mt-1 max-md:mt-0 z-10">
+                  <CompanyLogo experience={exp} />
                 </div>
 
-                {/* Right Side: Date & Arrow */}
-                <div className="flex items-center justify-between md:justify-end gap-4 mt-1 md:mt-0 max-md:mt-0">
-                  <span className="text-sm max-md:text-[13px] text-neutral-500 dark:text-neutral-500 font-custom2 whitespace-nowrap">
-                    {exp.date}
-                  </span>
-                  <div className={`max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 rounded-full bg-transparent group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-all duration-200 ${expandedIndex === idx ? 'rotate-180' : ''}`}>
-                    <ChevronDown size={16} className="text-neutral-500 dark:text-neutral-400" />
+                {/* Content Container */}
+                <div className="flex flex-col md:flex-row md:justify-between flex-1 gap-2 md:gap-4 max-md:gap-0.5 max-md:pr-9 min-w-0">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="text-lg max-md:text-base font-bold text-neutral-900 dark:text-neutral-50 font-custom tracking-wide">
+                      {exp.company}
+                    </h3>
+                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 font-custom2">
+                      {exp.designation}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between md:justify-end gap-4 mt-1 md:mt-0 max-md:mt-0">
+                    <span className="text-sm max-md:text-[13px] text-neutral-500 dark:text-neutral-500 font-custom2 whitespace-nowrap">
+                      {exp.date}
+                    </span>
+                    <div className="max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 rounded-full bg-transparent group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-all duration-200 group-aria-expanded/row:rotate-180">
+                      <ChevronDown size={16} className="text-neutral-500 dark:text-neutral-400" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </>
+            }
+          >
+            <div className="px-4 pb-4 max-md:px-0 md:pl-20 md:pr-4">
+              {exp.tech && <div className="mb-3"><TechIconTooltip tech={exp.tech} size="sm" scope={exp.company} /></div>}
 
-            {/* Expanded Content */}
-            <div
-              className={`
-                grid transition-all duration-300 ease-in-out
-                ${expandedIndex === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}
-              `}
-            >
-              <div className="overflow-hidden">
-                <div className="px-4 pb-4 max-md:px-0 md:pl-20 md:pr-4">
-                  {/* Tech Stack */}
-                  {exp.tech && <div className="mb-3"><TechIconTooltip tech={exp.tech} size="sm" scope={exp.company} /></div>}
-
-                  {/* Description */}
-                  <ul className="list-disc pl-4 space-y-2 text-sm text-neutral-600 dark:text-neutral-300 font-custom2 leading-relaxed">
-                    {exp.description
-                      .split("\n")
-                      .filter((line) => line.trim() !== "")
-                      .map((point, i) => (
-                        <li
-                          key={i}
-                          dangerouslySetInnerHTML={{ __html: point }}
-                        />
-                      ))}
-                  </ul>
-                </div>
-              </div>
+              <ul className="list-disc pl-4 space-y-2 text-sm text-neutral-600 dark:text-neutral-300 font-custom2 leading-relaxed">
+                {exp.description
+                  .split("\n")
+                  .filter((line) => line.trim() !== "")
+                  .map((point, i) => (
+                    <li
+                      key={i}
+                      dangerouslySetInnerHTML={{ __html: point }}
+                    />
+                  ))}
+              </ul>
             </div>
-          </div>
+          </ExpandableItem>
         ))}
       </div>
     </div>

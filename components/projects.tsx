@@ -392,11 +392,16 @@ function ProjectCard({
           src={project.poster || project.src}
           alt={project.title}
           fill
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width: 768px) 100vw, 448px"
+          quality={60}
           priority={idx === 0}
-          className={`object-cover transition-opacity duration-500 ease-out ${
-            shouldMountVideo && isHovered && isReady ? "opacity-0" : "opacity-100"
-          }`}
+          fetchPriority={idx === 0 ? "high" : "auto"}
+          loading={idx === 0 ? "eager" : undefined}
+          decoding={idx === 0 ? "sync" : "async"}
+          // No fade on first paint; the cross-fade only exists once a hover video is mounted.
+          className={`object-cover ${
+            shouldMountVideo ? "transition-opacity duration-500 ease-out" : ""
+          } ${shouldMountVideo && isHovered && isReady ? "opacity-0" : "opacity-100"}`}
         />
 
         {shouldMountVideo && (

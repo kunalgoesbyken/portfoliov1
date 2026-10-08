@@ -307,3 +307,33 @@ body {
   content-visibility: auto;
   contain-intrinsic-size: auto 600px;
 }
+
+/* ---- Hover animations for social icons (CSS replacement for motion) ---- */
+.ai-g { transform-box: fill-box; transform-origin: center; }
+.ai-gh:hover .ai-g { animation: ai-wiggle-5 0.5s ease-in-out; }
+.ai-x:hover .ai-g { animation: ai-wiggle-10 0.5s ease-in-out; }
+@keyframes ai-wiggle-5 {
+  0% { transform: scale(1) rotate(0); }
+  33% { transform: scale(1.1) rotate(-5deg); }
+  66% { transform: scale(1.05) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes ai-wiggle-10 {
+  0% { transform: scale(1) rotate(0); }
+  33% { transform: scale(1.1) rotate(-10deg); }
+  66% { transform: scale(1.05) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.ai-draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.ai-li:hover .ai-draw { animation: ai-draw 0.5s ease-out backwards; }
+.ai-li:hover .ai-pulse { animation: ai-pulse 0.4s ease-in-out; transform-box: fill-box; transform-origin: center; }
+.ai-file:hover .ai-fold { animation: ai-draw 0.3s ease-out backwards; }
+.ai-file:hover .ai-lines { animation: ai-draw 0.4s ease-out 0.3s backwards; }
+@keyframes ai-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes ai-pulse { 50% { transform: scale(1.05); } }
+.ai-mail .ai-open { transform-origin: 50% 0%; transition: transform 0.5s ease-in-out; }
+.ai-mail:hover .ai-open { transform: rotateX(-60deg); }
+@media (prefers-reduced-motion: reduce) {
+  .ai-gh:hover .ai-g, .ai-x:hover .ai-g, .ai-li:hover .ai-draw, .ai-li:hover .ai-pulse,
+  .ai-file:hover .ai-fold, .ai-file:hover .ai-lines { animation: none; }
+}

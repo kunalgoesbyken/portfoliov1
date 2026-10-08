@@ -2,7 +2,8 @@
 
 import { LazyMotion } from "motion/react";
 
-// domMax is required for `layoutId` (Navbar shared-layout pill/underline).
+// domAnimation is enough: no layout/layoutId/drag usage remains (Navbar pill is CSS).
+// Do not reintroduce `layout*` or `drag` props without switching back to domMax.
 const loadFeatures = () => import("./motion-features").then((res) => res.default);
 
 export default function MotionProvider({ children }: { children: React.ReactNode }) {
