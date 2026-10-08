@@ -23,7 +23,7 @@ export default async function Home() {
 
   return (
     <div className="relative flex min-h-screen justify-center font-sans overflow-hidden">
-      <Container className="min-h-screen px-8 pt-24 md:p-20 md:pb-10 mx-auto">
+      <Container className="min-h-screen px-6 sm:px-10 pt-20 md:p-20 md:pb-10 mx-auto">
 
         <PageBorder side="right" />
         <PageBorder side="left" />
@@ -32,7 +32,7 @@ export default async function Home() {
         {/* HEADING + SOCIALS (FIXED SAME LINE) */}
         {/* ---------------------------------------- */}
 
-        <div className="flex w-full flex-wrap items-center justify-between gap-4">
+        <div className="flex w-full flex-wrap items-center justify-between gap-1 md:gap-4">
           <h1 className="text-3xl md:text-3xl font-bold font-custom tracking-tight text-neutral-900 dark:text-neutral-50">
             <span className="link--elara">Kunal Roy Choudhury</span>
           </h1>
@@ -44,7 +44,7 @@ export default async function Home() {
         {/* SUBTEXT */}
         {/* ---------------------------------------- */}
 
-        <div className="text-secondary font-custom2 text-s mt-1">
+        <div className="text-secondary font-custom2 text-s mt-1 max-md:mt-3 max-md:text-[15px] max-md:leading-snug max-md:space-y-1.5">
           <p>
             <span className="text-neutral-950 dark:text-neutral-100 font-semibold font-custom">⚀ </span>
             <span className="text-neutral-700 dark:text-neutral-300">I build backends that don't fall over — and frontends like this one.</span>
@@ -64,6 +64,7 @@ export default async function Home() {
         </div>
 
         <Separator fullWidth className="my-3" />
+        <div className="md:hidden mt-5 border-t border-dashed border-neutral-300 dark:border-neutral-700" />
 
 
 

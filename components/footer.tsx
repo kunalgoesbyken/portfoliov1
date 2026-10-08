@@ -26,8 +26,8 @@ const Footer = () => {
 
   return (
     <footer className="w-full bg-neutral-50 dark:bg-neutral-950">
-      <Container className="flex items-center justify-between py-2 border border-neutral-200 dark:border-neutral-800">
-        <div className="flex items-center gap-4">
+      <Container className="flex items-center justify-between py-2 max-md:py-0 max-md:pb-[env(safe-area-inset-bottom)] border border-neutral-200 dark:border-neutral-800">
+        <div className="flex items-center gap-4 max-md:gap-0 max-md:-ml-3">
           {socialLinks.map((link) => {
             const IconComponent = link.icon
             return (
@@ -36,7 +36,7 @@ const Footer = () => {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-neutral-700 dark:text-neutral-50 opacity-70 hover:opacity-100 transition cursor-pointer"
+                className="max-md:p-3.5 text-neutral-700 dark:text-neutral-50 opacity-70 hover:opacity-100 transition cursor-pointer"
                 aria-label={`Visit ${link.name} profile`}
               >
                 <IconComponent size={15} />

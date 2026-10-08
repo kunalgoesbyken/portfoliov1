@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode, type Ref } from "react";
 import Image from "next/image";
 import * as m from "motion/react-m";
-import { Globe } from "lucide-react";
+import { Globe, Play, ArrowUpRight } from "lucide-react";
 import { SiPypi } from "react-icons/si";
 import GithubIcon from "@/components/ui/github-icon";
 import { TechKey } from "@/lib/tech-icons";
@@ -190,23 +190,23 @@ function CardShell({
 }
 
 function CardBody({ children }: { children: ReactNode }) {
-  return <div className="p-5 flex flex-col flex-grow">{children}</div>;
+  return <div className="p-4 md:p-5 flex flex-col flex-grow">{children}</div>;
 }
 
 function CardHeader({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="flex items-center justify-between mb-2">
+    <div className="flex items-center justify-between mb-1 md:mb-2">
       <h2 className="text-lg font-custom font-semibold text-neutral-900 dark:text-neutral-50">
         {title}
       </h2>
-      {children && <div className="flex gap-3">{children}</div>}
+      {children && <div className="hidden md:flex gap-3">{children}</div>}
     </div>
   );
 }
 
 function CardDescription({ children }: { children: ReactNode }) {
   return (
-    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 leading-relaxed tracking-wide font-custom2">
+    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 md:mb-4 leading-relaxed tracking-wide font-custom2 max-md:line-clamp-3">
       {children}
     </p>
   );
@@ -215,7 +215,7 @@ function CardDescription({ children }: { children: ReactNode }) {
 function CardTechFooter({ tech, scope }: { tech: TechKey[]; scope: string }) {
   return (
     <>
-      <p className="text-xs text-neutral-500 font-medium mb-2 font-custom2 mt-auto">
+      <p className="max-md:hidden text-xs text-neutral-500 font-medium mb-2 font-custom2 mt-auto">
         Tech Stack
       </p>
       <TechIconTooltip tech={tech} scope={scope} />
@@ -243,6 +243,35 @@ function IconButton({
   );
 }
 
+function MobileActions({
+  links,
+}: {
+  links: { href: string; label: string; icon: ReactNode; label2: string }[];
+}) {
+  return (
+    <div className="md:hidden flex gap-2 mt-4 pt-4 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+      {links.map((l, i) => (
+        <a
+          key={l.label}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${l.label} for ${l.label2}`}
+          className={`flex-1 min-h-11 inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium font-custom2 transition-colors active:scale-[0.98] ${
+            i === 0
+              ? "bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-900"
+              : "border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200"
+          }`}
+        >
+          {l.icon}
+          {l.label}
+          {i === 0 && <ArrowUpRight size={14} className="opacity-70" aria-hidden="true" />}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 const Projects = ({ full = false }: { full?: boolean }) => {
   const [activeMedia, setActiveMedia] = useState<MediaItem | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -260,12 +289,12 @@ const Projects = ({ full = false }: { full?: boolean }) => {
   const remaining = DEPLOYED_PROJECTS.length + OPEN_SOURCE_PROJECTS.length - 2;
 
   return (
-    <div className="mt-8">
-      <p className="font-custom2 text-neutral-700 dark:text-neutral-300 mt-3 px-4 py-[7px] text-sm inline-block bg-neutral-100 dark:bg-neutral-900 border-dashed border-neutral-300 dark:border-neutral-700 border">
+    <div className="mt-6 md:mt-8">
+      <p className="max-md:hidden font-custom2 text-neutral-700 dark:text-neutral-300 mt-3 px-4 py-[7px] text-sm inline-block bg-neutral-100 dark:bg-neutral-900 border-dashed border-neutral-300 dark:border-neutral-700 border">
         I love crafting production-grade software that solves real problems.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 py-7">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 py-5 md:py-7">
         {visibleDeployed.map((project, idx) => (
           <ProjectCard
             key={project.title}
@@ -282,7 +311,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
             <span className="link--elara">Open Source &amp; Libraries</span>
           </h2>
           <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 py-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 py-4 md:py-5">
             {OPEN_SOURCE_PROJECTS.map((project, idx) => (
               <OpenSourceCard key={project.title} project={project} idx={idx} />
             ))}
@@ -293,9 +322,9 @@ const Projects = ({ full = false }: { full?: boolean }) => {
       {!showAll && !full && remaining > 0 && (
         <div
           onClick={() => setShowAll(true)}
-          className="flex justify-center items-center cursor-pointer pt-4 pb-6"
+          className="flex justify-center items-center cursor-pointer pt-4 pb-6 max-md:pt-0 max-md:pb-2"
         >
-          <span className="font-custom2 text-xs text-neutral-500 dark:text-neutral-400 border-b border-dashed border-neutral-300 dark:border-neutral-700 pb-[2px] tracking-wide hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors duration-200">
+          <span className="max-md:w-full max-md:min-h-12 max-md:flex max-md:items-center max-md:justify-center max-md:border max-md:rounded-lg max-md:text-sm font-custom2 text-xs text-neutral-500 dark:text-neutral-400 border-b border-dashed border-neutral-300 dark:border-neutral-700 pb-[2px] tracking-wide hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors duration-200">
             Show {remaining} more project{remaining > 1 ? "s" : ""}
           </span>
         </div>
@@ -305,7 +334,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         <div className="flex justify-center pt-2 pb-6">
           <button
             onClick={() => setShowAll(false)}
-            className="font-custom2 text-xs text-neutral-400 dark:text-neutral-500 border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-[2px] tracking-wide cursor-pointer bg-transparent hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors duration-200"
+            className="max-md:min-h-12 max-md:px-6 font-custom2 text-xs text-neutral-400 dark:text-neutral-500 border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-[2px] tracking-wide cursor-pointer bg-transparent hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors duration-200"
           >
             ↑ Show less
           </button>
@@ -349,7 +378,7 @@ function ProjectCard({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className="relative w-full h-44 overflow-hidden shrink-0 cursor-pointer"
+        className="relative w-full h-44 max-md:h-auto overflow-hidden shrink-0 cursor-pointer"
         style={{ aspectRatio: "16/9" }}
         onClick={() => {
           if (project.thumbVideo) {
@@ -386,6 +415,11 @@ function ProjectCard({
         )}
 
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300" />
+        {project.thumbVideo && (
+          <span className="md:hidden absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-black/65 text-white text-xs font-custom2 pl-2 pr-2.5 py-1">
+            <Play size={11} fill="currentColor" aria-hidden="true" /> Watch demo
+          </span>
+        )}
       </div>
 
       <CardBody>
@@ -401,6 +435,12 @@ function ProjectCard({
         </CardHeader>
         <CardDescription>{project.description}</CardDescription>
         <CardTechFooter tech={project.tech} scope={project.title} />
+        <MobileActions
+          links={[
+            ...(project.live ? [{ href: project.live, label: "Live", icon: <Globe size={16} />, label2: project.title }] : []),
+            { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
+          ]}
+        />
       </CardBody>
     </CardShell>
   );
@@ -428,6 +468,12 @@ function OpenSourceCard({
         </CardHeader>
         <CardDescription>{project.description}</CardDescription>
         <CardTechFooter tech={project.tech} scope={project.title} />
+        <MobileActions
+          links={[
+            ...(project.pypi ? [{ href: project.pypi, label: "PyPI", icon: <SiPypi size={16} />, label2: project.title }] : []),
+            { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
+          ]}
+        />
       </CardBody>
     </CardShell>
   );

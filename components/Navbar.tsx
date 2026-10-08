@@ -82,7 +82,7 @@ const Navbar = () => {
         initial={false}
         animate={scrolled ? "scrolled" : "top"}
         variants={navVariants}
-        className="fixed left-0 right-0 top-0 z-50 mx-auto flex max-w-4xl items-center justify-between gap-4 rounded-[2.5rem] bg-neutral-50/80 px-4 py-3 font-custom text-neutral-900 backdrop-blur-lg transition-opacity duration-300 dark:bg-neutral-950/70 dark:text-neutral-50 md:gap-8 md:px-6"
+        className="fixed left-0 right-0 top-0 z-50 mx-auto flex max-w-4xl items-center justify-between gap-4 rounded-[2.5rem] bg-neutral-50/80 px-4 py-3 max-md:rounded-none max-md:border-b max-md:border-neutral-200/80 max-md:dark:border-neutral-800 max-md:bg-neutral-50/90 max-md:dark:bg-neutral-950/90 max-md:px-3 max-md:py-1.5 max-md:pt-[max(0.375rem,env(safe-area-inset-top))] max-md:!transform-none font-custom text-neutral-900 backdrop-blur-lg transition-opacity duration-300 dark:bg-neutral-950/70 dark:text-neutral-50 md:gap-8 md:px-6"
         style={{
           // Use transform-origin for scale animation to anchor from top
           transformOrigin: "top center",
@@ -93,7 +93,7 @@ const Navbar = () => {
         {/* Box shadow overlay - animated via opacity instead of box-shadow property */}
         {!prefersReducedMotion && (
           <m.div
-            className="absolute inset-0 rounded-[2.5rem] shadow-[var(--shadow-input)] pointer-events-none"
+            className="absolute inset-0 rounded-[2.5rem] max-md:hidden shadow-[var(--shadow-input)] pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: scrolled ? 1 : 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
@@ -101,7 +101,7 @@ const Navbar = () => {
           />
         )}
 
-        <Link href="/" className="hover:opacity-75 transition-opacity duration-300">
+        <Link href="/" aria-label="Home" className="hover:opacity-75 transition-opacity duration-300 max-md:p-1">
           <Image
             className="w-9 h-9 rounded-full shadow-sm"
             src="/images/kunal-sm.jpg"
@@ -112,12 +112,12 @@ const Navbar = () => {
         </Link>
 
         {/* Navigation links on the right */}
-        <div className="ml-auto flex items-center justify-end gap-2" onMouseLeave={() => setHovered(null)}>
+        <div className="ml-auto flex items-center justify-end gap-2 max-md:gap-0" onMouseLeave={() => setHovered(null)}>
           {navItems.map((item, idx) => {
             const isActive = isActiveLink(item.href);
             return (
               <Link
-                className={`relative px-3 py-1.5 text-sm font-medium transition-colors ${isActive
+                className={`relative px-3 py-1.5 max-md:px-2.5 max-md:py-3 text-sm font-medium transition-colors ${isActive
                     ? "text-neutral-900 dark:text-neutral-50"
                     : "text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-50"
                   }`}
@@ -136,7 +136,7 @@ const Navbar = () => {
                 {isActive && (
                   <m.span
                     layoutId="nav-active-underline"
-                    className="absolute left-3 right-3 -bottom-1 h-px bg-neutral-900 dark:bg-neutral-50"
+                    className="absolute left-3 right-3 -bottom-1 max-md:left-2.5 max-md:right-2.5 max-md:bottom-1.5 h-px bg-neutral-900 dark:bg-neutral-50"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}
@@ -145,11 +145,11 @@ const Navbar = () => {
           })}
 
           {/* Separator */}
-          <div className="h-5 w-px bg-neutral-300/40 dark:bg-neutral-700/50 mx-1" />
+          <div className="h-5 w-px bg-neutral-300/40 dark:bg-neutral-700/50 mx-1 max-md:mx-0.5" />
 
           {/* Theme Toggle */}
           <div
-            className="relative px-1 py-1"
+            className="relative px-1 py-1 max-md:p-2"
             onMouseEnter={() => setHovered(THEME_TOGGLE_INDEX)}
           >
             {hovered === THEME_TOGGLE_INDEX && (

@@ -42,12 +42,12 @@ export default function Socials() {
     ];
 
     return (
-        <div className="flex flex-wrap gap-4 sm:justify-end">
+        <div className="flex flex-wrap md:gap-4 gap-0 sm:justify-end max-md:-ml-3 max-md:w-full">
             {socials.map((social) => (
                 <button
                     key={social.name}
                     aria-label={social.name}
-                    className="relative cursor-pointer group bg-transparent border-0 p-0 rounded-full focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:dark:ring-neutral-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    className="relative cursor-pointer group bg-transparent border-0 p-0 rounded-full max-md:size-11 max-md:grid max-md:place-items-center focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:dark:ring-neutral-600 focus-visible:ring-offset-2 focus-visible:outline-none"
                     onMouseEnter={() => setHoveredSocial(social.name)}
                     onMouseLeave={() => setHoveredSocial(null)}
                     onClick={social.action}

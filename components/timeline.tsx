@@ -22,7 +22,7 @@ interface ExperienceItem {
 
 const CompanyLogo = ({ experience }: { experience: ExperienceItem }) => {
   const { company, logo, logoDark, logoWidth = 48, logoHeight = 48, href } = experience;
-  const className = "size-12 rounded-lg object-contain";
+  const className = "size-12 max-md:size-10 rounded-lg object-contain";
 
   const images = (
     <>
@@ -130,7 +130,7 @@ Optimized SQL pagination for near-instant retrieval.`,
       </h1>
       <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
 
-      <div className="flex flex-col gap-4 px-4 md:px-0 my-6">
+      <div className="flex flex-col gap-4 max-md:gap-0 max-md:divide-y max-md:divide-dashed max-md:divide-neutral-200 max-md:dark:divide-neutral-800 px-4 max-md:px-0 md:px-0 my-6 max-md:my-3">
         {experiences.map((exp, idx) => (
           <div
             key={exp.company}
@@ -138,7 +138,7 @@ Optimized SQL pagination for near-instant retrieval.`,
           >
             {/* Main Row */}
             <div
-              className="flex items-start gap-4 p-4 cursor-pointer"
+              className="flex items-start max-md:items-center max-md:relative gap-4 max-md:gap-3 p-4 max-md:px-0 max-md:py-3.5 max-md:min-h-14 cursor-pointer"
               onClick={() => toggleExpand(idx)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -151,15 +151,15 @@ Optimized SQL pagination for near-instant retrieval.`,
               aria-expanded={expandedIndex === idx}
             >
               {/* Logo */}
-              <div className="relative shrink-0 mt-1 z-10">
+              <div className="relative shrink-0 mt-1 max-md:mt-0 z-10">
                 <CompanyLogo experience={exp} />
               </div>
 
               {/* Content Container */}
-              <div className="flex flex-col md:flex-row md:justify-between flex-1 gap-2 md:gap-4">
+              <div className="flex flex-col md:flex-row md:justify-between flex-1 gap-2 md:gap-4 max-md:gap-0.5 max-md:pr-9 min-w-0">
                 {/* Left Side: Company & Designation */}
                 <div className="flex flex-col gap-1">
-                  <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-50 font-custom tracking-wide">
+                  <h3 className="text-lg max-md:text-base font-bold text-neutral-900 dark:text-neutral-50 font-custom tracking-wide">
                     {exp.company}
                   </h3>
                   <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 font-custom2">
@@ -168,11 +168,11 @@ Optimized SQL pagination for near-instant retrieval.`,
                 </div>
 
                 {/* Right Side: Date & Arrow */}
-                <div className="flex items-center justify-between md:justify-end gap-4 mt-1 md:mt-0">
-                  <span className="text-sm text-neutral-500 dark:text-neutral-500 font-custom2 whitespace-nowrap">
+                <div className="flex items-center justify-between md:justify-end gap-4 mt-1 md:mt-0 max-md:mt-0">
+                  <span className="text-sm max-md:text-[13px] text-neutral-500 dark:text-neutral-500 font-custom2 whitespace-nowrap">
                     {exp.date}
                   </span>
-                  <div className={`p-1 rounded-full bg-transparent group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-all duration-200 ${expandedIndex === idx ? 'rotate-180' : ''}`}>
+                  <div className={`max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 rounded-full bg-transparent group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-all duration-200 ${expandedIndex === idx ? 'rotate-180' : ''}`}>
                     <ChevronDown size={16} className="text-neutral-500 dark:text-neutral-400" />
                   </div>
                 </div>
@@ -187,7 +187,7 @@ Optimized SQL pagination for near-instant retrieval.`,
               `}
             >
               <div className="overflow-hidden">
-                <div className="px-4 pb-4 md:pl-20 md:pr-4">
+                <div className="px-4 pb-4 max-md:px-0 md:pl-20 md:pr-4">
                   {/* Tech Stack */}
                   {exp.tech && <div className="mb-3"><TechIconTooltip tech={exp.tech} size="sm" scope={exp.company} /></div>}
 

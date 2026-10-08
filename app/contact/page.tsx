@@ -97,19 +97,19 @@ export default function Contact() {
 
   return (
     <div className="relative flex min-h-screen justify-center font-sans overflow-hidden">
-      <Container className="min-h-screen px-8 pt-24 md:p-20 md:pb-10 mx-auto">
+      <Container className="min-h-screen px-6 sm:px-10 pt-20 md:p-20 md:pb-10 mx-auto">
         <PageBorder side="right" />
         <PageBorder side="left" />
 
         <h1 className="text-neutral-900 dark:text-neutral-50 font-custom font-semibold text-3xl tracking-tight">
           <span className="link--elara">Contact</span>
         </h1>
-        <p className="tracking-tight font-custom2 text-neutral-600 dark:text-neutral-400 max-w-lg text-sm md:text-base mt-2 mb-12">
+        <p className="tracking-tight font-custom2 text-neutral-600 dark:text-neutral-400 max-w-lg text-sm md:text-base mt-2 mb-8 md:mb-12">
           Hi there — I’m currently open to meaningful work.
         </p>
 
         <div className="w-full max-w-2xl p-0 md:p-0 relative z-10">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium text-neutral-700 dark:text-neutral-300 font-custom2">
                 Full name
@@ -123,7 +123,7 @@ export default function Contact() {
                 aria-invalid={errors.name ? "true" : "false"}
                 aria-describedby={errors.name ? "name-error" : undefined}
                 placeholder="Tyler Durden"
-                className={`w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400
+                className={`w-full px-4 py-3 md:py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400
                   ${errors.name
                     ? "border-red-300 dark:border-red-800 focus-visible:ring-2 focus-visible:ring-red-200 dark:focus-visible:ring-red-900/50"
                     : "border-neutral-200 dark:border-neutral-800 focus-visible:ring-2 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700 focus:border-neutral-300 dark:focus:border-neutral-700"
@@ -150,7 +150,7 @@ export default function Contact() {
                 aria-invalid={errors.email ? "true" : "false"}
                 aria-describedby={errors.email ? "email-error" : undefined}
                 placeholder="tyler@projectmayhem.com"
-                className={`w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400
+                className={`w-full px-4 py-3 md:py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400
                   ${errors.email
                     ? "border-red-300 dark:border-red-800 focus-visible:ring-2 focus-visible:ring-red-200 dark:focus-visible:ring-red-900/50"
                     : "border-neutral-200 dark:border-neutral-800 focus-visible:ring-2 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700 focus:border-neutral-300 dark:focus:border-neutral-700"
@@ -177,7 +177,7 @@ export default function Contact() {
                 aria-describedby={errors.message ? "message-error" : undefined}
                 rows={5}
                 placeholder="You're crazy good, never change."
-                className={`w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 resize-none
+                className={`w-full px-4 py-3 md:py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 resize-none
                   ${errors.message
                     ? "border-red-300 dark:border-red-800 focus-visible:ring-2 focus-visible:ring-red-200 dark:focus-visible:ring-red-900/50"
                     : "border-neutral-200 dark:border-neutral-800 focus-visible:ring-2 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700 focus:border-neutral-300 dark:focus:border-neutral-700"
@@ -199,7 +199,7 @@ export default function Contact() {
               className="btn-elevated group relative overflow-hidden rounded-lg  w-full
                             bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-800 dark:to-neutral-900
                             border border-neutral-200 dark:border-neutral-800
-                            text-neutral-800 dark:text-neutral-200 text-sm font-medium px-6 py-2.5
+                            text-neutral-800 dark:text-neutral-200 text-sm font-medium px-6 py-3.5 md:py-2.5
                             transition-all duration-300
                             hover:from-neutral-50 hover:to-neutral-100 dark:hover:from-neutral-800 dark:hover:to-neutral-800
                             disabled:opacity-50 disabled:cursor-not-allowed"
@@ -293,7 +293,7 @@ export default function Contact() {
             )}
           </form>
 
-          <div className="mt-10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-custom2">
+          <div className="mt-8 md:mt-10 flex flex-row justify-between items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-custom2">
             <div className="flex items-center gap-2">
               <p>Kunal</p>
             </div>
@@ -301,20 +301,20 @@ export default function Contact() {
             {/* Displacement Text - Visible and Hoverable */}
 
             <div className="flex items-center gap-4">
-              <a href={SOCIAL_LINKS.x} target="_blank" rel="noopener noreferrer">
+              <a href={SOCIAL_LINKS.x} target="_blank" rel="noopener noreferrer" aria-label="X" className="max-md:p-3">
                 <SiX size={14} className="hover:text-neutral-900 dark:hover:text-neutral-200 cursor-pointer transition-colors" />
               </a>
-              <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">
+              <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="max-md:p-3">
                 <Linkedin size={14} className="hover:text-neutral-900 dark:hover:text-neutral-200 cursor-pointer transition-colors" />
               </a>
-              <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">
+              <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="max-md:p-3">
                 <Github size={14} className="hover:text-neutral-900 dark:hover:text-neutral-200 cursor-pointer transition-colors" />
               </a>
             </div>
           </div>
         </div>
 
-        <div className="w-full h-60 relative overflow-hidden flex items-center justify-center">
+        <div className="w-full h-36 md:h-60 relative overflow-hidden flex items-center justify-center">
           <DisplacementText
             text="KUNAL"
             fontSize={450}

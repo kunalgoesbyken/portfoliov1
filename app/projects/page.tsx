@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ProjectsPage() {
   return (
-    <Container className="min-h-screen px-8 pt-24 md:p-20 md:pb-10 mx-auto">
+    <Container className="min-h-screen px-6 sm:px-10 pt-20 md:p-20 md:pb-10 mx-auto">
 
       <PageBorder side="right" />
       <PageBorder side="left" />
@@ -19,7 +19,7 @@ export default function ProjectsPage() {
         <span className="link--elara">Projects</span>
       </h1>
 
-      <p className="tracking-tight font-custom2 text-neutral-600 dark:text-neutral-400 max-w-lg text-sm md:text-base mt-4">
+      <p className="tracking-tight font-custom2 text-neutral-600 dark:text-neutral-400 max-w-lg text-sm md:text-base mt-3 md:mt-4 max-md:line-clamp-3">
         Hi there! I love building stuff for people and am passionate about contributing to open source. Here are my projects and open source contributions—feel free to take a look.
       </p>
 

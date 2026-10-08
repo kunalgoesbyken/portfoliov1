@@ -3,8 +3,8 @@ import { ArrowRight } from "lucide-react";
 
 export default function GetInTouch() {
     return (
-        <div className="w-full mt-8 mb-10 relative z-10">
-            <div className="flex flex-col items-start space-y-6">
+        <div className="w-full mt-14 md:mt-8 mb-10 relative z-10">
+            <div className="flex flex-col items-start space-y-4 md:space-y-6">
                 <div className="flex w-full justify-between items-center">
                     <h1 className="text-3xl md:text-3xl font-bold font-custom tracking-tight text-neutral-900 dark:text-neutral-50">
                         <span className="link--elara">Get in touch</span>
@@ -15,7 +15,7 @@ export default function GetInTouch() {
                     Hi there — I'm currently open to meaningful work.
                 </p>
 
-                <div className="w-full max-w-2xl flex gap-4">
+                <div className="w-full max-w-2xl flex gap-4 max-md:[&>a]:w-full max-md:[&>a]:min-h-12 max-md:[&>a]:justify-center">
                     <Link
                         href="/contact"
                         className="btn-elevated group relative overflow-hidden rounded-lg
