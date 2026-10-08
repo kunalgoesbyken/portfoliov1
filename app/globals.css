@@ -302,3 +302,8 @@ body {
 .icon-btn-ghost {
   @apply inline-flex items-center justify-center opacity-75 hover:opacity-100 transition-opacity duration-200 cursor-pointer bg-transparent border-0 p-0 text-neutral-700 dark:text-neutral-300;
 }
+/* Skip layout/paint of below-the-fold sections until they near the viewport. */
+.defer-render {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}

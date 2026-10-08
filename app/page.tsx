@@ -73,27 +73,27 @@ export default async function Home() {
         <Separator />
 
 
-        <Suspense fallback={<SectionSkeleton />}>
+        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
           <Timeline />
-        </Suspense>
+        </Suspense></div>
 
 
 
-        <Suspense fallback={<SectionSkeleton />}>
+        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
           <GithubGraph data={githubData} />
-        </Suspense>
+        </Suspense></div>
 
         <Separator className="mt-12" />
 
-        <Suspense fallback={<SectionSkeleton />}>
+        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
           <Skills />
-        </Suspense>
+        </Suspense></div>
 
         <Separator className="mt-4" />
 
-        <Suspense fallback={<SectionSkeleton />}>
+        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
           <GetInTouch />
-        </Suspense>
+        </Suspense></div>
 
 
       </Container>
