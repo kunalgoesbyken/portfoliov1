@@ -2,7 +2,8 @@
 
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import * as m from "motion/react-m";
+import { useAnimate } from "motion/react";
 
 const FileDescriptionIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -53,7 +54,7 @@ const FileDescriptionIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         xmlns="http://www.w3.org/2000/svg"
         width={size}
@@ -70,13 +71,13 @@ const FileDescriptionIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
 
-        <motion.path d="M14 3v4a1 1 0 0 0 1 1h4" className="file-fold" />
+        <m.path d="M14 3v4a1 1 0 0 0 1 1h4" className="file-fold" />
 
         <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
 
-        <motion.path d="M9 17h6" className="file-lines" />
-        <motion.path d="M9 13h6" className="file-lines" />
-      </motion.svg>
+        <m.path d="M9 17h6" className="file-lines" />
+        <m.path d="M9 13h6" className="file-lines" />
+      </m.svg>
     );
   },
 );

@@ -33,7 +33,7 @@ interface OpenSourceProject {
 const DEPLOYED_PROJECTS: Project[] = [
   {
     title: "Gostman",
-    src: "/images/project3.png",
+    src: "/images/gostman-poster.jpg",
     poster: "/images/gostman-poster.jpg",
     video: "/videos/gostman-full.mp4",
     thumbVideo: "/videos/gostman-preview.mp4",
@@ -57,7 +57,7 @@ const DEPLOYED_PROJECTS: Project[] = [
   },
   {
     title: "MailFlowAI",
-    src: "/images/mailflow-ai.png",
+    src: "/images/mailflow-ai-1280.webp",
     description:
       "AI email assistant with Gmail integration and CopilotKit for natural-language control. 30-second auto-sync and AI-powered drafting.",
     tech: ["react", "ts", "tailwind", "gmail"],

@@ -2,7 +2,8 @@
 
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import * as m from "motion/react-m";
+import { useAnimate } from "motion/react";
 
 const LinkedinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -38,7 +39,7 @@ const LinkedinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         xmlns="http://www.w3.org/2000/svg"
         width={size}
@@ -54,32 +55,32 @@ const LinkedinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         onHoverEnd={stop}
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        <motion.path
+        <m.path
           className="lines"
           d="M8 11v5"
           initial={{ pathLength: 1 }}
         />
-        <motion.path
+        <m.path
           className="lines"
           d="M8 8v.01"
           initial={{ pathLength: 1 }}
         />
-        <motion.path
+        <m.path
           className="lines"
           d="M12 16v-5"
           initial={{ pathLength: 1 }}
         />
-        <motion.path
+        <m.path
           className="lines"
           d="M16 16v-3a2 2 0 1 0 -4 0"
           initial={{ pathLength: 1 }}
         />
-        <motion.path
+        <m.path
           className="border"
           d="M3 7a4 4 0 0 1 4 -4h10a4 4 0 0 1 4 4v10a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4z"
           style={{ transformOrigin: "center" }}
         />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

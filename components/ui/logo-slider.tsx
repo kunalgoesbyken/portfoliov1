@@ -47,6 +47,33 @@ export const LogoSlider = ({
     className,
     pauseOnHover = false,
 }: LogoSliderProps) => {
+    const trackRef = React.useRef<HTMLUListElement>(null);
+
+    // Clone the item set on the client for the seamless loop instead of
+    // shipping every inline SVG twice in the prerendered HTML.
+    React.useEffect(() => {
+        const track = trackRef.current;
+        if (!track) return;
+        const items = Array.from(track.children);
+        const clones = items.map((el) => {
+            const c = el.cloneNode(true) as HTMLElement;
+            c.setAttribute("aria-hidden", "true");
+            return c;
+        });
+        clones.forEach((c) => track.appendChild(c));
+        track.style.animationName = "";
+
+        // Only animate while on screen.
+        const io = new IntersectionObserver(([entry]) => {
+            track.style.animationPlayState = entry?.isIntersecting ? "" : "paused";
+        });
+        io.observe(track);
+        return () => {
+            io.disconnect();
+            clones.forEach((c) => c.remove());
+        };
+    }, []);
+
     return (
         <div
             className={cn(
@@ -97,25 +124,13 @@ export const LogoSlider = ({
                 )}
 
                 {/* Logo Track */}
-                <ul className="logo-slider__track flex items-center h-full w-fit m-0 p-0 list-none">
+                <ul ref={trackRef} style={{ animationName: "none" }} className="logo-slider__track flex items-center h-full w-fit m-0 p-0 list-none">
                     {/* First set of logos */}
                     {logos.map((logo, index) => (
                         <li
                             key={`original-${index}`}
                             className="logo-slider__item h-4/5 w-[80px] sm:w-[100px] lg:w-[120px] aspect-video grid place-items-center shrink-0"
                             style={{ "--item-index": index } as React.CSSProperties}
-                        >
-                            <div className="w-full h-full flex items-center justify-center [&>svg]:h-[65%] [&>svg]:w-auto [&>svg]:fill-zinc-800 dark:[&>svg]:fill-zinc-200 [&>img]:h-[65%] [&>img]:w-auto [&>img]:object-contain [&>img]:grayscale [&>img]:brightness-50 dark:[&>img]:brightness-125">
-                                {logo}
-                            </div>
-                        </li>
-                    ))}
-                    {/* Duplicate set for seamless loop */}
-                    {logos.map((logo, index) => (
-                        <li
-                            key={`duplicate-${index}`}
-                            className="logo-slider__item h-4/5 w-[80px] sm:w-[100px] lg:w-[120px] aspect-video grid place-items-center shrink-0"
-                            style={{ "--item-index": index + logos.length } as React.CSSProperties}
                         >
                             <div className="w-full h-full flex items-center justify-center [&>svg]:h-[65%] [&>svg]:w-auto [&>svg]:fill-zinc-800 dark:[&>svg]:fill-zinc-200 [&>img]:h-[65%] [&>img]:w-auto [&>img]:object-contain [&>img]:grayscale [&>img]:brightness-50 dark:[&>img]:brightness-125">
                                 {logo}

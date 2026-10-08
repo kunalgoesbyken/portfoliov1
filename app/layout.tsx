@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import ClientOnly from "@/components/client-only";
 import FractalTree from "@/components/ui/fractal-tree";
 import Chatbot from "@/components/chatbot";
+import MotionProvider from "@/components/lazy-motion-provider";
 
 const instrumentSerif = Instrument_Serif({
   weight: ["400"],
@@ -66,6 +67,7 @@ export default function RootLayout({
         className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300 [--pattern-fg:var(--color-neutral-200)] dark:[--pattern-fg:var(--color-neutral-700)]`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <MotionProvider>
           <Analytics />
           <SpeedInsights />
           <ClientOnly>
@@ -77,6 +79,7 @@ export default function RootLayout({
           <ClientOnly>
             <Chatbot />
           </ClientOnly>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

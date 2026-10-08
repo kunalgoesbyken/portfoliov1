@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, X, Minimize2, Maximize2, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { motion, AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
+import { AnimatePresence } from "motion/react";
 import { PORTFOLIO_CONTEXT } from "@/lib/context";
 
 interface ChatMessage {
@@ -123,7 +124,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
@@ -215,7 +216,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                 )}
 
                 {messages.map((msg) => (
-                  <motion.div
+                  <m.div
                     key={msg.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -273,12 +274,12 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                         <User className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                       </div>
                     )}
-                  </motion.div>
+                  </m.div>
                 ))}
 
                 {/* Streaming Response */}
                 {isLoading && streamedResponse && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex gap-3 justify-start"
@@ -306,12 +307,12 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                         </ReactMarkdown>
                       </div>
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
 
                 {/* Loading Indicator */}
                 {isLoading && !streamedResponse && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="flex gap-3 justify-start"
@@ -330,7 +331,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                         <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"></span>
                       </div>
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
 
                 <div ref={messagesEndRef} />
@@ -363,7 +364,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
               </form>
             </>
           )}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

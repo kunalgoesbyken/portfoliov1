@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { GripHorizontal } from "lucide-react";
 import { useTheme } from "next-themes";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -94,7 +94,7 @@ const Options = ({
   setGifUrl: (url: string) => void;
 }) => {
   return (
-    <motion.div
+    <m.div
       drag
       className="top-30 border-foreground/10 bg-muted2 absolute right-1/2 flex w-[245px] translate-x-1/2 flex-col gap-3 rounded-3xl border p-3 backdrop-blur-sm lg:right-4 lg:translate-x-0"
     >
@@ -453,7 +453,7 @@ const Options = ({
           </div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -628,7 +628,7 @@ export const ThemeToggleButton = ({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.g
+        <m.g
           initial={{ rotate: isDark ? 180 : 0, opacity: isDark ? 0 : 1 }}
           animate={{ rotate: isDark ? 180 : 0, opacity: isDark ? 0 : 1 }}
           transition={{ ease: "easeInOut", duration: 0.3 }}
@@ -648,8 +648,8 @@ export const ThemeToggleButton = ({
             strokeWidth="2"
             strokeLinecap="round"
           />
-        </motion.g>
-        <motion.g
+        </m.g>
+        <m.g
           initial={{ rotate: isDark ? 0 : -180, opacity: isDark ? 1 : 0 }}
           animate={{ rotate: isDark ? 0 : -180, opacity: isDark ? 1 : 0 }}
           transition={{ ease: "easeInOut", duration: 0.3 }}
@@ -664,7 +664,7 @@ export const ThemeToggleButton = ({
             strokeLinejoin="round"
             fill="none"
           />
-        </motion.g>
+        </m.g>
       </svg>
     </button>
   );

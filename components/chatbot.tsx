@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { MessageSquare } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
+import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 
 const ChatbotUI = dynamic(() => import("./chatbot-ui"), {
@@ -92,7 +93,7 @@ export default function Chatbot() {
       {/* Chat Button - only visible after scroll or delay */}
       <AnimatePresence>
         {showButton && !isOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
@@ -102,7 +103,7 @@ export default function Chatbot() {
             {/* One-time tooltip */}
             <AnimatePresence>
               {showTooltip && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 10, x: 50 }}
                   animate={{ opacity: 1, y: 0, x: 0 }}
                   exit={{ opacity: 0, y: 10, x: 50 }}
@@ -114,11 +115,11 @@ export default function Chatbot() {
                     {/* Tooltip arrow */}
                     <div className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-full w-0 h-0 border-t-8 border-t-transparent border-l-8 border-l-neutral-900 dark:border-l-neutral-100 border-b-8 border-b-transparent" />
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
-            <motion.button
+            <m.button
               onClick={handleOpenChat}
               className="
                 flex items-center justify-center
@@ -132,8 +133,8 @@ export default function Chatbot() {
               aria-label="Open chat"
             >
               <MessageSquare className="w-6 h-6" />
-            </motion.button>
-          </motion.div>
+            </m.button>
+          </m.div>
         )}
       </AnimatePresence>
 

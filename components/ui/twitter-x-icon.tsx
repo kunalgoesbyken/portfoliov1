@@ -2,7 +2,8 @@
 
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import * as m from "motion/react-m";
+import { useAnimate } from "motion/react";
 
 const TwitterXIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -33,7 +34,7 @@ const TwitterXIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -48,12 +49,12 @@ const TwitterXIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         strokeLinejoin="round"
         className={`cursor-pointer ${className}`}
       >
-        <motion.g className="x-icon" style={{ transformOrigin: "center" }}>
+        <m.g className="x-icon" style={{ transformOrigin: "center" }}>
           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
           <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
           <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
-        </motion.g>
-      </motion.svg>
+        </m.g>
+      </m.svg>
     );
   },
 );

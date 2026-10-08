@@ -2,7 +2,8 @@
 
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import * as m from "motion/react-m";
+import { useAnimate } from "motion/react";
 
 const MailFilledIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -45,7 +46,7 @@ const MailFilledIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         xmlns="http://www.w3.org/2000/svg"
         width={size}
@@ -60,10 +61,10 @@ const MailFilledIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         onHoverStart={start}
         onHoverEnd={stop}
       >
-        <motion.path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        <motion.path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
-        <motion.path d="M3 7l9 6l9 -6" className="mail-open" />
-      </motion.svg>
+        <m.path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <m.path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
+        <m.path d="M3 7l9 6l9 -6" className="mail-open" />
+      </m.svg>
     );
   },
 );

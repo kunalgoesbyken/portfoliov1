@@ -6,7 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import Container from "@/components/containers";
-import { motion, useScroll, useMotionValueEvent, type Variants } from "motion/react";
+import * as m from "motion/react-m";
+import { useScroll, useMotionValueEvent, type Variants } from "motion/react";
 import { ThemeToggleButton } from "@/components/ui/skiper-ui/skiper26";
 
 const CommandMenu = dynamic(() => import("@/components/command-menu").then(mod => ({ default: mod.CommandMenu })), {
@@ -76,7 +77,7 @@ const Navbar = () => {
 
   return (
     <Container>
-      <motion.nav
+      <m.nav
         aria-label="Main navigation"
         initial={false}
         animate={scrolled ? "scrolled" : "top"}
@@ -91,7 +92,7 @@ const Navbar = () => {
       >
         {/* Box shadow overlay - animated via opacity instead of box-shadow property */}
         {!prefersReducedMotion && (
-          <motion.div
+          <m.div
             className="absolute inset-0 rounded-[2.5rem] shadow-[var(--shadow-input)] pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: scrolled ? 1 : 0 }}
@@ -125,7 +126,7 @@ const Navbar = () => {
                 onMouseEnter={() => setHovered(idx)}
               >
                 {hovered === idx && (
-                  <motion.span
+                  <m.span
                     layoutId="nav-item-pill"
                     className="absolute inset-0 rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10"
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
@@ -133,7 +134,7 @@ const Navbar = () => {
                 )}
                 {item.title}
                 {isActive && (
-                  <motion.span
+                  <m.span
                     layoutId="nav-active-underline"
                     className="absolute left-3 right-3 -bottom-1 h-px bg-neutral-900 dark:bg-neutral-50"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -152,19 +153,19 @@ const Navbar = () => {
             onMouseEnter={() => setHovered(THEME_TOGGLE_INDEX)}
           >
             {hovered === THEME_TOGGLE_INDEX && (
-              <motion.span
+              <m.span
                 layoutId="nav-item-pill"
                 className="absolute inset-0 rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10"
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
               />
             )}
-            <motion.div
+            <m.div
               animate={{ scale: 1 }}
               whileHover={{ scale: 1.08 }}
               transition={{ duration: 0.2, type: "spring", stiffness: 300 }}
             >
               <ThemeToggleButton variant="circle" start="top-right" />
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Command Menu */}
@@ -173,7 +174,7 @@ const Navbar = () => {
             onMouseEnter={() => setHovered(COMMAND_MENU_INDEX)}
           >
             {hovered === COMMAND_MENU_INDEX && (
-              <motion.span
+              <m.span
                 layoutId="nav-item-pill"
                 className="absolute inset-0 rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10"
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
@@ -182,7 +183,7 @@ const Navbar = () => {
             <CommandMenu />
           </div>
         </div>
-      </motion.nav>
+      </m.nav>
 
     </Container>
   );
