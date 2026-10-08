@@ -4,15 +4,18 @@ import Separator from "@/components/separator";
 import { getGithubData } from "@/lib/github";
 import PageBorder from "@/components/ui/page-border";
 import { Suspense } from "react";
-import MountOnVisible from "@/components/ui/mount-on-visible";
+import Projects from "@/components/projects";
+import Timeline from "@/components/timeline";
+import GithubGraph from "@/components/githubgraph";
+import LazySkills from "@/components/lazy-skills";
+import GetInTouch from "@/components/get-in-touch";
 
-import dynamic from "next/dynamic";
 
-const Projects = dynamic(() => import("@/components/projects"));
-const Timeline = dynamic(() => import("@/components/timeline"));
-const GithubGraph = dynamic(() => import("@/components/githubgraph"));
-const Skills = dynamic(() => import("@/components/skills"));
-const GetInTouch = dynamic(() => import("@/components/get-in-touch"));
+
+
+
+
+
 
 function SectionSkeleton() {
   return <div className="w-full h-48 animate-pulse bg-neutral-100 dark:bg-neutral-900 rounded-lg" />;
@@ -88,9 +91,7 @@ export default async function Home() {
         <Separator className="mt-12" />
 
         <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
-          <MountOnVisible minHeight={300}>
-            <Skills />
-          </MountOnVisible>
+          <LazySkills />
         </Suspense></div>
 
         <Separator className="mt-4" />

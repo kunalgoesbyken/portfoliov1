@@ -5,9 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Instrument_Serif, Instrument_Sans } from "next/font/google";
 import DeferredAnalytics from "@/components/deferred-analytics";
 import { ThemeProvider } from "@/components/theme-provider";
-import ClientOnly from "@/components/client-only";
-import FractalTree from "@/components/ui/fractal-tree";
-import Chatbot from "@/components/chatbot";
+import { LazyChatbot, LazyFractalTree } from "@/components/lazy-widgets";
 import MotionProvider from "@/components/lazy-motion-provider";
 
 const instrumentSerif = Instrument_Serif({
@@ -70,15 +68,11 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <MotionProvider>
           <DeferredAnalytics />
-          <ClientOnly delay={2500}>
-            <FractalTree />
-          </ClientOnly>
+          <LazyFractalTree />
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <Footer />
-          <ClientOnly>
-            <Chatbot />
-          </ClientOnly>
+          <LazyChatbot />
           </MotionProvider>
         </ThemeProvider>
       </body>

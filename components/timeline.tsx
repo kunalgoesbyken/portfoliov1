@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { TechKey } from "@/lib/tech-icons";
 import { ExpandableItem } from "@/components/timeline-item";
-import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 
 interface ExperienceItem {
   company: string;
@@ -126,6 +125,8 @@ Optimized SQL pagination for near-instant retrieval.`,
         {experiences.map((exp) => (
           <ExpandableItem
             key={exp.company}
+            tech={exp.tech}
+            scope={exp.company}
             header={
               <>
                 {/* Logo */}
@@ -156,10 +157,7 @@ Optimized SQL pagination for near-instant retrieval.`,
               </>
             }
           >
-            <div className="px-4 pb-4 max-md:px-0 md:pl-20 md:pr-4">
-              {exp.tech && <div className="mb-3"><TechIconTooltip tech={exp.tech} size="sm" scope={exp.company} /></div>}
-
-              <ul className="list-disc pl-4 space-y-2 text-sm text-neutral-600 dark:text-neutral-300 font-custom2 leading-relaxed">
+            <ul className="list-disc pl-4 space-y-2 text-sm text-neutral-600 dark:text-neutral-300 font-custom2 leading-relaxed">
                 {exp.description
                   .split("\n")
                   .filter((line) => line.trim() !== "")
@@ -169,8 +167,7 @@ Optimized SQL pagination for near-instant retrieval.`,
                       dangerouslySetInnerHTML={{ __html: point }}
                     />
                   ))}
-              </ul>
-            </div>
+            </ul>
           </ExpandableItem>
         ))}
       </div>

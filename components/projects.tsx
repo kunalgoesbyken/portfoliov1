@@ -8,7 +8,10 @@ import { SiPypi } from "react-icons/si";
 import GithubIcon from "@/components/ui/github-icon";
 import { TechKey } from "@/lib/tech-icons";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
-import { Lightbox, type MediaItem } from "@/components/ui/lightbox";
+import dynamic from "next/dynamic";
+import type { MediaItem } from "@/components/ui/lightbox";
+
+const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
 
 interface Project {
   title: string;
@@ -275,6 +278,9 @@ function MobileActions({
 const Projects = ({ full = false }: { full?: boolean }) => {
   const [activeMedia, setActiveMedia] = useState<MediaItem | null>(null);
   const [showAll, setShowAll] = useState(false);
+  // Lightbox code (motion AnimatePresence) is fetched on first open only.
+  const [hasLightbox, setHasLightbox] = useState(false);
+  useEffect(() => { if (activeMedia) setHasLightbox(true); }, [activeMedia]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -341,7 +347,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         </div>
       )}
 
-      <Lightbox media={activeMedia} onClose={() => setActiveMedia(null)} />
+      {hasLightbox && <Lightbox media={activeMedia} onClose={() => setActiveMedia(null)} />}
     </div>
   );
 };
