@@ -73,7 +73,7 @@ export default function RootLayout({
           <MotionProvider>
           <Analytics />
           <SpeedInsights />
-          <ClientOnly>
+          <ClientOnly delay={2500}>
             <FractalTree />
           </ClientOnly>
           <Navbar />
