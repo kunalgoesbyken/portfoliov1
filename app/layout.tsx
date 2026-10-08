@@ -61,7 +61,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>{/* 🛠 Important for dark mode */}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://github-contributions-api.jogruber.de" />
+      </head>{/* 🛠 Important for dark mode */}
       <body
         suppressHydrationWarning
         className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300 [--pattern-fg:var(--color-neutral-200)] dark:[--pattern-fg:var(--color-neutral-700)]`}
