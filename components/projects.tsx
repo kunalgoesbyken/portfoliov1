@@ -177,7 +177,7 @@ function CardShell({
       ref={ref}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="group card-surface"
+      className="flex flex-col h-full"
     >
       {children}
     </div>
@@ -185,7 +185,7 @@ function CardShell({
 }
 
 function CardBody({ children }: { children: ReactNode }) {
-  return <div className="p-4 md:p-5 flex flex-col flex-grow">{children}</div>;
+  return <div className="flex flex-col flex-grow">{children}</div>;
 }
 
 function CardHeader({ title, children }: { title: string; children?: ReactNode }) {
@@ -201,7 +201,7 @@ function CardHeader({ title, children }: { title: string; children?: ReactNode }
 
 function CardDescription({ children }: { children: ReactNode }) {
   return (
-    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 md:mb-4 leading-relaxed tracking-wide font-custom2 max-md:line-clamp-3">
+    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 md:mb-4 max-w-[68ch] leading-relaxed tracking-wide font-custom2 max-md:line-clamp-3">
       {children}
     </p>
   );
@@ -244,7 +244,7 @@ function MobileActions({
   links: { href: string; label: string; icon: ReactNode; label2: string }[];
 }) {
   return (
-    <div className="md:hidden flex gap-2 mt-4 pt-4 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+    <div className="md:hidden flex gap-2 mt-4">
       {links.map((l, i) => (
         <a
           key={l.label}
@@ -295,7 +295,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         I love crafting production-grade software that solves real problems.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 py-5 md:py-7">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10 py-5 md:py-7">
         {visibleDeployed.map((project, idx) => (
           <ProjectCard
             key={project.title}
@@ -312,7 +312,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
             <span className="link--elara">Open Source &amp; Libraries</span>
           </h2>
           <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 py-4 md:py-5">
+          <div className="flex flex-col divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800 my-2 [&>*]:py-5">
             {OPEN_SOURCE_PROJECTS.map((project) => (
               <OpenSourceCard key={project.title} project={project} />
             ))}
@@ -378,7 +378,7 @@ function ProjectCard({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className="relative w-full h-44 max-md:h-auto overflow-hidden shrink-0 cursor-pointer"
+        className="relative w-full h-44 max-md:h-auto overflow-hidden shrink-0 cursor-pointer rounded-lg border border-neutral-200 dark:border-neutral-800 mb-4"
         style={{ aspectRatio: "16/9" }}
         onClick={() => {
           if (project.thumbVideo) {

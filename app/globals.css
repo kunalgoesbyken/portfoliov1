@@ -300,10 +300,6 @@ body {
 }
 
 /* === Project Card Primitives === */
-.card-surface {
-  @apply relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black hover:shadow-md transition-shadow duration-300 flex flex-col h-full;
-}
-
 .scrollbar-subtle::-webkit-scrollbar {
   width: 6px;
 }
