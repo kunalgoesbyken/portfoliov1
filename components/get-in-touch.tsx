@@ -15,7 +15,7 @@ export default function GetInTouch() {
                     Hi there, I'm currently open to meaningful work.
                 </p>
 
-                <div className="w-full max-w-2xl flex gap-4 max-md:[&>a]:w-full max-md:[&>a]:min-h-12 max-md:[&>a]:justify-center">
+                <div className="w-full max-w-2xl flex gap-4 max-md:[&>a]:min-h-12">
                     <Link
                         href="/contact"
                         className="btn-solid group px-6 py-2.5"
