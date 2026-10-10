@@ -347,7 +347,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         <div className="flex justify-center pt-2 pb-6">
           <button
             onClick={() => setShowAll(false)}
-            className="max-md:min-h-12 max-md:px-6 font-custom2 text-xs text-neutral-400 dark:text-neutral-500 border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-[2px] tracking-wide cursor-pointer bg-transparent hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors duration-200"
+            className="text-toggle"
           >
             ↑ Show less
           </button>
