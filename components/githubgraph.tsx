@@ -153,11 +153,11 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
 
           {prs.length > 0 ? (
             <div>
-              <div className="space-y-2 mt-5">
+              <div className="mt-3 divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800">
                 {prs.slice(0, showAll ? prs.length : initialCount).map((pr, index) => (
-                  <div key={pr.id} className="group flex items-start gap-3 p-3 rounded-md transition-all duration-200 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 border border-transparent hover:border-neutral-300/50 dark:hover:border-neutral-700/50">
+                  <div key={pr.id} className="group flex items-start gap-3 py-3">
                     <div className="shrink-0 mt-0.5">
-                      <div className={`w-1 h-1 rounded-full group-hover:scale-150 transition-transform duration-200 ${filterType === "merged"
+                      <div className={`w-1 h-1 rounded-full ${filterType === "merged"
                         ? "bg-gradient-to-r from-purple-400 to-pink-400"
                         : filterType === "open"
                           ? "bg-gradient-to-r from-green-400 to-emerald-400"
@@ -170,7 +170,7 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
                       rel="noopener noreferrer"
                       className="flex-1 min-w-0 hover:no-underline"
                     >
-                      <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-50 group-hover:text-neutral-700 dark:group-hover:text-neutral-200 transition-colors truncate">
+                      <h3 className="title-link text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
                         {pr.title}
                       </h3>
                       <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5 font-custom2">

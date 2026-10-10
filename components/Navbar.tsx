@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef, type MouseEvent } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Container from "@/components/containers";
@@ -14,17 +14,9 @@ const NAV_ITEMS = [
   { title: "Contact", href: "/contact" },
 ];
 
-type Pill = { left: number; top: number; width: number; height: number } | null;
-
-const PILL_CLASS =
-  "absolute rounded-md bg-neutral-300/25 dark:bg-neutral-800/50 -z-10 pointer-events-none motion-reduce:transition-none";
-
 const Navbar = () => {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [pill, setPill] = useState<Pill>(null);
-  const [pillVisible, setPillVisible] = useState(false);
-  const rowRef = useRef<HTMLDivElement>(null);
 
   // Tiny passive scroll listener; only touches React state when the threshold flips.
   useEffect(() => {
@@ -44,13 +36,6 @@ const Navbar = () => {
   const isActiveLink = (href: string) => {
     if (!pathname) return false;
     return pathname === href || (href !== "/" && pathname.startsWith(href));
-  };
-
-  // CSS-driven sliding hover pill (replaces framer layoutId).
-  const showPill = (e: MouseEvent<HTMLElement>) => {
-    const el = e.currentTarget;
-    setPill({ left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight });
-    setPillVisible(true);
   };
 
   return (
@@ -80,34 +65,26 @@ const Navbar = () => {
         </Link>
 
         {/* Navigation links on the right */}
-        <div
-          ref={rowRef}
-          className="relative ml-auto flex items-center justify-end gap-2 max-md:gap-0"
-          onMouseLeave={() => setPillVisible(false)}
-        >
-          <span
-            aria-hidden="true"
-            className={`${PILL_CLASS} max-md:hidden transition-[left,top,width,height,opacity] duration-200 ease-out ${
-              pillVisible ? "opacity-100" : "opacity-0"
-            }`}
-            style={pill ?? { left: 0, top: 0, width: 0, height: 0 }}
-          />
+        <div className="relative ml-auto flex items-center justify-end gap-2 max-md:gap-0">
           {NAV_ITEMS.map((item) => {
             const isActive = isActiveLink(item.href);
             return (
               <Link
-                className={`relative px-3 py-1.5 max-md:px-2.5 max-md:py-3 text-sm font-medium transition-colors ${isActive
+                className={`group/nav relative px-3 py-1.5 max-md:px-2.5 max-md:py-3 text-sm font-medium transition-colors ${isActive
                     ? "text-neutral-900 dark:text-neutral-50"
                     : "text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-50"
                   }`}
                 href={item.href}
                 key={item.href}
-                onMouseEnter={showPill}
               >
                 {item.title}
-                {isActive && (
-                  <span className="absolute left-3 right-3 -bottom-1 max-md:left-2.5 max-md:right-2.5 max-md:bottom-1.5 h-px bg-neutral-900 dark:bg-neutral-50" />
-                )}
+                <span
+                  aria-hidden="true"
+                  className={`absolute left-3 right-3 -bottom-1 max-md:left-2.5 max-md:right-2.5 max-md:bottom-1.5 h-px transition-opacity duration-200 motion-reduce:transition-none ${isActive
+                      ? "bg-neutral-900 dark:bg-neutral-50"
+                      : "bg-neutral-400 dark:bg-neutral-500 opacity-0 group-hover/nav:opacity-100"
+                    }`}
+                />
               </Link>
             );
           })}
@@ -116,14 +93,14 @@ const Navbar = () => {
           <div className="h-5 w-px bg-neutral-300/40 dark:bg-neutral-700/50 mx-1 max-md:mx-0.5" />
 
           {/* Theme Toggle */}
-          <div className="relative px-1 py-1 max-md:p-2" onMouseEnter={showPill}>
+          <div className="relative px-1 py-1 max-md:p-2">
             <div className="transition-transform duration-200 ease-out hover:scale-[1.08]">
               <ThemeToggleButton variant="circle" start="top-right" />
             </div>
           </div>
 
           {/* Command Menu */}
-          <div className="relative px-1 py-1 hidden sm:block" onMouseEnter={showPill}>
+          <div className="relative px-1 py-1 hidden sm:block">
             <CommandMenuTrigger />
           </div>
         </div>

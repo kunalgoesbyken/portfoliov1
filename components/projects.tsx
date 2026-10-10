@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, type ReactNode, type Ref } from "react";
+import { useState, useEffect, useRef, useCallback, type MouseEvent, type ReactNode, type Ref } from "react";
 import Image from "next/image";
 import { Globe, Play, ArrowUpRight, Package } from "lucide-react";
 import { SiPypi } from "react-icons/si";
@@ -161,23 +161,35 @@ const useVideoPlayback = () => {
   return { videoRef, isReady, handleCanPlay, play, pause };
 };
 
+const TITLE_ACTION_CLASS =
+  "title-link cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
+
 function CardShell({
   ref,
+  onActivate,
   onMouseEnter,
   onMouseLeave,
   children,
 }: {
   ref?: Ref<HTMLDivElement>;
+  onActivate: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   children: ReactNode;
 }) {
+  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("a, button")) return;
+    if (window.getSelection()?.toString()) return;
+    onActivate();
+  };
+
   return (
     <div
       ref={ref}
+      onClick={handleClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="flex flex-col h-full"
+      className="group flex flex-col h-full cursor-pointer"
     >
       {children}
     </div>
@@ -188,7 +200,7 @@ function CardBody({ children }: { children: ReactNode }) {
   return <div className="flex flex-col flex-grow">{children}</div>;
 }
 
-function CardHeader({ title, children }: { title: string; children?: ReactNode }) {
+function CardHeader({ title, children }: { title: ReactNode; children?: ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-1 md:mb-2">
       <h2 className="text-lg font-custom font-semibold text-neutral-900 dark:text-neutral-50">
@@ -371,22 +383,23 @@ function ProjectCard({
   const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
   const shouldMountVideo = !isTouchDevice && !!project.thumbVideo && isInView;
 
+  const openProjectMedia = () =>
+    openMedia(
+      project.thumbVideo
+        ? { type: "video", src: project.video || project.thumbVideo }
+        : { type: "image", src: project.src },
+    );
+
   return (
     <CardShell
       ref={observerRef}
+      onActivate={openProjectMedia}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className="relative w-full h-44 max-md:h-auto overflow-hidden shrink-0 cursor-pointer rounded-lg border border-neutral-200 dark:border-neutral-800 mb-4"
+        className="relative w-full h-44 max-md:h-auto overflow-hidden shrink-0 rounded-lg border border-neutral-200 dark:border-neutral-800 mb-4"
         style={{ aspectRatio: "16/9" }}
-        onClick={() => {
-          if (project.thumbVideo) {
-            openMedia({ type: "video", src: project.video || project.thumbVideo });
-          } else {
-            openMedia({ type: "image", src: project.src });
-          }
-        }}
       >
         <Image
           src={project.poster || project.src}
@@ -424,7 +437,13 @@ function ProjectCard({
       </div>
 
       <CardBody>
-        <CardHeader title={project.title}>
+        <CardHeader
+          title={
+            <button type="button" onClick={openProjectMedia} className={TITLE_ACTION_CLASS}>
+              {project.title}
+            </button>
+          }
+        >
           {project.live && (
             <IconButton href={project.live} ariaLabel={`View live site for ${project.title}`}>
               <Globe size={16} />
@@ -449,9 +468,15 @@ function ProjectCard({
 
 function OpenSourceCard({ project }: { project: OpenSourceProject }) {
   return (
-    <CardShell>
+    <CardShell onActivate={() => window.open(project.github, "_blank")}>
       <CardBody>
-        <CardHeader title={project.title}>
+        <CardHeader
+          title={
+            <a href={project.github} target="_blank" rel="noopener noreferrer" className={TITLE_ACTION_CLASS}>
+              {project.title}
+            </a>
+          }
+        >
           {project.crates && (
             <IconButton href={project.crates} ariaLabel={`View crates.io package for ${project.title}`}>
               <Package size={16} />
