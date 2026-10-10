@@ -121,7 +121,7 @@ Optimized SQL pagination for near-instant retrieval.`,
       </h1>
       <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
 
-      <div className="flex flex-col gap-4 max-md:gap-0 max-md:divide-y max-md:divide-dashed max-md:divide-neutral-200 max-md:dark:divide-neutral-800 px-4 max-md:px-0 md:px-0 my-6 max-md:my-3">
+      <div className="flex flex-col divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800 my-2">
         {experiences.map((exp) => (
           <ExpandableItem
             key={exp.company}
@@ -149,8 +149,8 @@ Optimized SQL pagination for near-instant retrieval.`,
                     <span className="text-sm max-md:text-[13px] text-neutral-500 dark:text-neutral-500 font-custom2 whitespace-nowrap">
                       {exp.date}
                     </span>
-                    <div className="max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 rounded-full bg-transparent group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-all duration-200 group-aria-expanded/row:rotate-180">
-                      <ChevronDown size={16} className="text-neutral-500 dark:text-neutral-400" />
+                    <div className="max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 text-neutral-400 dark:text-neutral-500 group-hover/row:text-neutral-900 dark:group-hover/row:text-neutral-100 transition-[color,rotate] duration-200 group-aria-expanded/row:rotate-180">
+                      <ChevronDown size={16} />
                     </div>
                   </div>
                 </div>

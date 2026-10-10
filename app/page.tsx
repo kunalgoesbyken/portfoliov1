@@ -3,23 +3,11 @@ import Socials from "@/components/socials";
 import Separator from "@/components/separator";
 import { getGithubData } from "@/lib/github";
 import PageBorder from "@/components/ui/page-border";
-import { Suspense } from "react";
 import Projects from "@/components/projects";
 import Timeline from "@/components/timeline";
 import GithubGraph from "@/components/githubgraph";
 import LazySkills from "@/components/lazy-skills";
 import GetInTouch from "@/components/get-in-touch";
-
-
-
-
-
-
-
-
-function SectionSkeleton() {
-  return <div className="w-full h-48 animate-pulse bg-neutral-100 dark:bg-neutral-900 rounded-lg" />;
-}
 
 export default async function Home() {
   const githubData = await getGithubData();
@@ -69,37 +57,21 @@ export default async function Home() {
         <Separator fullWidth className="my-3" />
         <div className="md:hidden mt-5 border-t border-dashed border-neutral-300 dark:border-neutral-700" />
 
-
-
-        <Suspense fallback={<SectionSkeleton />}>
-          <Projects />
-        </Suspense>
+        <Projects />
 
         <Separator />
 
+        <div className="defer-render"><Timeline /></div>
 
-        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
-          <Timeline />
-        </Suspense></div>
-
-
-
-        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
-          <GithubGraph data={githubData} />
-        </Suspense></div>
+        <div className="defer-render"><GithubGraph data={githubData} /></div>
 
         <Separator className="mt-12" />
 
-        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
-          <LazySkills />
-        </Suspense></div>
+        <div className="defer-render"><LazySkills /></div>
 
         <Separator className="mt-4" />
 
-        <div className="defer-render"><Suspense fallback={<SectionSkeleton />}>
-          <GetInTouch />
-        </Suspense></div>
-
+        <div className="defer-render"><GetInTouch /></div>
 
       </Container>
     </div>

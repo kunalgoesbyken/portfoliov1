@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type ReactNode, type Ref } from "react";
 import Image from "next/image";
-import * as m from "motion/react-m";
-import { Globe, Play, ArrowUpRight } from "lucide-react";
+import { Globe, Play, ArrowUpRight, Package } from "lucide-react";
 import { SiPypi } from "react-icons/si";
 import GithubIcon from "@/components/ui/github-icon";
 import { TechKey } from "@/lib/tech-icons";
@@ -31,6 +30,7 @@ interface OpenSourceProject {
   tech: TechKey[];
   github: string;
   pypi?: string;
+  crates?: string;
 }
 
 const DEPLOYED_PROJECTS: Project[] = [
@@ -70,6 +70,14 @@ const DEPLOYED_PROJECTS: Project[] = [
 ];
 
 const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
+  {
+    title: "AeroSieve",
+    description:
+      "Turns raw recordings into speech-model training data. Decodes audio, cuts it into speech clips, drops the silent, noisy, clipped, or tonal ones, and writes WebDataset shards — 43 minutes of Hindi audio curated in 1.7s on one CPU core. Ships as a CLI, Rust crate, and Python bindings.",
+    tech: ["rust", "python"],
+    github: "https://github.com/kunalgoesbyken/AeroSieve",
+    crates: "https://crates.io/crates/aerosieve-cli",
+  },
   {
     title: "Un-Nexted",
     description:
@@ -119,7 +127,7 @@ const useProjectVisibility = () => {
   return { isInView, observerRef };
 };
 
-const useVideoPlayback = (isInView: boolean) => {
+const useVideoPlayback = () => {
   const [isReady, setIsReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isPlaying = useRef(false);
@@ -153,42 +161,26 @@ const useVideoPlayback = (isInView: boolean) => {
   return { videoRef, isReady, handleCanPlay, play, pause };
 };
 
-// First cards are above the fold on most screens: render them visible from
-// the server HTML so LCP doesn't wait for hydration + the motion feature chunk.
-const cardMotion = (idx: number) =>
-  idx < 2
-    ? { initial: false as const }
-    : {
-        initial: { opacity: 0 },
-        whileInView: { opacity: 1 },
-        transition: { duration: 0.5, ease: "easeOut" as const },
-        viewport: { once: true, amount: 0.2 },
-      };
-
 function CardShell({
-  idx,
   ref,
   onMouseEnter,
   onMouseLeave,
   children,
 }: {
-  idx: number;
   ref?: Ref<HTMLDivElement>;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   children: ReactNode;
 }) {
   return (
-    <m.div
+    <div
       ref={ref}
-      {...cardMotion(idx)}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className="group card-surface"
     >
-      <div className="card-radial-overlay" />
       {children}
-    </m.div>
+    </div>
   );
 }
 
@@ -280,7 +272,10 @@ const Projects = ({ full = false }: { full?: boolean }) => {
   const [showAll, setShowAll] = useState(false);
   // Lightbox code (motion AnimatePresence) is fetched on first open only.
   const [hasLightbox, setHasLightbox] = useState(false);
-  useEffect(() => { if (activeMedia) setHasLightbox(true); }, [activeMedia]);
+  const openMedia = (media: MediaItem) => {
+    setHasLightbox(true);
+    setActiveMedia(media);
+  };
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -306,7 +301,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
             key={project.title}
             project={project}
             idx={idx}
-            setActiveMedia={setActiveMedia}
+            openMedia={openMedia}
           />
         ))}
       </div>
@@ -317,9 +312,9 @@ const Projects = ({ full = false }: { full?: boolean }) => {
             <span className="link--elara">Open Source &amp; Libraries</span>
           </h2>
           <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 py-4 md:py-5">
-            {OPEN_SOURCE_PROJECTS.map((project, idx) => (
-              <OpenSourceCard key={project.title} project={project} idx={idx} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 py-4 md:py-5">
+            {OPEN_SOURCE_PROJECTS.map((project) => (
+              <OpenSourceCard key={project.title} project={project} />
             ))}
           </div>
         </div>
@@ -355,14 +350,14 @@ const Projects = ({ full = false }: { full?: boolean }) => {
 function ProjectCard({
   project,
   idx,
-  setActiveMedia,
+  openMedia,
 }: {
   project: Project;
   idx: number;
-  setActiveMedia: (media: MediaItem | null) => void;
+  openMedia: (media: MediaItem) => void;
 }) {
   const { isInView, observerRef } = useProjectVisibility();
-  const { videoRef, isReady, handleCanPlay, play, pause } = useVideoPlayback(isInView);
+  const { videoRef, isReady, handleCanPlay, play, pause } = useVideoPlayback();
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -378,7 +373,6 @@ function ProjectCard({
 
   return (
     <CardShell
-      idx={idx}
       ref={observerRef}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -388,9 +382,9 @@ function ProjectCard({
         style={{ aspectRatio: "16/9" }}
         onClick={() => {
           if (project.thumbVideo) {
-            setActiveMedia({ type: "video", src: project.video || project.thumbVideo });
+            openMedia({ type: "video", src: project.video || project.thumbVideo });
           } else {
-            setActiveMedia({ type: "image", src: project.src });
+            openMedia({ type: "image", src: project.src });
           }
         }}
       >
@@ -404,10 +398,7 @@ function ProjectCard({
           fetchPriority={idx === 0 ? "high" : "auto"}
           loading={idx === 0 ? "eager" : undefined}
           decoding={idx === 0 ? "sync" : "async"}
-          // No fade on first paint; the cross-fade only exists once a hover video is mounted.
-          className={`object-cover ${
-            shouldMountVideo ? "transition-opacity duration-500 ease-out" : ""
-          } ${shouldMountVideo && isHovered && isReady ? "opacity-0" : "opacity-100"}`}
+          className="object-cover"
         />
 
         {shouldMountVideo && (
@@ -425,7 +416,6 @@ function ProjectCard({
           />
         )}
 
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300" />
         {project.thumbVideo && (
           <span className="md:hidden absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-black/65 text-white text-xs font-custom2 pl-2 pr-2.5 py-1">
             <Play size={11} fill="currentColor" aria-hidden="true" /> Watch demo
@@ -457,17 +447,16 @@ function ProjectCard({
   );
 }
 
-function OpenSourceCard({
-  project,
-  idx,
-}: {
-  project: OpenSourceProject;
-  idx: number;
-}) {
+function OpenSourceCard({ project }: { project: OpenSourceProject }) {
   return (
-    <CardShell idx={idx}>
+    <CardShell>
       <CardBody>
         <CardHeader title={project.title}>
+          {project.crates && (
+            <IconButton href={project.crates} ariaLabel={`View crates.io package for ${project.title}`}>
+              <Package size={16} />
+            </IconButton>
+          )}
           {project.pypi && (
             <IconButton href={project.pypi} ariaLabel={`View PyPI package for ${project.title}`}>
               <SiPypi size={16} />
@@ -481,6 +470,7 @@ function OpenSourceCard({
         <CardTechFooter tech={project.tech} scope={project.title} />
         <MobileActions
           links={[
+            ...(project.crates ? [{ href: project.crates, label: "crates.io", icon: <Package size={16} />, label2: project.title }] : []),
             ...(project.pypi ? [{ href: project.pypi, label: "PyPI", icon: <SiPypi size={16} />, label2: project.title }] : []),
             { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
           ]}

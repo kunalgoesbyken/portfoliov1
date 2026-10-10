@@ -32,9 +32,9 @@ export function ExpandableItem({
     });
 
   return (
-    <div className="group relative rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors duration-200 border border-transparent hover:border-neutral-100 dark:hover:border-neutral-800">
+    <div className="relative">
       <div
-        className="group/row flex items-start max-md:items-center max-md:relative gap-4 max-md:gap-3 p-4 max-md:px-0 max-md:py-3.5 max-md:min-h-14 cursor-pointer"
+        className="group/row flex items-start max-md:items-center max-md:relative gap-4 max-md:gap-3 py-4 max-md:py-3.5 max-md:min-h-14 cursor-pointer rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-4 focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
         onClick={(e) => {
           // Clicking the company logo link should only navigate.
           if ((e.target as HTMLElement).closest("a")) return;
@@ -57,7 +57,7 @@ export function ExpandableItem({
         className={`grid transition-all duration-300 ease-in-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
       >
         <div className="overflow-hidden">
-          <div className="px-4 pb-4 max-md:px-0 md:pl-20 md:pr-4">
+          <div className="pb-4 md:pl-16">
             {tech && (
               <div className="mb-3 min-h-4">
                 {everOpened && <TechIconTooltip tech={tech} size="sm" scope={scope} />}

@@ -42,6 +42,11 @@ body {
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--foreground);
+  --color-accent: var(--muted);
+  --color-accent-foreground: var(--foreground);
 }
 
 /* ✅ Move this OUTSIDE of @theme inline */
@@ -54,6 +59,8 @@ body {
     rgba(47, 48, 55, 0.05) 0px 16px 68px,
     rgba(255, 255, 255, 0.1) 0px 1px 0px inset;
   --background: oklch(1 0 0);
+  --foreground: var(--color-neutral-900);
+  --popover: oklch(1 0 0);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
   --border: oklch(0.92 0.004 286.32);
@@ -64,6 +71,8 @@ body {
   --color-primary: var(--color-neutral-100);
   --color-secondary: var(--color-neutral-300);
   --background: oklch(0.141 0.005 285.823);
+  --foreground: var(--color-neutral-100);
+  --popover: oklch(0.141 0.005 285.823);
   --muted: oklch(0.274 0.006 286.033);
   --muted-foreground: oklch(0.705 0.015 286.067);
   --border: oklch(0.274 0.006 286.033);
@@ -292,11 +301,31 @@ body {
 
 /* === Project Card Primitives === */
 .card-surface {
-  @apply relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black hover:shadow-md transition-all duration-300 flex flex-col h-full;
+  @apply relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black hover:shadow-md transition-shadow duration-300 flex flex-col h-full;
 }
 
-.card-radial-overlay {
-  @apply absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_50%_130%,rgba(0,0,0,0.08),transparent_70%)] dark:bg-[radial-gradient(circle_at_50%_130%,rgba(255,255,255,0.10),transparent_75%)];
+.scrollbar-subtle::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .scrollbar-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
 }
 
 .icon-btn-ghost {
