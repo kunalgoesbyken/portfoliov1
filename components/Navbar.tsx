@@ -54,14 +54,19 @@ const Navbar = () => {
           }`}
         />
 
-        <Link href="/" aria-label="Home" className="hover:opacity-75 transition-opacity duration-300 max-md:p-1">
+        <Link href="/" aria-label="Home" className="group/home flex items-center gap-2.5 max-md:p-1 outline-none">
           <Image
-            className="w-9 h-9 rounded-full shadow-sm"
+            className="size-9 md:size-10 rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800 transition-[scale,box-shadow] duration-200 ease-out motion-reduce:transition-none group-hover/home:scale-105 group-hover/home:ring-2 group-hover/home:ring-neutral-400 dark:group-hover/home:ring-neutral-500 group-focus-visible/home:ring-2 group-focus-visible/home:ring-neutral-400 dark:group-focus-visible/home:ring-neutral-500"
             src="/images/kunal-sm.jpg"
             width={100}
             height={100}
             alt="Kunal Roy Choudhury"
           />
+          {pathname !== "/" && (
+            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300 underline-offset-4 decoration-1 decoration-neutral-400 dark:decoration-neutral-500 transition-colors group-hover/home:text-neutral-900 dark:group-hover/home:text-neutral-50 group-hover/home:underline group-focus-visible/home:underline">
+              Kunal
+            </span>
+          )}
         </Link>
 
         {/* Navigation links on the right */}

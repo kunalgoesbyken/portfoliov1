@@ -9,6 +9,14 @@ const DisplacementText = dynamic(() => import("@/components/ui/displacement-text
 import PageBorder from "@/components/ui/page-border";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
+const LABEL_CLASS = "block text-sm font-medium text-neutral-700 dark:text-neutral-300 font-custom2";
+
+const fieldClass = (hasError: boolean) =>
+  `block w-full px-0 py-2.5 bg-transparent border-0 border-b rounded-none outline-none transition-colors duration-200 font-custom2 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-600 ${
+    hasError
+      ? "border-red-400 dark:border-red-700"
+      : "border-neutral-300 dark:border-neutral-700 focus:border-neutral-900 dark:focus:border-neutral-100"
+  }`;
 
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,9 +117,9 @@ export default function Contact() {
         </p>
 
         <div className="w-full max-w-2xl p-0 md:p-0 relative z-10">
-          <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-neutral-700 dark:text-neutral-300 font-custom2">
+          <form onSubmit={handleSubmit} className="space-y-7">
+            <div className="space-y-1">
+              <label htmlFor="name" className={LABEL_CLASS}>
                 Full name
               </label>
               <input
@@ -123,11 +131,7 @@ export default function Contact() {
                 aria-invalid={errors.name ? "true" : "false"}
                 aria-describedby={errors.name ? "name-error" : undefined}
                 placeholder="Tyler Durden"
-                className={`w-full px-4 py-3 md:py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400
-                  ${errors.name
-                    ? "border-red-300 dark:border-red-800 focus-visible:ring-2 focus-visible:ring-red-200 dark:focus-visible:ring-red-900/50"
-                    : "border-neutral-200 dark:border-neutral-800 focus-visible:ring-2 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700 focus:border-neutral-300 dark:focus:border-neutral-700"
-                  }`}
+                className={fieldClass(!!errors.name)}
               />
               {errors.name && (
                 <p id="name-error" className="text-sm text-red-500 dark:text-red-400 mt-1 font-custom2 flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1 duration-200" role="alert">
@@ -137,9 +141,9 @@ export default function Contact() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-neutral-700 dark:text-neutral-300 font-custom2">
-                Email Address
+            <div className="space-y-1">
+              <label htmlFor="email" className={LABEL_CLASS}>
+                Email address
               </label>
               <input
                 type="email"
@@ -150,11 +154,7 @@ export default function Contact() {
                 aria-invalid={errors.email ? "true" : "false"}
                 aria-describedby={errors.email ? "email-error" : undefined}
                 placeholder="tyler@projectmayhem.com"
-                className={`w-full px-4 py-3 md:py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400
-                  ${errors.email
-                    ? "border-red-300 dark:border-red-800 focus-visible:ring-2 focus-visible:ring-red-200 dark:focus-visible:ring-red-900/50"
-                    : "border-neutral-200 dark:border-neutral-800 focus-visible:ring-2 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700 focus:border-neutral-300 dark:focus:border-neutral-700"
-                  }`}
+                className={fieldClass(!!errors.email)}
               />
               {errors.email && (
                 <p id="email-error" className="text-sm text-red-500 dark:text-red-400 mt-1 font-custom2 flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1 duration-200" role="alert">
@@ -164,8 +164,8 @@ export default function Contact() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-medium text-neutral-700 dark:text-neutral-300 font-custom2">
+            <div className="space-y-1">
+              <label htmlFor="message" className={LABEL_CLASS}>
                 Message
               </label>
               <textarea
@@ -177,11 +177,7 @@ export default function Contact() {
                 aria-describedby={errors.message ? "message-error" : undefined}
                 rows={5}
                 placeholder="You're crazy good, never change."
-                className={`w-full px-4 py-3 md:py-2.5 bg-neutral-50 dark:bg-neutral-900 border rounded-lg outline-none transition-all duration-200 font-custom2 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 resize-none
-                  ${errors.message
-                    ? "border-red-300 dark:border-red-800 focus-visible:ring-2 focus-visible:ring-red-200 dark:focus-visible:ring-red-900/50"
-                    : "border-neutral-200 dark:border-neutral-800 focus-visible:ring-2 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700 focus:border-neutral-300 dark:focus:border-neutral-700"
-                  }`}
+                className={fieldClass(!!errors.message) + " resize-none"}
               />
               {errors.message && (
                 <p id="message-error" className="text-sm text-red-500 dark:text-red-400 mt-1 font-custom2 flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1 duration-200" role="alert">
@@ -196,15 +192,8 @@ export default function Contact() {
               disabled={isSubmitting}
               aria-disabled={isSubmitting}
               aria-describedby={submitStatus.type ? "submit-status" : undefined}
-              className="btn-elevated group relative overflow-hidden rounded-lg  w-full
-                            bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-800 dark:to-neutral-900
-                            border border-neutral-200 dark:border-neutral-800
-                            text-neutral-800 dark:text-neutral-200 text-sm font-medium px-6 py-3.5 md:py-2.5
-                            transition-all duration-300
-                            hover:from-neutral-50 hover:to-neutral-100 dark:hover:from-neutral-800 dark:hover:to-neutral-800
-                            disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-solid w-full px-6 py-3.5 md:py-2.5 !mt-2"
             >
-              <span className="relative z-10 flex items-center justify-center gap-2">
                 {isSubmitting ? (
                   <>
                     <svg
@@ -233,7 +222,6 @@ export default function Contact() {
                 ) : (
                   "Send message"
                 )}
-              </span>
             </button>
 
             {/* Status Message - Matches site's neutral palette aesthetic */}
@@ -243,12 +231,10 @@ export default function Contact() {
                 role="status"
                 aria-live="polite"
                 className={`mt-4 rounded-lg text-sm font-custom2 overflow-hidden
-                  bg-gradient-to-b from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950
                   border ${submitStatus.type === "success"
                     ? "border-neutral-200/80 dark:border-neutral-700/50"
                     : "border-red-200/60 dark:border-red-900/30"
                   }
-                  btn-elevated
                   animate-in fade-in slide-in-from-top-2 duration-300 ease-out
                   ${submitStatus.type === "success" ? "text-neutral-700 dark:text-neutral-300" : "text-red-700 dark:text-red-400"}`}
               >
@@ -284,11 +270,6 @@ export default function Contact() {
                     <X size={14} strokeWidth={2} />
                   </button>
                 </div>
-                {/* Subtle accent bar */}
-                <div className={`h-0.5 w-full ${submitStatus.type === "success"
-                  ? "bg-gradient-to-r from-transparent via-neutral-200 to-transparent dark:via-neutral-700"
-                  : "bg-gradient-to-r from-transparent via-red-200 to-transparent dark:via-red-900/50"
-                }`}></div>
               </div>
             )}
           </form>

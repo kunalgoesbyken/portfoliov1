@@ -184,14 +184,9 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
                 <div className="flex justify-center mt-6">
                   <button
                     onClick={() => setShowAll(!showAll)}
-                    className="btn-elevated group relative overflow-hidden rounded-lg  w-full
-                            bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-800 dark:to-neutral-900
-                            border border-neutral-200 dark:border-neutral-800
-                            text-neutral-800 dark:text-neutral-200 text-sm font-medium px-6 py-2.5
-                            transition-all duration-300
-                            hover:from-neutral-50 hover:to-neutral-100 dark:hover:from-neutral-800 dark:hover:to-neutral-800"
+                    className="max-md:min-h-12 max-md:px-6 font-custom2 text-xs text-neutral-500 dark:text-neutral-400 border-b border-dashed border-neutral-300 dark:border-neutral-700 pb-[2px] tracking-wide cursor-pointer bg-transparent hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors duration-200"
                   >
-                    {showAll ? "↑ Collapse" : `↓ Expand • ${prs.length - initialCount} more`}
+                    {showAll ? "↑ Show less" : `Show ${prs.length - initialCount} more`}
                   </button>
                 </div>
               )}

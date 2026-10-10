@@ -18,18 +18,10 @@ export default function GetInTouch() {
                 <div className="w-full max-w-2xl flex gap-4 max-md:[&>a]:w-full max-md:[&>a]:min-h-12 max-md:[&>a]:justify-center">
                     <Link
                         href="/contact"
-                        className="btn-elevated group relative overflow-hidden rounded-lg
-                        bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-800 dark:to-neutral-900
-                        border border-neutral-200 dark:border-neutral-800
-                        text-neutral-800 dark:text-neutral-200 text-sm font-medium px-6 py-2.5
-                        transition-all duration-300
-                        hover:from-neutral-50 hover:to-neutral-100 dark:hover:from-neutral-800 dark:hover:to-neutral-800
-                        inline-flex items-center"
+                        className="btn-solid group px-6 py-2.5"
                     >
-                        <span className="relative z-10 flex items-center gap-2">
-                            Send Enquiry
+                        Send Enquiry
                             <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1 opacity-70 group-hover:opacity-100" />
-                        </span>
                     </Link>
 
 
