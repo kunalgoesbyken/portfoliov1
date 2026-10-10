@@ -73,7 +73,7 @@ const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
   {
     title: "AeroSieve",
     description:
-      "Turns raw recordings into speech-model training data. Decodes audio, cuts it into speech clips, drops the silent, noisy, clipped, or tonal ones, and writes WebDataset shards — 43 minutes of Hindi audio curated in 1.7s on one CPU core. Ships as a CLI, Rust crate, and Python bindings.",
+      "Turns raw recordings into speech-model training data. Decodes audio, cuts it into speech clips, drops the silent, noisy, clipped, or tonal ones, and writes WebDataset shards. 43 minutes of Hindi audio curated in 1.7s on one CPU core. Ships as a CLI, Rust crate, and Python bindings.",
     tech: ["rust", "python"],
     github: "https://github.com/kunalgoesbyken/AeroSieve",
     crates: "https://crates.io/crates/aerosieve-cli",
@@ -81,7 +81,7 @@ const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
   {
     title: "Un-Nexted",
     description:
-      "Next.js core features — SSR, hydration, and file-system routing — reimplemented from scratch to show how the meta-framework actually works.",
+      "Next.js core features (SSR, hydration, and file-system routing) reimplemented from scratch to show how the meta-framework actually works.",
     tech: ["bun", "react", "ts"],
     github: "https://github.com/kunalgoesbyken/Un-nexted",
   },
@@ -95,7 +95,7 @@ const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
   {
     title: "pdf2docx-healer",
     description:
-      "A drop-in replacement for pdf2docx that preserves formatting — heals bullet lists, hyperlinks, CJK fonts, and scanned PDFs via OCR in a post-processing pass. Published on PyPI.",
+      "A drop-in replacement for pdf2docx that preserves formatting. It heals bullet lists, hyperlinks, CJK fonts, and scanned PDFs via OCR in a post-processing pass. Published on PyPI.",
     tech: ["python"],
     github: "https://github.com/kunalgoesbyken/pdf2docx-healer",
     pypi: "https://pypi.org/project/pdf2docx-healer/",

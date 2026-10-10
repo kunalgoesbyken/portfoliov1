@@ -1,7 +1,7 @@
 ---
 slug: "cursor-indexing"
 title: "How Cursor Indexes 50,000 Files in 21 Seconds"
-description: "Merkle trees, tree-sitter ASTs, nomic-embed ONNX vectors, HNSW search, and RRF fusion — the full architecture behind Cursor's codebase indexing, rebuilt from scratch in Rust."
+description: "Merkle trees, tree-sitter ASTs, nomic-embed ONNX vectors, HNSW search, and RRF fusion: the full architecture behind Cursor's codebase indexing, rebuilt from scratch in Rust."
 date: "2026-06-11"
 image: "/images/codebase-indexer.svg"
 author: Kunal
@@ -17,17 +17,17 @@ This article was published on **Medium**. [Read the full article →](https://me
 
 ## What It Covers
 
-**The Sniffing Phase** — How Merkle trees detect changed files in O(log n) time instead of re-reading 50,000 files on every startup.
+**The Sniffing Phase**: How Merkle trees detect changed files in O(log n) time instead of re-reading 50,000 files on every startup.
 
-**The Butchering Phase** — Why naive line-based chunking destroys semantic meaning, and how tree-sitter AST parsing produces self-contained code chunks (functions, classes, methods).
+**The Butchering Phase**: Why naive line-based chunking destroys semantic meaning, and how tree-sitter AST parsing produces self-contained code chunks (functions, classes, methods).
 
-**The Math Phase** — How nomic-embed-text-v1.5 produces 768-dimensional vectors with INT8 quantization (137MB model, runs on CPU), and why the `search_document:` / `search_query:` prefix trick matters.
+**The Math Phase**: How nomic-embed-text-v1.5 produces 768-dimensional vectors with INT8 quantization (137MB model, runs on CPU), and why the `search_document:` / `search_query:` prefix trick matters.
 
-**The Filing Phase** — Two indexes working in concert: BM25 for exact keyword matches and HNSW for vector similarity, fused with Reciprocal Rank Fusion (RRF).
+**The Filing Phase**: Two indexes working in concert: BM25 for exact keyword matches and HNSW for vector similarity, fused with Reciprocal Rank Fusion (RRF).
 
-**The Instant Grep** — How character n-gram inverted indexes replace ripgrep for sub-millisecond search.
+**The Instant Grep**: How character n-gram inverted indexes replace ripgrep for sub-millisecond search.
 
-**The Sharing Trick** — How Simhash lets teammates inherit existing indexes without transferring code they don't own.
+**The Sharing Trick**: How Simhash lets teammates inherit existing indexes without transferring code they don't own.
 
 ## Open Source Implementation
 

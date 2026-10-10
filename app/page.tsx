@@ -38,7 +38,7 @@ export default async function Home() {
         <div className="text-secondary font-custom2 text-s mt-1 max-md:mt-3 max-md:text-[15px] max-md:leading-snug max-md:space-y-1.5">
           <p>
             <span className="text-neutral-950 dark:text-neutral-100 font-semibold font-custom">⚀ </span>
-            <span className="text-neutral-700 dark:text-neutral-300">I build backends that don't fall over — and frontends like this one.</span>
+            <span className="text-neutral-700 dark:text-neutral-300">I build backends that don't fall over, and frontends like this one.</span>
           </p>
 
           <p>

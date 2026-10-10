@@ -9,13 +9,13 @@ image: '/images/un-nexted-1600.webp'
 author: 'Kunal'
 ---
 
-I used Next.js daily for two years. I knew *how* to use it—I could write a `getServerSideProps` function in my sleep and structure my `pages` directory perfectly.
+I used Next.js daily for two years. I knew *how* to use it. I could write a `getServerSideProps` function in my sleep and structure my `pages` directory perfectly.
 
 But I didn't verify *how* it worked.
 
 To me, Next.js was a black box. A magic compiler that took my React code and somehow made it SEO-friendly. As an engineer, "magic" is just a polite word for "abstraction I haven't understood yet."
 
-So, I decided to break the abstraction. I built **Un-nexted**: a raw, bare-metal implementation of the server-side rendering (SSR) pipeline that powers modern web frameworks. No Vercel packages, no Webpack config hell—just Bun, React 19, and first principles.
+So, I decided to break the abstraction. I built **Un-nexted**: a raw, bare-metal implementation of the server-side rendering (SSR) pipeline that powers modern web frameworks. No Vercel packages, no Webpack config hell. Just Bun, React 19, and first principles.
 
 ## The Core Insight
 
@@ -121,6 +121,6 @@ Rebuilding a tool is the best way to respect it. `Un-nexted` works for basic use
 
 `Un-nexted` isn't meant to replace Next.js. It's meant to replace the "magic" with understanding.
 
-By stripping away the complexity, I found that the core architecture of the web hasn't changed much. It's still just a server sending text to a browser—we've just gotten very good at optimizing how that text is generated.
+By stripping away the complexity, I found that the core architecture of the web hasn't changed much. It's still just a server sending text to a browser. We've just gotten very good at optimizing how that text is generated.
 
 [Check out the Source Code on GitHub](https://github.com/kunalgoesbyken/Un-nexted)

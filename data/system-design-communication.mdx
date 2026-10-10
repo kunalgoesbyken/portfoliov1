@@ -1,7 +1,7 @@
 ---
 slug: "system-design-communication"
 title: "Why Explaining Trade-Offs Beats Writing Perfect Code"
-description: "Most failures aren't technical—they're alignment failures. Here's why communication is the most undervalued skill in system design."
+description: "Most failures aren't technical. They're alignment failures. Here's why communication is the most undervalued skill in system design."
 date: "2025-12-20"
 image: "/tw67owb.webp"
 author: Kunal
@@ -15,13 +15,13 @@ tags:
 
 Explaining a system design trade-off to a non-technical stakeholder is more valuable than writing "perfect" code in isolation.
 
-Why? Because most failures aren't technical—they're **alignment failures**: building the wrong thing, optimizing the wrong metric, or surprising the business too late.
+Why? Because most failures aren't technical. They're **alignment failures**: building the wrong thing, optimizing the wrong metric, or surprising the business too late.
 
 ---
 
 ## System Design is Decision-Making Under Constraints
 
-Every system design involves trade-offs. There's no such thing as a perfect architecture—only choices that optimize for certain constraints while accepting compromises in others:
+Every system design involves trade-offs. There's no such thing as a perfect architecture, only choices that optimize for certain constraints while accepting compromises in others:
 
 | Choose | You Pay | You Protect | You Postpone |
 |--------|---------|-------------|--------------|
@@ -38,8 +38,8 @@ The trap is thinking these decisions exist in a vacuum. They don't. Every trade-
 
 Here's what happens when engineers make trade-off decisions in isolation:
 
-- A team optimizes for **eventual consistency** to achieve scale, but product managers assume reads are always current—confusion ensues when users see stale data.
-- An engineer chooses a **quick-and-dirty** solution to hit a deadline, but leadership assumes it's production-ready—technical debt compounds unnoticed.
+- A team optimizes for **eventual consistency** to achieve scale, but product managers assume reads are always current. Confusion ensues when users see stale data.
+- An engineer chooses a **quick-and-dirty** solution to hit a deadline, but leadership assumes it's production-ready. Technical debt compounds unnoticed.
 - A system is built for **high availability** with expensive multi-region deployment, but the business would have preferred planned downtime over the infrastructure costs.
 
 **These aren't technical failures. They're communication failures.**
@@ -56,13 +56,13 @@ If stakeholders can't tell the difference between:
 - *"This will take 2 weeks but creates debt"* vs. *"This will take 4 weeks and is maintainable"*
 - *"This scales to 10M users"* vs. *"This scales to 1M users with 50% cost reduction"*
 
-Then they can't make informed calls—and engineering ends up owning **product risk by default**.
+Then they can't make informed calls, and engineering ends up owning **product risk by default**.
 
 This is a problem because:
 
-1. **Stakeholders have context you don't** — business priorities, market windows, customer commitments
-2. **Risk tolerance varies** — a startup and an enterprise have very different appetites for trade-offs
-3. **Surprises destroy trust** — finding out about a limitation in production is the worst time to learn about it
+1. **Stakeholders have context you don't**: business priorities, market windows, customer commitments
+2. **Risk tolerance varies**: a startup and an enterprise have very different appetites for trade-offs
+3. **Surprises destroy trust**: finding out about a limitation in production is the worst time to learn about it
 
 ---
 
@@ -70,10 +70,10 @@ This is a problem because:
 
 The engineers who drive the most impact aren't necessarily the ones who write the cleanest code or know the most algorithms. They're the ones who:
 
-1. **Surface options early** — "Here are three approaches, here's what each optimizes for, here's what each costs."
-2. **Name the risks explicitly** — "If we choose eventual consistency, we need to handle these edge cases in the UI."
-3. **Translate architecture into outcomes** — Instead of CAP theorem, they say: "Users might see slightly old data, but the site stays up even if a server fails."
-4. **Drive decisions, don't just execute** — They push for clarity: "Which matters more right now—absolute data freshness or always being available?"
+1. **Surface options early**: "Here are three approaches, here's what each optimizes for, here's what each costs."
+2. **Name the risks explicitly**: "If we choose eventual consistency, we need to handle these edge cases in the UI."
+3. **Translate architecture into outcomes**: Instead of CAP theorem, they say: "Users might see slightly old data, but the site stays up even if a server fails."
+4. **Drive decisions, don't just execute**: They push for clarity: "Which matters more right now: absolute data freshness or always being available?"
 
 This is the heart of the research finding that system design involves "decisions involving multiple stakeholders with diverse and, potentially conflicting, objectives." The best engineers navigate this by making trade-offs visible, not hidden.
 
@@ -85,7 +85,7 @@ There's a subtle but important distinction:
 
 > Trust isn't built by being right in private; it's built by being clear in public.
 
-When you explain your thinking in a design doc, when you walk through trade-offs in a meeting, when you document the why alongside the what—you're building institutional trust. You're demonstrating that you understand not just the code, but the business the code serves.
+When you explain your thinking in a design doc, when you walk through trade-offs in a meeting, when you document the why alongside the what, you're building institutional trust. You're demonstrating that you understand not just the code, but the business the code serves.
 
 This trust compounds. When stakeholders understand your reasoning, they:
 
@@ -119,7 +119,7 @@ Next time you're making a non-trivial system design decision, try this:
 
 ## The Punchline
 
-Write great code, absolutely. Clean code matters. But if you can translate architecture into outcomes, if you can make technical trade-offs accessible to non-technical decision-makers, if you can surface risks before they become fires—you won't just be a better engineer.
+Write great code, absolutely. Clean code matters. But if you can translate architecture into outcomes, if you can make technical trade-offs accessible to non-technical decision-makers, if you can surface risks before they become fires, you won't just be a better engineer.
 
 **You'll be the engineer people build strategies around.**
 
@@ -127,6 +127,6 @@ Write great code, absolutely. Clean code matters. But if you can translate archi
 
 ## Further Reading
 
-- [System Design: The Complete Guide 2026](https://www.systemdesignhandbook.com/guides/system-design/) — Comprehensive guide on architecture fundamentals and trade-offs
-- [The Art of Trade-offs in System Design](https://sourav-k-paul.medium.com/the-art-of-trade-offs-in-system-design-why-they-matter-73f8f7073ae7) — Why documenting trade-offs avoids surprises
-- [How to Communicate System Trade-offs](https://www.linkedin.com/advice/1/how-can-you-communicate-system-trade-offs-uncertainties) — Practical advice on conveying design rationale
+- [System Design: The Complete Guide 2026](https://www.systemdesignhandbook.com/guides/system-design/): Comprehensive guide on architecture fundamentals and trade-offs
+- [The Art of Trade-offs in System Design](https://sourav-k-paul.medium.com/the-art-of-trade-offs-in-system-design-why-they-matter-73f8f7073ae7): Why documenting trade-offs avoids surprises
+- [How to Communicate System Trade-offs](https://www.linkedin.com/advice/1/how-can-you-communicate-system-trade-offs-uncertainties): Practical advice on conveying design rationale

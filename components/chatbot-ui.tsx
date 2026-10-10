@@ -197,7 +197,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                          Hey, I'm Kunal's AI assistant
                        </p>
                        <p className="text-xs text-neutral-500 dark:text-neutral-400 font-custom2 mt-1 max-w-[200px]">
-                         Ask about skills, projects, experience — anything on the site.
+                         Ask about skills, projects, experience, anything on the site.
                        </p>
                     </div>
                     <div className="flex flex-wrap gap-2 justify-center mt-2">
