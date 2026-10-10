@@ -116,7 +116,7 @@ export default function Contact() {
           Hi there, I’m currently open to meaningful work.
         </p>
 
-        <div className="w-full max-w-2xl p-0 md:p-0 relative z-10">
+        <div className="w-full max-w-2xl md:max-lg:pr-4 relative z-10">
           <form onSubmit={handleSubmit} className="space-y-7">
             <div className="space-y-1">
               <label htmlFor="name" className={LABEL_CLASS}>
