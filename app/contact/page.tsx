@@ -192,7 +192,7 @@ export default function Contact() {
               disabled={isSubmitting}
               aria-disabled={isSubmitting}
               aria-describedby={submitStatus.type ? "submit-status" : undefined}
-              className="btn-solid w-full px-6 py-3.5 md:py-2.5 !mt-2"
+              className="btn-solid px-6 py-3.5 md:py-2.5 !mt-2"
             >
                 {isSubmitting ? (
                   <>
