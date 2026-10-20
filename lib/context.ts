@@ -17,7 +17,7 @@ Kunal Roy Choudhury is a backend systems architect who also builds frontends (th
 
 # Work Experience
 
-## FinStocks AI, Lead Software Engineer (July 2026 - Present), CURRENT ROLE
+## FinStocks AI, Lead Software Engineer (March 2026 - Present), CURRENT ROLE
 First employee. Leads a 3-engineer team building a natural-language-to-strategy backtesting engine.
 - Architected the backtesting engine: LLM output constrained to a typed Pydantic IR over 185 indicators and 148 patterns, with deterministic compilation and static validation
 - Accelerated backtesting with runtime Numba-JIT kernels and whole-universe fused execution over struct-of-arrays float32 Parquet; liveness analysis loads only strategy-referenced columns
@@ -25,13 +25,6 @@ First employee. Leads a 3-engineer team building a natural-language-to-strategy 
 - Built an LLM chart terminal with 85 typed operations and symbolic price references, with a 1.4k-line validator enforcing level provenance to prevent fabricated chart levels
 - Engineered transactional push on Postgres using SKIP LOCKED, visibility leases and idempotent partial indexes; cut market-data queries from 13.6s to 48-135ms and 5.9s to 782ms, streaming bars via Redis Pub/Sub to a TradingView datafeed
 - Stack: Python, Pydantic, Numba, PostgreSQL, Redis, FastAPI, TradingView, TypeScript
-
-## CollectEdge, Software Development Engineer (March 2026 - June 2026)
-Built voice AI and communication infrastructure at scale.
-- Scaled to 50K+ daily messages across 5+ AWS SQS queues with Rust microservices, adding backpressure, circuit breakers and idempotent processing to eliminate duplicate-delivery failures
-- Built CredFix's sub-100ms credit scoring with LRU caching, batching and 18 parallel rule workers
-- Built an AI call analytics platform: transcription, analysis, and sentiment scoring
-- Stack: Rust, Flutter, AWS, React, PostgreSQL
 
 ## Indian Kanoon, Software Developer (April 2025 - Feb 2026)
 Sole engineer on Prism, a legal research product launched into a 1.5M-user platform.

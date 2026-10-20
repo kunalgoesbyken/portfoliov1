@@ -56,7 +56,7 @@ export const Timeline = () => {
     {
       company: "FinStocks AI",
       designation: "Lead Software Engineer",
-      date: "July 2026 - Present",
+      date: "March 2026 - Present",
       description: `First employee here. I lead a team of 3 and built the engine that turns plain English into trading strategies you can backtest.
 The LLM only fills in a typed Pydantic spec covering 185 indicators and 148 patterns. Everything after that is compiled and validated without it, so results are deterministic.
 Made backtests fast with Numba-JIT kernels that run the whole universe in one pass over float32 Parquet, loading only the columns a strategy actually uses.
@@ -68,19 +68,6 @@ Took market-data queries from 13.6s down to 48-135ms, and from 5.9s to 782ms. Ba
       logoDark: "/images/logos/finstocks-dark.png",
       href: "https://finstocks.ai/",
       tech: ["python", "pydantic", "numba", "postgres", "redis", "fastapi", "tradingview", "ts"],
-    },
-    {
-      company: "CollectEdge",
-      designation: "Software Development Engineer",
-      date: "March 2026 - June 2026",
-      description: `Scaled Rust microservices to 50K+ messages a day across 10+ queues.
-Built an AI call analytics platform that transcribes calls, analyzes them and scores sentiment.
-Shipped a predictive dialer and a credit risk engine that scores in under 100ms.`,
-      logo: "/images/logos/collectedge.jpeg",
-      href: "https://www.collectedge.in/",
-      logoWidth: 199,
-      logoHeight: 36,
-      tech: ["rust", "flutter", "aws", "react", "postgres"],
     },
     {
       company: "Indian Kanoon",
