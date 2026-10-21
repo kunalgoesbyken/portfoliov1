@@ -22,13 +22,16 @@ interface Project {
   tech: TechKey[];
   github: string;
   live?: string;
+  crates?: string;
 }
 
 interface OpenSourceProject {
   title: string;
+  src: string;
   description: string;
   tech: TechKey[];
   github: string;
+  live?: string;
   pypi?: string;
   crates?: string;
 }
@@ -47,11 +50,36 @@ const DEPLOYED_PROJECTS: Project[] = [
     live: "https://gostman.vercel.app/",
   },
   {
+    title: "AeroSieve",
+    src: "/images/aerosieve-terminal.webp",
+    description:
+      "Turns raw recordings into speech-model training data. Decodes audio, cuts it into speech clips, drops the silent, noisy, clipped, or tonal ones, and writes WebDataset shards. 43 minutes of Hindi audio curated in 1.7s on one CPU core. Ships as a CLI, Rust crate, and Python bindings.",
+    tech: ["rust", "python"],
+    github: "https://github.com/kunalgoesbyken/AeroSieve",
+    crates: "https://crates.io/crates/aerosieve-cli",
+  },
+  {
+    title: "codebase-indexer",
+    src: "/images/codebase-indexer-terminal.webp",
+    description:
+      "Offline semantic code search. Walks a codebase, chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and indexes for hybrid BM25 + vector search with RRF fusion.",
+    tech: ["rust", "onnx"],
+    github: "https://github.com/kunalgoesbyken/codebase-indexer",
+  },
+  {
+    title: "Un-Nexted",
+    src: "/images/un-nexted-1600.webp",
+    description:
+      "Next.js core features (SSR, hydration, and file-system routing) reimplemented from scratch to show how the meta-framework actually works.",
+    tech: ["bun", "react", "ts"],
+    github: "https://github.com/kunalgoesbyken/Un-nexted",
+  },
+];
+
+const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
+  {
     title: "TaskFlow",
     src: "/images/taskflow-poster.jpg",
-    poster: "/images/taskflow-poster.jpg",
-    video: "/videos/taskflow-full.mp4",
-    thumbVideo: "/videos/taskflow-preview.mp4",
     description:
       "Async team coordination hub for tracking work handoffs across timezones. Real-time task updates, bulk operations, analytics dashboard, GitHub OAuth & issue sync, and self-hostable with Docker.",
     tech: ["next", "ts", "supabase", "prisma"],
@@ -67,33 +95,9 @@ const DEPLOYED_PROJECTS: Project[] = [
     github: "https://github.com/kunalgoesbyken/MailFlowAI",
     live: "https://ai-mail-app-pearl.vercel.app/",
   },
-];
-
-const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
-  {
-    title: "AeroSieve",
-    description:
-      "Turns raw recordings into speech-model training data. Decodes audio, cuts it into speech clips, drops the silent, noisy, clipped, or tonal ones, and writes WebDataset shards. 43 minutes of Hindi audio curated in 1.7s on one CPU core. Ships as a CLI, Rust crate, and Python bindings.",
-    tech: ["rust", "python"],
-    github: "https://github.com/kunalgoesbyken/AeroSieve",
-    crates: "https://crates.io/crates/aerosieve-cli",
-  },
-  {
-    title: "Un-Nexted",
-    description:
-      "Next.js core features (SSR, hydration, and file-system routing) reimplemented from scratch to show how the meta-framework actually works.",
-    tech: ["bun", "react", "ts"],
-    github: "https://github.com/kunalgoesbyken/Un-nexted",
-  },
-  {
-    title: "codebase-indexer",
-    description:
-      "Offline semantic code search. Walks a codebase, chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and indexes for hybrid BM25 + vector search with RRF fusion.",
-    tech: ["rust", "onnx"],
-    github: "https://github.com/kunalgoesbyken/codebase-indexer",
-  },
   {
     title: "pdf2docx-healer",
+    src: "/images/pdf2docx-healer-terminal.webp",
     description:
       "A drop-in replacement for pdf2docx that preserves formatting. It heals bullet lists, hyperlinks, CJK fonts, and scanned PDFs via OCR in a post-processing pass. Published on PyPI.",
     tech: ["python"],
@@ -197,7 +201,7 @@ function CardShell({
 }
 
 function CardBody({ children }: { children: ReactNode }) {
-  return <div className="flex flex-col flex-grow">{children}</div>;
+  return <div className="flex flex-col flex-grow min-w-0">{children}</div>;
 }
 
 function CardHeader({ title, children }: { title: ReactNode; children?: ReactNode }) {
@@ -321,7 +325,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
       {showOpenSource && (
         <div className="mt-2">
           <h2 className="text-neutral-900 dark:text-neutral-50 font-custom font-bold text-2xl tracking-tight py-2">
-            <span className="link--elara">Open Source &amp; Libraries</span>
+            <span className="link--elara">More Projects</span>
           </h2>
           <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
           <div className="flex flex-col divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800 my-2 [&>*]:py-5">
@@ -449,6 +453,11 @@ function ProjectCard({
               <Globe size={16} />
             </IconButton>
           )}
+          {project.crates && (
+            <IconButton href={project.crates} ariaLabel={`View crates.io package for ${project.title}`}>
+              <Package size={16} />
+            </IconButton>
+          )}
           <IconButton href={project.github} ariaLabel={`View GitHub repository for ${project.title}`}>
             <GithubIcon size={16} />
           </IconButton>
@@ -458,6 +467,7 @@ function ProjectCard({
         <MobileActions
           links={[
             ...(project.live ? [{ href: project.live, label: "Live", icon: <Globe size={16} />, label2: project.title }] : []),
+            ...(project.crates ? [{ href: project.crates, label: "crates.io", icon: <Package size={16} />, label2: project.title }] : []),
             { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
           ]}
         />
@@ -469,38 +479,56 @@ function ProjectCard({
 function OpenSourceCard({ project }: { project: OpenSourceProject }) {
   return (
     <CardShell onActivate={() => window.open(project.github, "_blank")}>
-      <CardBody>
-        <CardHeader
-          title={
-            <a href={project.github} target="_blank" rel="noopener noreferrer" className={TITLE_ACTION_CLASS}>
-              {project.title}
-            </a>
-          }
-        >
-          {project.crates && (
-            <IconButton href={project.crates} ariaLabel={`View crates.io package for ${project.title}`}>
-              <Package size={16} />
+      <div className="flex md:gap-8 md:items-start">
+        <CardBody>
+          <CardHeader
+            title={
+              <a href={project.github} target="_blank" rel="noopener noreferrer" className={TITLE_ACTION_CLASS}>
+                {project.title}
+              </a>
+            }
+          >
+            {project.live && (
+              <IconButton href={project.live} ariaLabel={`View live site for ${project.title}`}>
+                <Globe size={16} />
+              </IconButton>
+            )}
+            {project.crates && (
+              <IconButton href={project.crates} ariaLabel={`View crates.io package for ${project.title}`}>
+                <Package size={16} />
+              </IconButton>
+            )}
+            {project.pypi && (
+              <IconButton href={project.pypi} ariaLabel={`View PyPI package for ${project.title}`}>
+                <SiPypi size={16} />
+              </IconButton>
+            )}
+            <IconButton href={project.github} ariaLabel={`View GitHub repository for ${project.title}`}>
+              <GithubIcon size={16} />
             </IconButton>
-          )}
-          {project.pypi && (
-            <IconButton href={project.pypi} ariaLabel={`View PyPI package for ${project.title}`}>
-              <SiPypi size={16} />
-            </IconButton>
-          )}
-          <IconButton href={project.github} ariaLabel={`View GitHub repository for ${project.title}`}>
-            <GithubIcon size={16} />
-          </IconButton>
-        </CardHeader>
-        <CardDescription>{project.description}</CardDescription>
-        <CardTechFooter tech={project.tech} scope={project.title} />
-        <MobileActions
-          links={[
-            ...(project.crates ? [{ href: project.crates, label: "crates.io", icon: <Package size={16} />, label2: project.title }] : []),
-            ...(project.pypi ? [{ href: project.pypi, label: "PyPI", icon: <SiPypi size={16} />, label2: project.title }] : []),
-            { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
-          ]}
-        />
-      </CardBody>
+          </CardHeader>
+          <CardDescription>{project.description}</CardDescription>
+          <CardTechFooter tech={project.tech} scope={project.title} />
+          <MobileActions
+            links={[
+              ...(project.live ? [{ href: project.live, label: "Live", icon: <Globe size={16} />, label2: project.title }] : []),
+              ...(project.crates ? [{ href: project.crates, label: "crates.io", icon: <Package size={16} />, label2: project.title }] : []),
+              ...(project.pypi ? [{ href: project.pypi, label: "PyPI", icon: <SiPypi size={16} />, label2: project.title }] : []),
+              { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
+            ]}
+          />
+        </CardBody>
+        <div className="max-md:hidden relative w-52 shrink-0 aspect-video overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
+          <Image
+            src={project.src}
+            alt={project.title}
+            fill
+            sizes="208px"
+            quality={60}
+            className="object-cover"
+          />
+        </div>
+      </div>
     </CardShell>
   );
 }
