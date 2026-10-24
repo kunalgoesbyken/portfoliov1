@@ -65,6 +65,11 @@ body {
   --muted-foreground: oklch(0.552 0.016 285.938);
   --border: oklch(0.92 0.004 286.32);
   --scrollbar-thumb: var(--color-neutral-300);
+  --contrib-0: #ebedf0;
+  --contrib-1: #9be9a8;
+  --contrib-2: #40c463;
+  --contrib-3: #30a14e;
+  --contrib-4: #216e39;
   
 }
 
@@ -78,6 +83,11 @@ body {
   --muted-foreground: oklch(0.705 0.015 286.067);
   --border: oklch(0.274 0.006 286.033);
   --scrollbar-thumb: var(--color-neutral-700);
+  --contrib-0: #161b22;
+  --contrib-1: #0e4429;
+  --contrib-2: #006d32;
+  --contrib-3: #26a641;
+  --contrib-4: #39d353;
   
 
 }
@@ -334,6 +344,17 @@ body {
 }
 @utility frame-dashed {
   @apply border border-dashed border-neutral-300 dark:border-neutral-700;
+}
+
+.contribution-calendar .react-activity-calendar__scroll-container {
+  direction: rtl;
+}
+
+.contribution-calendar .react-activity-calendar__calendar {
+  direction: ltr;
+  max-width: 100%;
+  min-width: 26.5rem;
+  height: auto;
 }
 
 /* Skip layout/paint of below-the-fold sections until they near the viewport. */

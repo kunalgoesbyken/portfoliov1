@@ -1,19 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState, cloneElement } from "react";
-import Separator from "@/components/separator";
-import MountOnVisible from "@/components/ui/mount-on-visible";
-import { useTheme } from "next-themes";
+import { useState, cloneElement } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { GithubData, Organization, PR } from "@/lib/github";
+import { ActivityCalendar, type Activity, type BlockElement } from "react-activity-calendar";
+import Separator from "@/components/separator";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { GITHUB_USERNAME } from "@/lib/social-links";
-
-const GitHubCalendar = dynamic(() => import("react-github-calendar").then(mod => ({ default: mod.GitHubCalendar })), {
-  loading: () => <div className="w-full flex justify-center p-8">Loading GitHub activity...</div>,
-  ssr: false
-});
+import { GithubData, Organization, PRState } from "@/lib/github";
 
 const Tooltip = dynamic(() => import("react-tooltip").then(mod => ({ default: mod.Tooltip })), {
   ssr: false
@@ -23,33 +16,38 @@ interface GithubGraphProps {
   data: GithubData;
 }
 
-const useScrollToLatestWeek = () => {
-  const ref = useRef<HTMLDivElement>(null);
+const CONTRIBUTION_COLORS = ["var(--contrib-0)", "var(--contrib-1)", "var(--contrib-2)", "var(--contrib-3)", "var(--contrib-4)"];
+const CALENDAR_THEME = { light: CONTRIBUTION_COLORS, dark: CONTRIBUTION_COLORS };
+const CALENDAR_LABELS = { totalCount: "{{count}} contributions in the last year" };
 
-  useEffect(() => {
-    const root = ref.current;
-    if (!root) return;
-    const scrollToEnd = () => {
-      const scroller = root.querySelector<HTMLElement>(".react-activity-calendar__scroll-container");
-      if (scroller) scroller.scrollLeft = scroller.scrollWidth;
-    };
-    const observer = new MutationObserver(scrollToEnd);
-    observer.observe(root, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
+interface PRFilterConfig {
+  label: string;
+  description: string;
+  state?: PRState;
+}
 
-  return ref;
-};
+const PR_FILTERS = {
+  all: { label: "All", description: "Every pull request, latest first" },
+  merged: { label: "Merged", description: "Merged contributions to open source", state: "MERGED" },
+  open: { label: "Open", description: "Active pull requests", state: "OPEN" },
+  closed: { label: "Closed", description: "Closed pull requests", state: "CLOSED" },
+} satisfies Record<string, PRFilterConfig>;
 
-type PRFilter = "merged" | "open" | "closed";
-
-const PR_FILTERS: Record<PRFilter, { label: string; description: string; dotClass: string }> = {
-  merged: { label: "Merged", description: "Merged contributions to open source", dotClass: "from-purple-400 to-pink-400" },
-  open: { label: "Open", description: "Active pull requests", dotClass: "from-green-400 to-emerald-400" },
-  closed: { label: "Closed", description: "Closed pull requests", dotClass: "from-red-400 to-rose-400" },
-};
+type PRFilter = keyof typeof PR_FILTERS;
 
 const PR_FILTER_OPTIONS = (Object.keys(PR_FILTERS) as PRFilter[]).map((value) => ({ value, label: PR_FILTERS[value].label }));
+
+const PR_STATE_DOT: Record<PRState, string> = {
+  MERGED: "from-purple-400 to-pink-400",
+  OPEN: "from-green-400 to-emerald-400",
+  CLOSED: "from-red-400 to-rose-400",
+};
+
+const withTooltip = (block: BlockElement, activity: Activity) =>
+  cloneElement(block, {
+    "data-tooltip-id": "github-tooltip",
+    "data-tooltip-content": `${activity.count} contributions on ${activity.date}`,
+  });
 
 const OrganizationChips = ({ organizations }: { organizations: Organization[] }) => {
   if (organizations.length === 0) return null;
@@ -77,26 +75,13 @@ const OrganizationChips = ({ organizations }: { organizations: Organization[] })
 };
 
 const GithubGraph = ({ data }: GithubGraphProps) => {
-  const { theme } = useTheme();
-
   const [showAll, setShowAll] = useState(false);
-  const [filterType, setFilterType] = useState<PRFilter>("merged");
-  const [isMobile, setIsMobile] = useState(false);
-  const calendarRef = useScrollToLatestWeek();
+  const [filterType, setFilterType] = useState<PRFilter>("all");
 
   const initialCount = 2;
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const prs: PR[] = data[filterType] || [];
-  const activeFilter = PR_FILTERS[filterType];
+  const activeFilter: PRFilterConfig = PR_FILTERS[filterType];
+  const prs = activeFilter.state ? data.prs.filter((pr) => pr.state === activeFilter.state) : data.prs;
 
   return (
     <div>
@@ -112,43 +97,26 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
 
 
 
-      <div className="w-full flex justify-center">
-        <div ref={calendarRef} className="flex w-full justify-center">
-          <MountOnVisible minHeight={isMobile ? 120 : 160} rootMargin="300px">
-            <>
-              <GitHubCalendar
-                username={GITHUB_USERNAME}
-                colorScheme={theme === "dark" ? "dark" : "light"}
-                blockSize={isMobile ? 6 : 10}
-                blockMargin={isMobile ? 2 : 3}
-                fontSize={isMobile ? 10 : 12}
-                style={{
-                  color: theme === "dark" ? "#e5e5e5" : "#171717",
-                }}
-                renderBlock={(block: any, activity: any) =>
-                  cloneElement(block, {
-                    "data-tooltip-id": "github-tooltip",
-                    "data-tooltip-content": `${activity.count} contributions on ${activity.date}`,
-                  })
-                }
-              />
-              <Tooltip
-                id="github-tooltip"
-                style={{
-                  backgroundColor: theme === "dark" ? "#171717" : "#ffffff",
-                  color: theme === "dark" ? "#e5e5e5" : "#171717",
-                  borderRadius: "8px",
-                  padding: "8px 12px",
-                  fontSize: "12px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                }}
-                opacity={1}
-                border={theme === "dark" ? "1px solid #404040" : "1px solid #e5e5e5"}
-              />
-            </>
-          </MountOnVisible>
+      {data.contributions.length > 0 && (
+        <div className="contribution-calendar flex w-full justify-center text-neutral-900 dark:text-neutral-200">
+          <ActivityCalendar
+            data={data.contributions}
+            theme={CALENDAR_THEME}
+            colorScheme="light"
+            labels={CALENDAR_LABELS}
+            blockSize={10}
+            blockMargin={3}
+            fontSize={12}
+            renderBlock={withTooltip}
+          />
+          <Tooltip
+            id="github-tooltip"
+            noArrow
+            opacity={1}
+            className="!rounded-lg !px-3 !py-2 !text-xs !bg-white !text-neutral-900 dark:!bg-neutral-900 dark:!text-neutral-200 border border-neutral-200 dark:border-neutral-700 shadow-md"
+          />
         </div>
-      </div>
+      )}
 
       <OrganizationChips organizations={data.organizations} />
 
@@ -172,10 +140,10 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
           {prs.length > 0 ? (
             <div>
               <div className="mt-3 divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800">
-                {prs.slice(0, showAll ? prs.length : initialCount).map((pr, index) => (
+                {prs.slice(0, showAll ? prs.length : initialCount).map((pr) => (
                   <div key={pr.id} className="group flex items-start gap-3 py-3">
                     <div className="shrink-0 mt-0.5">
-                      <div className={`w-1 h-1 rounded-full bg-gradient-to-r ${activeFilter.dotClass}`} />
+                      <div className={`w-1 h-1 rounded-full bg-gradient-to-r ${PR_STATE_DOT[pr.state]}`} />
                     </div>
                     <a
                       href={pr.url}
