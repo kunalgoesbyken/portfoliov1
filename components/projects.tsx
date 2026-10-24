@@ -117,7 +117,7 @@ const MEDIA_FRAME_CLASS =
 const DESKTOP_LINK_CLASS = "icon-btn-ghost";
 
 const MOBILE_LINK_CLASS =
-  "inline-flex size-9 items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 transition-transform active:scale-95";
+  "frame-dashed inline-flex size-9 items-center justify-center text-neutral-700 dark:text-neutral-300 transition-colors hover:border-neutral-500 dark:hover:border-neutral-400";
 
 const projectLinks = ({ live, crates, pypi, github }: ProjectLinks): ProjectLink[] => [
   ...(live ? [{ href: live, label: "Live site", icon: <Globe size={16} /> }] : []),
@@ -210,7 +210,7 @@ function CardShell({
       onClick={handleClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="group flex flex-col h-full min-w-0 cursor-pointer max-md:overflow-hidden max-md:rounded-xl max-md:border max-md:border-neutral-200 max-md:dark:border-neutral-800 max-md:bg-white max-md:dark:bg-neutral-900/60"
+      className="group flex flex-col h-full min-w-0 cursor-pointer max-md:overflow-hidden max-md:frame-dashed"
     >
       {children}
     </div>
@@ -302,7 +302,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
 
   return (
     <div className="mt-6 md:mt-8">
-      <p className="max-md:hidden font-custom2 text-neutral-700 dark:text-neutral-300 mt-3 px-4 py-[7px] text-sm inline-block bg-neutral-100 dark:bg-neutral-900 border-dashed border-neutral-300 dark:border-neutral-700 border">
+      <p className="max-md:hidden font-custom2 text-neutral-700 dark:text-neutral-300 mt-3 px-4 py-[7px] text-sm inline-block bg-neutral-100 dark:bg-neutral-900 frame-dashed">
         I love crafting production-grade software that solves real problems.
       </p>
 
@@ -336,7 +336,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
           onClick={() => setShowAll(true)}
           className="flex justify-center items-center cursor-pointer pt-4 pb-6 max-md:pt-0 max-md:pb-2"
         >
-          <span className="max-md:w-full max-md:min-h-12 max-md:flex max-md:items-center max-md:justify-center max-md:border max-md:rounded-lg max-md:text-sm font-custom2 text-xs text-neutral-500 dark:text-neutral-400 border-b border-dashed border-neutral-300 dark:border-neutral-700 pb-[2px] tracking-wide hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors duration-200">
+          <span className="max-md:w-full max-md:min-h-12 max-md:flex max-md:items-center max-md:justify-center max-md:border max-md:text-sm font-custom2 text-xs text-neutral-500 dark:text-neutral-400 border-b border-dashed border-neutral-300 dark:border-neutral-700 pb-[2px] tracking-wide hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors duration-200">
             Show {remaining} more project{remaining > 1 ? "s" : ""}
           </span>
         </div>
