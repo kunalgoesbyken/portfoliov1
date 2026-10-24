@@ -56,12 +56,25 @@ AI email assistant with Gmail integration and CopilotKit for natural-language co
 - Live: https://ai-mail-app-pearl.vercel.app/
 
 ## Gostman
-A native, privacy-first API client built with Wails (Go + React).
-- 10x lighter than Postman
-- Native REST, GraphQL, and WebSocket support
-- 100% local and private, no data leaves your machine
+Open source API client for REST, GraphQL, gRPC and WebSocket, as a native desktop app (Go + Wails), a web app and a command line.
+- No account, no telemetry, no paid tier; collections are plain YAML files you can commit
+- gostman run runs the same collections in CI, with data-driven and parallel runs and HTML reports
+- gostman mcp lets coding agents call saved requests without seeing secrets
 - GitHub: https://github.com/kunalgoesbyken/gostman
-- Live: https://gostman.vercel.app/
+- Live: https://gostman.com
+
+## AeroSieve
+Rust pipeline that turns raw audio recordings into speech-model training data.
+- Decodes audio, cuts it into 3 to 30 second speech clips, drops silent, noisy, clipped and tonal clips, and writes WebDataset shards
+- Curated 43 minutes of Hindi audio in 1.7s on one CPU core, with no ML model by default
+- Ships as a CLI, a Rust crate and Python bindings
+- GitHub: https://github.com/kunalgoesbyken/AeroSieve
+
+## codebase-indexer
+Offline semantic code search in Rust.
+- Chunks source files with tree-sitter, embeds them with nomic-embed (INT8 ONNX) and searches with hybrid BM25 + vector retrieval fused by RRF
+- Custom persisted HNSW index, append-only vector store, and SHA-256 delta detection so only changed files are re-embedded
+- GitHub: https://github.com/kunalgoesbyken/codebase-indexer
 
 ## TaskFlow
 Async team coordination hub for tracking work handoffs across timezones.

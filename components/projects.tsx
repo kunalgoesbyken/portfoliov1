@@ -44,14 +44,14 @@ const DEPLOYED_PROJECTS: Project[] = [
     video: "/videos/gostman-full.mp4",
     thumbVideo: "/videos/gostman-preview.mp4",
     description:
-      "A native, privacy-first API client built with Wails (Go + React). 10x lighter than Postman with native support for REST, GraphQL, and WebSockets. 100% local and private.",
+      "Open source API client for REST, GraphQL, gRPC and WebSocket: a native desktop app (Go + Wails), a web app, and a single-binary CLI that runs collections in CI and serves them to coding agents over MCP. No account, no telemetry, no paid tier.",
     tech: ["go", "react"],
     github: "https://github.com/kunalgoesbyken/gostman",
-    live: "https://gostman.vercel.app/",
+    live: "https://gostman.com",
   },
   {
     title: "AeroSieve",
-    src: "/images/aerosieve-terminal.webp",
+    src: "/images/aerosieve-poster.webp",
     description:
       "Turns raw recordings into speech-model training data. Decodes audio, cuts it into speech clips, drops the silent, noisy, clipped, or tonal ones, and writes WebDataset shards. 43 minutes of Hindi audio curated in 1.7s on one CPU core. Ships as a CLI, Rust crate, and Python bindings.",
     tech: ["rust", "python"],
@@ -60,7 +60,7 @@ const DEPLOYED_PROJECTS: Project[] = [
   },
   {
     title: "codebase-indexer",
-    src: "/images/codebase-indexer-terminal.webp",
+    src: "/images/codebase-indexer-poster.webp",
     description:
       "Offline semantic code search. Walks a codebase, chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and indexes for hybrid BM25 + vector search with RRF fusion.",
     tech: ["rust", "onnx"],
