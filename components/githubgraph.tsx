@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState, cloneElement } from "react";
+import { useEffect, useRef, useState, cloneElement } from "react";
 import Separator from "@/components/separator";
 import MountOnVisible from "@/components/ui/mount-on-visible";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
-import { GithubData, PR } from "@/lib/github";
+import Image from "next/image";
+import { GithubData, Organization, PR } from "@/lib/github";
 import { GITHUB_USERNAME } from "@/lib/social-links";
 
 // Dynamic imports for code splitting - these load separately from the PR list
@@ -22,6 +23,49 @@ interface GithubGraphProps {
   data: GithubData;
 }
 
+const useScrollToLatestWeek = () => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const scrollToEnd = () => {
+      const scroller = root.querySelector<HTMLElement>(".react-activity-calendar__scroll-container");
+      if (scroller) scroller.scrollLeft = scroller.scrollWidth;
+    };
+    const observer = new MutationObserver(scrollToEnd);
+    observer.observe(root, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+};
+
+const OrganizationChips = ({ organizations }: { organizations: Organization[] }) => {
+  if (organizations.length === 0) return null;
+
+  return (
+    <div className="mt-6">
+      <p className="text-xs text-neutral-600 dark:text-neutral-400 font-custom2 mb-2">Contributed to</p>
+      <ul className="flex flex-wrap gap-2 list-none m-0 p-0">
+        {organizations.map((org) => (
+          <li key={org.login}>
+            <a
+              href={org.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 h-8 pl-1.5 pr-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs font-medium font-custom2 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors"
+            >
+              <Image src={org.avatarUrl} alt="" width={20} height={20} className="rounded" />
+              @{org.login}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 const GithubGraph = ({ data }: GithubGraphProps) => {
   const { theme } = useTheme();
   // Flatten data based on filter or keep it structured.
@@ -31,6 +75,7 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
   const [showAll, setShowAll] = useState(false);
   const [filterType, setFilterType] = useState<"merged" | "open" | "closed">("merged");
   const [isMobile, setIsMobile] = useState(false);
+  const calendarRef = useScrollToLatestWeek();
 
   const initialCount = 2;
 
@@ -62,7 +107,7 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
 
       {/* Graph Component */}
       <div className="w-full flex justify-center">
-        <div className="flex w-full justify-center">
+        <div ref={calendarRef} className="flex w-full justify-center">
           <MountOnVisible minHeight={isMobile ? 120 : 160} rootMargin="300px">
             <>
               <GitHubCalendar
@@ -98,6 +143,8 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
           </MountOnVisible>
         </div>
       </div>
+
+      <OrganizationChips organizations={data.organizations} />
 
       {/* PR Section - always shown */}
       <div className="mt-4">

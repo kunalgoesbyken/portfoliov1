@@ -7,6 +7,7 @@ import DeferredAnalytics from "@/components/deferred-analytics";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LazyChatbot, LazyFractalTree } from "@/components/lazy-widgets";
 import MotionProvider from "@/components/lazy-motion-provider";
+import { SITE_URL } from "@/lib/site";
 
 const instrumentSerif = Instrument_Serif({
   weight: ["400"],
@@ -23,14 +24,14 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://krockxz.com"),
+  metadataBase: new URL(SITE_URL),
   title: "Kunal",
   description:
     "Backend systems engineer building scalable systems, AI tools, and production-grade web apps.",
   openGraph: {
     title: "Kunal",
     description: "Backend systems architect. Rust and Go services at scale, and AI tools shipped to production.",
-    url: "https://krockxz.com",
+    url: SITE_URL,
     siteName: "Kunal's Portfolio",
     images: [
       {

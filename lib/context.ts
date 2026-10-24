@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/site";
+
 // Portfolio context for the AI chatbot
 export const PORTFOLIO_CONTEXT = `You are an AI assistant for Kunal Roy Choudhury's portfolio website. Your job is to help visitors quickly learn about Kunal: his work, skills, projects, and how to reach him.
 
@@ -12,7 +14,7 @@ Kunal Roy Choudhury is a backend systems architect who also builds frontends (th
 - LinkedIn: https://www.linkedin.com/in/kunal-roy-choudhury-7407211a7/
 - X (Twitter): https://x.com/kunalgoesbyken
 - Email: kunalrc.workmail7@gmail.com
-- Portfolio: https://www.kunal.tech/
+- Portfolio: ${SITE_URL}
 - Resume: Available at /resume.pdf
 
 # Work Experience

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type MouseEvent, type ReactNode, type Ref } from "react";
 import Image from "next/image";
-import { Globe, Play, ArrowUpRight, Package } from "lucide-react";
+import { Globe, Play, Package } from "lucide-react";
 import { SiPypi } from "react-icons/si";
 import GithubIcon from "@/components/ui/github-icon";
 import { TechKey } from "@/lib/tech-icons";
@@ -12,35 +12,37 @@ import type { MediaItem } from "@/components/ui/lightbox";
 
 const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
 
-interface Project {
+interface ProjectLinks {
+  github: string;
+  live?: string;
+  crates?: string;
+  pypi?: string;
+}
+
+interface OpenSourceProject extends ProjectLinks {
   title: string;
   src: string;
+  description: string;
+  tech: TechKey[];
+}
+
+interface Project extends OpenSourceProject {
   poster?: string;
   video?: string;
   thumbVideo?: string;
-  description: string;
-  tech: TechKey[];
-  github: string;
-  live?: string;
-  crates?: string;
 }
 
-interface OpenSourceProject {
-  title: string;
-  src: string;
-  description: string;
-  tech: TechKey[];
-  github: string;
-  live?: string;
-  pypi?: string;
-  crates?: string;
+interface ProjectLink {
+  href: string;
+  label: string;
+  icon: ReactNode;
 }
 
 const DEPLOYED_PROJECTS: Project[] = [
   {
     title: "Gostman",
-    src: "/images/gostman-poster.jpg",
-    poster: "/images/gostman-poster.jpg",
+    src: "/images/gostman-landing.jpg",
+    poster: "/images/gostman-landing.jpg",
     video: "/videos/gostman-full.mp4",
     thumbVideo: "/videos/gostman-preview.mp4",
     description:
@@ -106,6 +108,24 @@ const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
   },
 ];
 
+const TITLE_ACTION_CLASS =
+  "title-link truncate cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
+
+const MEDIA_FRAME_CLASS =
+  "relative w-full aspect-video overflow-hidden shrink-0 md:rounded-lg md:border md:border-neutral-200 md:dark:border-neutral-800";
+
+const DESKTOP_LINK_CLASS = "icon-btn-ghost";
+
+const MOBILE_LINK_CLASS =
+  "inline-flex size-9 items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 transition-transform active:scale-95";
+
+const projectLinks = ({ live, crates, pypi, github }: ProjectLinks): ProjectLink[] => [
+  ...(live ? [{ href: live, label: "Live site", icon: <Globe size={16} /> }] : []),
+  ...(crates ? [{ href: crates, label: "crates.io package", icon: <Package size={16} /> }] : []),
+  ...(pypi ? [{ href: pypi, label: "PyPI package", icon: <SiPypi size={16} /> }] : []),
+  { href: github, label: "GitHub repository", icon: <GithubIcon size={16} /> },
+];
+
 const useProjectVisibility = () => {
   const [isInView, setIsInView] = useState(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -165,9 +185,6 @@ const useVideoPlayback = () => {
   return { videoRef, isReady, handleCanPlay, play, pause };
 };
 
-const TITLE_ACTION_CLASS =
-  "title-link cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
-
 function CardShell({
   ref,
   onActivate,
@@ -193,92 +210,71 @@ function CardShell({
       onClick={handleClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="group flex flex-col h-full cursor-pointer"
+      className="group flex flex-col h-full min-w-0 cursor-pointer max-md:overflow-hidden max-md:rounded-xl max-md:border max-md:border-neutral-200 max-md:dark:border-neutral-800 max-md:bg-white max-md:dark:bg-neutral-900/60"
     >
       {children}
     </div>
   );
 }
 
-function CardBody({ children }: { children: ReactNode }) {
-  return <div className="flex flex-col flex-grow min-w-0">{children}</div>;
-}
-
-function CardHeader({ title, children }: { title: ReactNode; children?: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between mb-1 md:mb-2">
-      <h2 className="text-lg font-custom font-semibold text-neutral-900 dark:text-neutral-50">
-        {title}
-      </h2>
-      {children && <div className="hidden md:flex gap-3">{children}</div>}
-    </div>
-  );
-}
-
-function CardDescription({ children }: { children: ReactNode }) {
-  return (
-    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 md:mb-4 max-w-[68ch] leading-relaxed tracking-wide font-custom2 max-md:line-clamp-3">
-      {children}
-    </p>
-  );
-}
-
-function CardTechFooter({ tech, scope }: { tech: TechKey[]; scope: string }) {
-  return (
-    <>
-      <p className="max-md:hidden text-xs text-neutral-500 font-medium mb-2 font-custom2 mt-auto">
-        Tech Stack
-      </p>
-      <TechIconTooltip tech={tech} scope={scope} />
-    </>
-  );
-}
-
-function IconButton({
-  href,
-  ariaLabel,
-  children,
-}: {
-  href: string;
-  ariaLabel: string;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      onClick={() => window.open(href, "_blank")}
-      className="icon-btn-ghost"
-      aria-label={ariaLabel}
-    >
-      {children}
-    </button>
-  );
-}
-
-function MobileActions({
+function LinkIcons({
+  name,
   links,
+  className,
+  linkClassName,
 }: {
-  links: { href: string; label: string; icon: ReactNode; label2: string }[];
+  name: string;
+  links: ProjectLink[];
+  className: string;
+  linkClassName: string;
 }) {
   return (
-    <div className="md:hidden flex gap-2 mt-4">
-      {links.map((l, i) => (
+    <div className={className}>
+      {links.map((link) => (
         <a
-          key={l.label}
-          href={l.href}
+          key={link.href}
+          href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${l.label} for ${l.label2}`}
-          className={`flex-1 min-h-11 inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium font-custom2 transition-colors active:scale-[0.98] ${
-            i === 0
-              ? "bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-900"
-              : "border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200"
-          }`}
+          aria-label={`${link.label} for ${name}`}
+          className={linkClassName}
         >
-          {l.icon}
-          {l.label}
-          {i === 0 && <ArrowUpRight size={14} className="opacity-70" aria-hidden="true" />}
+          {link.icon}
         </a>
       ))}
+    </div>
+  );
+}
+
+function CardContent({
+  name,
+  title,
+  description,
+  tech,
+  links,
+}: {
+  name: string;
+  title: ReactNode;
+  description: string;
+  tech: TechKey[];
+  links: ProjectLink[];
+}) {
+  return (
+    <div className="flex flex-col flex-grow min-w-0 max-md:p-3">
+      <div className="flex items-center justify-between gap-3 mb-1 md:mb-2">
+        <h2 className="flex min-w-0 text-base md:text-lg font-custom font-semibold text-neutral-900 dark:text-neutral-50">
+          {title}
+        </h2>
+        <LinkIcons name={name} links={links} className="hidden md:flex gap-3" linkClassName={DESKTOP_LINK_CLASS} />
+      </div>
+      <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 mb-3 md:mb-4 max-w-[68ch] leading-relaxed md:tracking-wide font-custom2 max-md:line-clamp-3">
+        {description}
+      </p>
+      <p className="max-md:hidden text-xs text-neutral-500 font-medium mb-2 font-custom2 mt-auto">Tech Stack</p>
+      <div className="max-md:mt-auto">
+        <TechIconTooltip tech={tech} scope={name} />
+      </div>
+      <LinkIcons name={name} links={links} className="md:hidden flex gap-2 pt-3" linkClassName={MOBILE_LINK_CLASS} />
     </div>
   );
 }
@@ -286,7 +282,6 @@ function MobileActions({
 const Projects = ({ full = false }: { full?: boolean }) => {
   const [activeMedia, setActiveMedia] = useState<MediaItem | null>(null);
   const [showAll, setShowAll] = useState(false);
-  // Lightbox code (motion AnimatePresence) is fetched on first open only.
   const [hasLightbox, setHasLightbox] = useState(false);
   const openMedia = (media: MediaItem) => {
     setHasLightbox(true);
@@ -311,7 +306,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         I love crafting production-grade software that solves real problems.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10 py-5 md:py-7">
+      <div className="grid grid-cols-2 gap-3 md:gap-x-8 md:gap-y-10 py-5 md:py-7">
         {visibleDeployed.map((project, idx) => (
           <ProjectCard
             key={project.title}
@@ -328,7 +323,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
             <span className="link--elara">More Projects</span>
           </h2>
           <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
-          <div className="flex flex-col divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800 my-2 [&>*]:py-5">
+          <div className="grid grid-cols-2 gap-3 my-4 md:my-2 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-neutral-200 md:dark:divide-neutral-800 md:[&>*]:py-5">
             {OPEN_SOURCE_PROJECTS.map((project) => (
               <OpenSourceCard key={project.title} project={project} />
             ))}
@@ -401,15 +396,12 @@ function ProjectCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className="relative w-full h-44 max-md:h-auto overflow-hidden shrink-0 rounded-lg border border-neutral-200 dark:border-neutral-800 mb-4"
-        style={{ aspectRatio: "16/9" }}
-      >
+      <div className={`${MEDIA_FRAME_CLASS} md:mb-4`}>
         <Image
           src={project.poster || project.src}
           alt={project.title}
           fill
-          sizes="(max-width: 768px) 100vw, 448px"
+          sizes="(max-width: 768px) 50vw, 448px"
           quality={60}
           priority={idx === 0}
           fetchPriority={idx === 0 ? "high" : "auto"}
@@ -434,44 +426,23 @@ function ProjectCard({
         )}
 
         {project.thumbVideo && (
-          <span className="md:hidden absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-black/65 text-white text-xs font-custom2 pl-2 pr-2.5 py-1">
-            <Play size={11} fill="currentColor" aria-hidden="true" /> Watch demo
+          <span className="md:hidden absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-black/65 text-white text-[10px] font-custom2 px-2 py-0.5">
+            <Play size={9} fill="currentColor" aria-hidden="true" /> Demo
           </span>
         )}
       </div>
 
-      <CardBody>
-        <CardHeader
-          title={
-            <button type="button" onClick={openProjectMedia} className={TITLE_ACTION_CLASS}>
-              {project.title}
-            </button>
-          }
-        >
-          {project.live && (
-            <IconButton href={project.live} ariaLabel={`View live site for ${project.title}`}>
-              <Globe size={16} />
-            </IconButton>
-          )}
-          {project.crates && (
-            <IconButton href={project.crates} ariaLabel={`View crates.io package for ${project.title}`}>
-              <Package size={16} />
-            </IconButton>
-          )}
-          <IconButton href={project.github} ariaLabel={`View GitHub repository for ${project.title}`}>
-            <GithubIcon size={16} />
-          </IconButton>
-        </CardHeader>
-        <CardDescription>{project.description}</CardDescription>
-        <CardTechFooter tech={project.tech} scope={project.title} />
-        <MobileActions
-          links={[
-            ...(project.live ? [{ href: project.live, label: "Live", icon: <Globe size={16} />, label2: project.title }] : []),
-            ...(project.crates ? [{ href: project.crates, label: "crates.io", icon: <Package size={16} />, label2: project.title }] : []),
-            { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
-          ]}
-        />
-      </CardBody>
+      <CardContent
+        name={project.title}
+        title={
+          <button type="button" onClick={openProjectMedia} className={TITLE_ACTION_CLASS}>
+            {project.title}
+          </button>
+        }
+        description={project.description}
+        tech={project.tech}
+        links={projectLinks(project)}
+      />
     </CardShell>
   );
 }
@@ -479,51 +450,24 @@ function ProjectCard({
 function OpenSourceCard({ project }: { project: OpenSourceProject }) {
   return (
     <CardShell onActivate={() => window.open(project.github, "_blank")}>
-      <div className="flex md:gap-8 md:items-start">
-        <CardBody>
-          <CardHeader
-            title={
-              <a href={project.github} target="_blank" rel="noopener noreferrer" className={TITLE_ACTION_CLASS}>
-                {project.title}
-              </a>
-            }
-          >
-            {project.live && (
-              <IconButton href={project.live} ariaLabel={`View live site for ${project.title}`}>
-                <Globe size={16} />
-              </IconButton>
-            )}
-            {project.crates && (
-              <IconButton href={project.crates} ariaLabel={`View crates.io package for ${project.title}`}>
-                <Package size={16} />
-              </IconButton>
-            )}
-            {project.pypi && (
-              <IconButton href={project.pypi} ariaLabel={`View PyPI package for ${project.title}`}>
-                <SiPypi size={16} />
-              </IconButton>
-            )}
-            <IconButton href={project.github} ariaLabel={`View GitHub repository for ${project.title}`}>
-              <GithubIcon size={16} />
-            </IconButton>
-          </CardHeader>
-          <CardDescription>{project.description}</CardDescription>
-          <CardTechFooter tech={project.tech} scope={project.title} />
-          <MobileActions
-            links={[
-              ...(project.live ? [{ href: project.live, label: "Live", icon: <Globe size={16} />, label2: project.title }] : []),
-              ...(project.crates ? [{ href: project.crates, label: "crates.io", icon: <Package size={16} />, label2: project.title }] : []),
-              ...(project.pypi ? [{ href: project.pypi, label: "PyPI", icon: <SiPypi size={16} />, label2: project.title }] : []),
-              { href: project.github, label: "GitHub", icon: <GithubIcon size={16} />, label2: project.title },
-            ]}
-          />
-        </CardBody>
-        <div className="max-md:hidden relative w-52 shrink-0 aspect-video overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
+      <div className="flex flex-col-reverse h-full md:flex-row md:gap-8 md:items-start">
+        <CardContent
+          name={project.title}
+          title={
+            <a href={project.github} target="_blank" rel="noopener noreferrer" className={TITLE_ACTION_CLASS}>
+              {project.title}
+            </a>
+          }
+          description={project.description}
+          tech={project.tech}
+          links={projectLinks(project)}
+        />
+        <div className={`${MEDIA_FRAME_CLASS} md:w-52`}>
           <Image
             src={project.src}
             alt={project.title}
             fill
-            sizes="208px"
+            sizes="(max-width: 768px) 50vw, 208px"
             quality={60}
             className="object-cover"
           />
