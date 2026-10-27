@@ -49,14 +49,21 @@ const withTooltip = (block: BlockElement, activity: Activity) =>
     "data-tooltip-content": `${activity.count} contributions on ${activity.date}`,
   });
 
+const VISIBLE_ORGANIZATIONS = 10;
+
 const OrganizationChips = ({ organizations }: { organizations: Organization[] }) => {
+  const [expanded, setExpanded] = useState(false);
+
   if (organizations.length === 0) return null;
+
+  const hiddenCount = organizations.length - VISIBLE_ORGANIZATIONS;
+  const visible = expanded ? organizations : organizations.slice(0, VISIBLE_ORGANIZATIONS);
 
   return (
     <div className="mt-6">
       <p className="text-xs text-neutral-600 dark:text-neutral-400 font-custom2 mb-2">Contributed to</p>
       <ul className="flex flex-wrap gap-2 list-none m-0 p-0">
-        {organizations.map((org) => (
+        {visible.map((org) => (
           <li key={org.login}>
             <a
               href={org.url}
@@ -70,6 +77,13 @@ const OrganizationChips = ({ organizations }: { organizations: Organization[] })
           </li>
         ))}
       </ul>
+      {hiddenCount > 0 && (
+        <div className="flex justify-center mt-4">
+          <button onClick={() => setExpanded(!expanded)} className="text-toggle">
+            {expanded ? "↑ Show less" : `Show ${hiddenCount} more`}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
