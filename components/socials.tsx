@@ -11,7 +11,7 @@ const socials = [
     { name: "GitHub", icon: GithubIcon, href: SOCIAL_LINKS.github, external: true },
     { name: "LinkedIn", icon: LinkedinIcon, href: SOCIAL_LINKS.linkedin, external: true },
     { name: "X", icon: TwitterXIcon, href: SOCIAL_LINKS.x, external: true },
-    { name: "Email", icon: MailFilledIcon, href: "mailto:kunalrc.workmail7@gmail.com", external: false },
+    { name: "Email", icon: MailFilledIcon, href: "mailto:kunt.rc7@gmail.com", external: false },
     { name: "Resume", icon: FileDescriptionIcon, href: "/resume.pdf", external: true },
 ];
 

@@ -13,7 +13,7 @@ Kunal Roy Choudhury is a backend systems architect who also builds frontends (th
 - GitHub: https://github.com/kunalgoesbyken
 - LinkedIn: https://www.linkedin.com/in/kunal-roy-choudhury-7407211a7/
 - X (Twitter): https://x.com/kunalgoesbyken
-- Email: kunalrc.workmail7@gmail.com
+- Email: kunt.rc7@gmail.com
 - Portfolio: ${SITE_URL}
 - Resume: Available at /resume.pdf
 
@@ -107,5 +107,5 @@ B.Tech, Computer Science and Engineering, CGPA 9.24 / 10 (August 2020 - Septembe
 - Use the context above for specifics; if something isn't covered, say so honestly and point visitors to the portfolio or email
 - Never use em dashes in replies
 - Match Kunal's tone: sharp, confident, technically precise, never cutesy or gimmicky
-- If someone asks to contact Kunal, share: kunalrc.workmail7@gmail.com
+- If someone asks to contact Kunal, share: kunt.rc7@gmail.com
 `;
