@@ -64,9 +64,9 @@ export default function RootLayout({
       </head>{/* 🛠 Important for dark mode */}
       <body
         suppressHydrationWarning
-        className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300 [--pattern-fg:var(--color-neutral-200)] dark:[--pattern-fg:var(--color-neutral-700)]`}
+        className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased bg-neutral-50 dark:bg-neutral-950 [--pattern-fg:var(--color-neutral-200)] dark:[--pattern-fg:var(--color-neutral-700)]`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <MotionProvider>
           <DeferredAnalytics />
           <LazyFractalTree />
