@@ -332,13 +332,10 @@ const Projects = ({ full = false }: { full?: boolean }) => {
       )}
 
       {!showAll && !full && remaining > 0 && (
-        <div
-          onClick={() => setShowAll(true)}
-          className="flex justify-center items-center cursor-pointer pt-4 pb-6 max-md:pt-0 max-md:pb-2"
-        >
-          <span className="max-md:w-full max-md:min-h-12 max-md:flex max-md:items-center max-md:justify-center max-md:border max-md:text-sm font-custom2 text-xs text-neutral-500 dark:text-neutral-400 border-b border-dashed border-neutral-300 dark:border-neutral-700 pb-[2px] tracking-wide hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors duration-200">
+        <div className="flex justify-center pt-4 pb-6 max-md:pt-0 max-md:pb-2">
+          <button onClick={() => setShowAll(true)} className="text-toggle">
             Show {remaining} more project{remaining > 1 ? "s" : ""}
-          </span>
+          </button>
         </div>
       )}
 

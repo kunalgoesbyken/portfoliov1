@@ -57,13 +57,13 @@ export const Timeline = () => {
       company: "FinStocks AI",
       designation: "Lead Software Engineer",
       date: "March 2026 - Present",
-      description: `First employee here. I lead a team of 3 and built the engine that turns plain English into trading strategies you can backtest.
-The LLM only fills in a typed Pydantic spec covering 185 indicators and 148 patterns. Everything after that is compiled and validated without it, so results are deterministic.
-Made backtests fast with Numba-JIT kernels that run the whole universe in one pass over float32 Parquet, loading only the columns a strategy actually uses.
-Backtests and live trading run on the same compiler, so what you tested is what trades. Redis Lua keeps capital allocation atomic across workers.
-Built an LLM chart terminal with 85 typed operations. A 1.4k-line validator stops it from making up price levels.
-Built transactional push on Postgres with SKIP LOCKED, so notifications don't get lost or sent twice.
-Took market-data queries from 13.6s down to 48-135ms, and from 5.9s to 782ms. Bars stream over Redis Pub/Sub into a TradingView datafeed.`,
+      description: `I was the first hire. Now I lead a team of 3, and we built the thing that turns "buy when RSI dips under 30" into a strategy you can actually backtest.
+The LLM never touches the math. It just fills out a typed spec (185 indicators, 148 patterns) and a compiler takes it from there. Same spec, same result, every time.
+Backtests chew through the whole stock universe in one pass with Numba-JIT kernels, and only read the Parquet columns a strategy actually needs.
+Backtesting and live trading share one compiler, so what you tested is exactly what trades. Redis Lua scripts stop workers from fighting over capital.
+Built a chart terminal you can just talk to. 85 typed operations, plus a 1.4k-line validator whose whole job is stopping the LLM from inventing price levels.
+Push notifications run on Postgres with SKIP LOCKED, so nothing gets lost and nobody gets pinged twice.
+Market-data queries went from 13.6s to 48-135ms, and another one from 5.9s to 782ms. Live bars stream over Redis Pub/Sub straight into TradingView charts.`,
       logo: "/images/logos/finstocks-light.png",
       logoDark: "/images/logos/finstocks-dark.png",
       href: "https://finstocks.ai/",
@@ -75,7 +75,8 @@ Took market-data queries from 13.6s down to 48-135ms, and from 5.9s to 782ms. Ba
       date: "April 2025 - Feb 2026",
       description: `Built <a href="https://indiankanoon.org/prism/" target="_blank" class="underline hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors">Prism</a> from scratch. It's AI that reads case law and legal documents at scale.
 Got it handling 5,000+ concurrent users.`,
-      logo: "/images/logos/indian_kanoon_logo.jpeg",
+      logo: "/images/logos/kanoon-light.png",
+      logoDark: "/images/logos/kanoon-dark.png",
       href: "https://indiankanoon.org/",
       tech: ["python", "django", "react", "redis", "celery", "postgres", "gemini"],
     },
@@ -86,7 +87,7 @@ Got it handling 5,000+ concurrent users.`,
       description: `Led a big data migration and a round of database tuning.
 Moved 2 million records and cut query time by 45%.
 Built a validation layer that caught bad data before it reached 500k subscriptions.`,
-      logo: "/images/logos/chargebee.jpg",
+      logo: "/images/logos/chargebee.png",
       href: "https://www.chargebee.com/",
       tech: ["java", "vue", "postgres", "docker"],
     },
@@ -97,7 +98,7 @@ Built a validation layer that caught bad data before it reached 500k subscriptio
       description: `Designed APIs and data retrieval frameworks built to scale.
 Broke a monolith into microservices.
 Tuned SQL pagination until retrieval felt instant.`,
-      logo: "/images/logos/aidash.jpg",
+      logo: "/images/logos/aidash.png",
       href: "https://www.linkedin.com/company/aidash/",
       tech: ["java", "python", "django", "mongo", "postgres", "s3", "docker", "jenkins"],
     }

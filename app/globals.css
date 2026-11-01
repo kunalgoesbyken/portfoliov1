@@ -332,7 +332,7 @@ body {
 }
 
 .text-toggle {
-  @apply max-md:min-h-12 max-md:px-6 font-custom2 text-xs tracking-wide text-neutral-500 dark:text-neutral-400 underline decoration-dashed decoration-neutral-300 dark:decoration-neutral-700 underline-offset-4 cursor-pointer bg-transparent transition-colors duration-200 hover:text-neutral-900 dark:hover:text-neutral-100 hover:decoration-neutral-500 dark:hover:decoration-neutral-400;
+  @apply inline-flex items-center justify-center pb-0.5 font-custom2 text-xs tracking-wide text-neutral-500 dark:text-neutral-400 border-b border-dashed border-neutral-300 dark:border-neutral-700 cursor-pointer bg-transparent transition-colors duration-200 hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-500 dark:hover:border-neutral-400 max-md:w-full max-md:min-h-12 max-md:border max-md:text-sm;
 }
 
 .title-link {
