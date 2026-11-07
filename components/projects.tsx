@@ -53,7 +53,7 @@ const DEPLOYED_PROJECTS: Project[] = [
   },
   {
     title: "AeroSieve",
-    src: "/images/aerosieve-poster.webp",
+    src: "/images/aerosieve-landing.webp",
     description:
       "Turns raw recordings into speech-model training data, with a reason for every clip it drops. Caught 24,385 of 24,409 injected defects across six languages, curates audio 940x faster than real time on a laptop CPU, and judges 1,000 live streams at 14.8 ms p95 over WebSocket. Runs in the browser via WebAssembly, and ships as a CLI, Rust crate and Python bindings.",
     tech: ["rust", "python"],
