@@ -55,10 +55,20 @@ const DEPLOYED_PROJECTS: Project[] = [
     title: "AeroSieve",
     src: "/images/aerosieve-poster.webp",
     description:
-      "Turns raw recordings into speech-model training data. Decodes audio, cuts it into speech clips, drops the silent, noisy, clipped, or tonal ones, and writes WebDataset shards. 43 minutes of Hindi audio curated in 1.7s on one CPU core. Ships as a CLI, Rust crate, and Python bindings.",
+      "Turns raw recordings into speech-model training data, with a reason for every clip it drops. Caught 24,385 of 24,409 injected defects across six languages, curates audio 940x faster than real time on a laptop CPU, and judges 1,000 live streams at 14.8 ms p95 over WebSocket. Runs in the browser via WebAssembly, and ships as a CLI, Rust crate and Python bindings.",
     tech: ["rust", "python"],
     github: "https://github.com/kunalgoesbyken/AeroSieve",
+    live: "https://aerosieve.vercel.app",
     crates: "https://crates.io/crates/aerosieve-cli",
+  },
+  {
+    title: "Seedfall",
+    src: "/images/seedfall-poster.webp",
+    description:
+      "Deterministic simulation testing for unmodified Go programs. Runs services on wazero under a seeded scheduler, then crashes them mid-write, tears their writes and partitions their network, and replays any failure from one seed. Found a missing directory fsync in hashicorp/raft that leaves a node unable to restart.",
+    tech: ["go"],
+    github: "https://github.com/kunalgoesbyken/seedfall",
+    live: "https://seedfall-lemon.vercel.app",
   },
   {
     title: "codebase-indexer",

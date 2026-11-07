@@ -66,11 +66,23 @@ Open source API client for REST, GraphQL, gRPC and WebSocket, as a native deskto
 - Live: https://gostman.com
 
 ## AeroSieve
-Rust pipeline that turns raw audio recordings into speech-model training data.
+Rust pipeline that turns raw audio recordings into speech-model training data, with a reason for every clip it drops.
 - Decodes audio, cuts it into 3 to 30 second speech clips, drops silent, noisy, clipped and tonal clips, and writes WebDataset shards
-- Curated 43 minutes of Hindi audio in 1.7s on one CPU core, with no ML model by default
-- Ships as a CLI, a Rust crate and Python bindings
+- SieveBench: caught 24,385 of 24,409 injected defects across 51,352 damaged recordings in six languages
+- Curates 43 minutes of 48 kHz Hindi audio in 2.75s on a laptop CPU, about 940x real time, with no ML model by default
+- Streaming WebSocket service: 1,000 concurrent live streams with verdicts at 14.8 ms p95, identical to batch results
+- Runs in the browser via WebAssembly, and ships as a CLI, a Rust crate and Python bindings
 - GitHub: https://github.com/kunalgoesbyken/AeroSieve
+- Live: https://aerosieve.vercel.app
+
+## Seedfall
+Deterministic simulation testing for unmodified Go programs.
+- Compiles Go with the stock toolchain to wasip1 and runs each node on wazero under a seeded scheduler and virtual clock
+- Crashes nodes mid-write, drops unsynced data, tears writes and partitions the network; any failure replays byte for byte from one seed and shrinks to the few faults that matter
+- Checks linearizability with Porcupine
+- Found that hashicorp/raft never fsyncs its snapshot directory, which under strict POSIX leaves a node panicking on restart
+- GitHub: https://github.com/kunalgoesbyken/seedfall
+- Live: https://seedfall-lemon.vercel.app
 
 ## codebase-indexer
 Offline semantic code search in Rust.

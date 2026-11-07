@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Footer from "@/components/footer";
 import Navbar from "@/components/Navbar";
@@ -51,6 +51,10 @@ export const metadata: Metadata = {
     creator: "@kunalgoesbyken",
     images: ["/images/kunal-sm.jpg"],
   },
+};
+
+export const viewport: Viewport = {
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({
