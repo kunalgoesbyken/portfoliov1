@@ -25,7 +25,7 @@ const instrumentSans = Instrument_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Kunal",
+  title: "Kunal Roy Choudhury",
   description:
     "Backend systems engineer building scalable systems, AI tools, and production-grade web apps.",
   openGraph: {
@@ -33,14 +33,6 @@ export const metadata: Metadata = {
     description: "Backend systems architect. Rust and Go services at scale, and AI tools shipped to production.",
     url: SITE_URL,
     siteName: "Kunal's Portfolio",
-    images: [
-      {
-        url: "/images/og-home.png",
-        width: 1200,
-        height: 630,
-        alt: "Kunal Roy Choudhury's portfolio: backend systems, Rust, Go and AI tools shipped to production",
-      },
-    ],
     locale: "en_US",
     type: "website",
   },
@@ -49,7 +41,6 @@ export const metadata: Metadata = {
     title: "Kunal Roy Choudhury",
     description: "Backend systems architect. Rust and Go services at scale, and AI tools shipped to production.",
     creator: "@kunalgoesbyken",
-    images: ["/images/og-home.png"],
   },
 };
 
