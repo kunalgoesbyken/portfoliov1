@@ -29,16 +29,16 @@ export const metadata: Metadata = {
   description:
     "Backend systems engineer building scalable systems, AI tools, and production-grade web apps.",
   openGraph: {
-    title: "Kunal",
+    title: "Kunal Roy Choudhury",
     description: "Backend systems architect. Rust and Go services at scale, and AI tools shipped to production.",
     url: SITE_URL,
     siteName: "Kunal's Portfolio",
     images: [
       {
-        url: "/images/kunal-sm.jpg",
-        width: 800,
-        height: 600,
-        alt: "Kunal Roy Choudhury",
+        url: "/images/og-home.png",
+        width: 1200,
+        height: 630,
+        alt: "Kunal Roy Choudhury's portfolio: backend systems, Rust, Go and AI tools shipped to production",
       },
     ],
     locale: "en_US",
@@ -46,10 +46,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kunal ",
-    description: "Backend systems architect building AI tools.",
+    title: "Kunal Roy Choudhury",
+    description: "Backend systems architect. Rust and Go services at scale, and AI tools shipped to production.",
     creator: "@kunalgoesbyken",
-    images: ["/images/kunal-sm.jpg"],
+    images: ["/images/og-home.png"],
   },
 };
 
