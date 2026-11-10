@@ -6,7 +6,12 @@ const SOURCE_DIR = path.join("data", "projects", "diagrams");
 const OUTPUT_DIR = path.join("public", "diagrams");
 const THEMES = ["light", "dark"];
 const SHARED = "_classes.d2";
-const LAYOUT_FLAGS = ["--pad", "16", "--elk-nodeNodeBetweenLayers", "36", "--elk-edgeNodeBetweenLayers", "24"];
+const LAYOUT_FLAGS = [
+  "--pad", "12",
+  "--elk-nodeNodeBetweenLayers", "28",
+  "--elk-edgeNodeBetweenLayers", "16",
+  "--elk-padding", "[top=28,left=16,bottom=16,right=16]",
+];
 
 const read = (name) => readFileSync(path.join(SOURCE_DIR, name), "utf-8");
 const isDiagram = (name) => name.endsWith(".d2") && !name.startsWith("_");

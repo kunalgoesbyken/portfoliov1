@@ -1,4 +1,4 @@
-direction: down
+direction: right
 
 index: Incremental index {
   class: zone
@@ -14,7 +14,7 @@ index: Incremental index {
     class: model
     tooltip: "nomic-embed-text v1.5 quantised to INT8 and run locally through ONNX Runtime. Chunks are sorted by length and batched to limit padding, then mean-pooled into 768-dimension vectors."
   }
-  walk -> chunk: changed files
+  walk -> chunk: changed
   chunk -> embed
 }
 
@@ -30,21 +30,19 @@ disk: On disk {
   }
 }
 
-query: Search {
-  class: zone
-  ask: Plain-language query {
-    class: client
-    tooltip: "Embedded once with the model query prefix, then sent to both rankers."
-  }
-  fuse: RRF fusion\ntop 5 {
-    class: service
-    tooltip: "Reciprocal Rank Fusion with k=60 merges the top 20 from each ranker by rank, not score, so cosine similarity and BM25 never need calibrating against each other."
-  }
+ask: Query\nplain language {
+  class: client
+  tooltip: "Embedded once with the model query prefix, then sent to both rankers."
+}
+
+fuse: RRF fusion\ntop 5 {
+  class: service
+  tooltip: "Reciprocal Rank Fusion with k=60 merges the top 20 from each ranker by rank, not score, so cosine similarity and BM25 never need calibrating against each other."
 }
 
 index.embed -> disk.vectors
 index.chunk -> disk.bm25
-query.ask -> disk.vectors: by meaning
-query.ask -> disk.bm25: by keyword
-disk.vectors -> query.fuse
-disk.bm25 -> query.fuse
+ask -> disk.vectors: meaning
+ask -> disk.bm25: keyword
+disk.vectors -> fuse
+disk.bm25 -> fuse

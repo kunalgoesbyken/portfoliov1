@@ -4,21 +4,16 @@ import { useState, type MouseEvent, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Maximize2 } from "lucide-react";
 import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, projectPath, type Project } from "@/lib/projects-data";
 import type { TechKey } from "@/lib/tech-icons";
-import type { MediaItem } from "@/lib/media";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 import { projectLinks, type ProjectLink } from "@/components/project-links";
-import dynamic from "next/dynamic";
-
-const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
 
 const TITLE_ACTION_CLASS =
   "title-link truncate cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
 
 const MEDIA_FRAME_CLASS =
-  "relative w-full aspect-video overflow-hidden shrink-0 md:rounded-lg md:border md:border-neutral-200 md:dark:border-neutral-800";
+  "relative w-full aspect-video overflow-hidden shrink-0 md:rounded-lg md:border md:border-neutral-200 md:dark:border-neutral-800 md:transition-[translate,border-color] md:duration-200 md:group-hover:-translate-y-0.5 md:group-hover:border-neutral-400 md:dark:group-hover:border-neutral-600 motion-reduce:transition-none";
 
 const DESKTOP_LINK_CLASS = "icon-btn-ghost";
 
@@ -105,13 +100,7 @@ function CardContent({
 }
 
 const Projects = ({ full = false }: { full?: boolean }) => {
-  const [activeMedia, setActiveMedia] = useState<MediaItem | null>(null);
   const [showAll, setShowAll] = useState(false);
-  const [hasLightbox, setHasLightbox] = useState(false);
-  const openMedia = (media: MediaItem) => {
-    setHasLightbox(true);
-    setActiveMedia(media);
-  };
 
   const visibleDeployed = (showAll || full) ? DEPLOYED_PROJECTS : DEPLOYED_PROJECTS.slice(0, 2);
   const showOpenSource = showAll || full;
@@ -129,7 +118,6 @@ const Projects = ({ full = false }: { full?: boolean }) => {
             key={project.title}
             project={project}
             idx={idx}
-            openMedia={openMedia}
           />
         ))}
       </div>
@@ -167,13 +155,6 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         </div>
       )}
 
-      {hasLightbox && (
-        <Lightbox
-          items={activeMedia ? [activeMedia] : []}
-          index={activeMedia ? 0 : null}
-          onIndexChange={(index) => index === null && setActiveMedia(null)}
-        />
-      )}
     </div>
   );
 };
@@ -181,14 +162,11 @@ const Projects = ({ full = false }: { full?: boolean }) => {
 function ProjectCard({
   project,
   idx,
-  openMedia,
 }: {
   project: Project;
   idx: number;
-  openMedia: (media: MediaItem) => void;
 }) {
   const router = useRouter();
-  const preview: MediaItem = { src: project.src, caption: project.title };
 
   return (
     <CardShell onActivate={() => router.push(projectPath(project.slug))}>
@@ -202,15 +180,6 @@ function ProjectCard({
           priority={idx === 0}
           className="object-cover object-top"
         />
-        <button
-          type="button"
-          onClick={() => openMedia(preview)}
-          aria-label={`Expand screenshot of ${project.title}`}
-          className="max-md:hidden absolute top-2.5 right-2.5 inline-flex items-center gap-1.5 rounded-full bg-black/65 text-white text-xs font-custom2 px-2.5 py-1 cursor-zoom-in opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-        >
-          <Maximize2 size={11} aria-hidden="true" />
-          Expand
-        </button>
       </div>
 
       <CardContent

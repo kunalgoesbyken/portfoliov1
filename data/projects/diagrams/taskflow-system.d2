@@ -1,17 +1,17 @@
-direction: down
+direction: right
 
-browser: Browser\nReact 19 + TanStack Query {
+browser: Browser\nTanStack Query {
   class: client
   tooltip: "Server components render the first view through Prisma; client components fetch and mutate through TanStack Query. Drag and drop between timezone lanes uses dnd-kit."
 }
 
 app: Next.js on Vercel {
   class: zone
-  guard: Middleware\nsession + route guard {
+  guard: Middleware\nsession guard {
     class: service
     tooltip: "Refreshes the Supabase session cookie on each request and redirects signed-out visitors away from the dashboard, tasks, analytics and settings."
   }
-  api: Route handlers\nper-user scoping {
+  api: Route handlers\nper-user scope {
     class: service
     tooltip: "26 handlers. Every query is scoped to tasks the caller created or is assigned. Bulk changes first verify access to every id, then run one updateMany plus one createMany for the audit trail: 2 statements for any batch size."
   }
@@ -48,6 +48,6 @@ gemini: Gemini\nShift Brief {
 browser -> app.guard
 app.guard -> supabase.auth: refresh
 app.api -> supabase.db
-supabase.realtime -> browser: invalidate cache
+browser -> supabase.realtime: subscribe
 github -> app.api
 app.api -> gemini: stream

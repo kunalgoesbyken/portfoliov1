@@ -1,4 +1,4 @@
-direction: down
+direction: right
 
 surfaces: Same core, four surfaces {
   class: zone
@@ -31,7 +31,7 @@ core: AeroSieve core (Rust) {
     class: service
     tooltip: "A hysteresis state machine modelled on Silero speech timestamps: start above one threshold, continue above a lower one, end after 500 ms of quiet. Bridging short pauses raised kept Hindi speech from 16.4 to 25.6 minutes. Batch mode is this same streaming segmenter fed the whole file."
   }
-  score: Score + policy\nSNR, level, clip, tone {
+  score: Score + policy\nSNR, level, clipping {
     class: service
     tooltip: "Four deterministic numbers with no ML model: WADA-SNR, RMS level, clip ratio and spectral flatness over 300 to 3400 Hz. Measurement and judgement are separate, so thresholds change without re-reading audio."
   }
@@ -52,7 +52,7 @@ out: Output {
 
 audio -> core.decode
 surfaces.batch -> core.decode
-surfaces.live -> core.segment: PCM frames
+surfaces.live -> core.segment: PCM
 surfaces.wasm -> core.decode
 core.score -> out.shards: keep
 core.score -> out.rejects: drop

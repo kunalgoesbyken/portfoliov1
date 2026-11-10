@@ -1,4 +1,4 @@
-direction: down
+direction: right
 
 browser: In your browser {
   class: zone
@@ -6,7 +6,7 @@ browser: In your browser {
     class: client
     tooltip: "One Zustand store holds mail per mailbox, filters, the open thread and the composer, so a filter change never re-renders the compose window. A 30-second sync refreshes the current view; fixing its effect dependencies cut 640 requests in 11 s to 3."
   }
-  gmail: Gmail client\nOAuth token stays here {
+  gmail: Gmail client\ntoken stays local {
     class: service
     tooltip: "OAuth code exchange, token storage and every Gmail REST call run in the browser, so there is no mail backend. Messages are fetched with Promise.allSettled, so one broken message never empties the inbox, and HTML bodies are sanitised with DOMPurify."
   }
@@ -32,6 +32,5 @@ llm: Groq model {
 }
 
 browser.gmail -> google: REST
-browser.ui -> server.chat: prompt + 10 snippets
+browser.ui <-> server.chat: prompt / tool calls
 server.chat -> llm: stream
-server.chat -> browser.ui: tool calls fill the draft

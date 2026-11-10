@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type CSSProperties } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -8,24 +8,12 @@ import type { Screenshot } from "@/lib/case-studies";
 
 const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
 
-const SLIDE_HEIGHT = { mobile: 220, desktop: 420 };
-const MAX_SLIDE_WIDTH = 768;
 const SCROLL_EPSILON = 4;
-
-const TRACK_STYLE = {
-  "--slide-h-mobile": `${SLIDE_HEIGHT.mobile}px`,
-  "--slide-h-desktop": `${SLIDE_HEIGHT.desktop}px`,
-} as CSSProperties;
 
 const ARROW_CLASS =
   "inline-flex size-8 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors enabled:cursor-pointer enabled:hover:border-neutral-500 enabled:hover:text-neutral-900 dark:enabled:hover:border-neutral-400 dark:enabled:hover:text-neutral-100 disabled:opacity-30";
 
-const ratioOf = ({ width, height }: Screenshot) => width / height;
-
-const slideSizes = (shot: Screenshot) => {
-  const at = (height: number) => Math.min(Math.round(height * ratioOf(shot)), MAX_SLIDE_WIDTH);
-  return `(max-width: 768px) ${at(SLIDE_HEIGHT.mobile)}px, ${at(SLIDE_HEIGHT.desktop)}px`;
-};
+const SLIDE_SIZES = "(max-width: 768px) 85vw, 640px";
 
 const neighbourOffset = (track: HTMLElement, direction: 1 | -1) => {
   const offsets = Array.from(track.children, (child) => (child as HTMLElement).offsetLeft - track.offsetLeft);
@@ -59,25 +47,22 @@ function useTrackEdges() {
 
 function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpen: () => void }) {
   return (
-    <figure
-      className="m-0 shrink-0 snap-start [width:min(100%,calc(var(--slide-h)*var(--ratio)))]"
-      style={{ "--ratio": ratioOf(shot) } as CSSProperties}
-    >
+    <figure className="m-0 w-[85%] shrink-0 snap-start md:w-[640px]">
       <button
         type="button"
         onClick={onOpen}
         aria-label={`View full screen: ${shot.caption}`}
-        className="block w-full cursor-zoom-in overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800"
+        className="flex aspect-[16/10] w-full cursor-zoom-in items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 p-3 md:p-5"
       >
         <Image
           src={shot.src}
           alt={shot.caption}
           width={shot.width}
           height={shot.height}
-          sizes={slideSizes(shot)}
+          sizes={SLIDE_SIZES}
           quality={80}
           priority={index === 0}
-          className="block h-auto w-full"
+          className="block h-auto max-h-full w-auto max-w-full rounded-md shadow-sm ring-1 ring-black/5 dark:ring-white/10"
         />
       </button>
       <figcaption className="mt-2 font-custom2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">{shot.caption}</figcaption>
@@ -116,8 +101,7 @@ export function Gallery({ items }: { items: Screenshot[] }) {
       <div
         ref={trackRef}
         onScroll={update}
-        style={TRACK_STYLE}
-        className="scrollbar-subtle flex snap-x snap-mandatory items-start gap-4 overflow-x-auto pb-3 [--slide-h:var(--slide-h-mobile)] md:[--slide-h:var(--slide-h-desktop)]"
+        className="scrollbar-subtle flex snap-x snap-mandatory items-start gap-4 overflow-x-auto pb-3"
       >
         {items.map((shot, i) => (
           <Slide key={shot.src} shot={shot} index={i} onOpen={() => openAt(i)} />

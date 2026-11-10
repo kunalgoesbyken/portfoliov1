@@ -1,4 +1,4 @@
-direction: down
+direction: right
 
 you: Your code {
   class: zone
@@ -14,7 +14,7 @@ you: Your code {
 
 sim: Seedfall simulator {
   class: zone
-  runtime: wazero\none instance per node {
+  runtime: wazero\none per node {
     class: service
     tooltip: "Each node is its own WebAssembly instance inside one host process. On wasip1 the Go runtime is single-threaded and every source of nondeterminism leaves through three WASI calls, which Seedfall implements itself."
   }
@@ -22,7 +22,7 @@ sim: Seedfall simulator {
     class: service
     tooltip: "Runs exactly one node at a time, picks the earliest wake-up, breaks ties with the seed and jumps virtual time, so sleeps cost nothing. random_get is a ChaCha8 stream, which also fixes map order and select choice. A call counter forces cooperative preemption after about four million calls."
   }
-  world: Simulated disk + network\ncrash, tear, partition {
+  world: Simulated world\ndisk, net, faults {
     class: store
     tooltip: "A page cache with explicit durability: a crash keeps only fsynced data. Options add torn writes, reordered page writeback, strict POSIX directory durability, fsync EIO, lost writes and bit flips. TCP and UDP get seeded latency, loss and one-way partitions through the Go network poller."
   }
@@ -31,16 +31,16 @@ sim: Seedfall simulator {
     tooltip: "Checks recorded operation histories against a sequential model. As a control, hashicorp/raft passes 600 seeds and a deliberately broken copy is caught."
   }
   runtime -> sched: 3 WASI calls
-  sched -> world: fault plan
+  sched -> world: faults
   sched -> check: history
 }
 
-out: Seed + trace\nreplay, shrink, report {
+out: Seed + trace\nreplay, shrink {
   class: client
   tooltip: "Any failure replays byte for byte from its seed, and run -check runs every seed twice and stops at the first differing host call. Shrinking cut one failure from 33 faults to 2 in 191 runs."
 }
 
-you.workload -> sim.runtime: starts nodes
-you.service -> sim.runtime: built for wasip1
+you.workload -> sim.runtime
+you.service -> sim.runtime: wasip1
 sim.check -> out: verdict
 sim.world -> out: trace

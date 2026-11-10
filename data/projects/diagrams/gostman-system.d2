@@ -1,4 +1,4 @@
-direction: down
+direction: right
 
 clients: Where you work {
   class: zone
@@ -26,7 +26,7 @@ core: Gostman core (Go) {
     class: service
     tooltip: "Builds a run plan (filters, tags, data rows, iterations, parallelism), sends each request, applies extract rules, runs scripts in goja and writes reports. Pooling pre-booted script runtimes took a 400-request run from 3.9 s to 1.2 s and cut allocations by 74 percent."
   }
-  engine: Request engine\n13 protocols {
+  engine: Request engine\nHTTP, gRPC, WS + more {
     class: service
     tooltip: "One Go package owns variables, auth, body encoding, cookies, redirects, proxies and TLS for REST, GraphQL, gRPC, WebSocket, Socket.IO, MQTT, SignalR, SSE, SOAP, MCP, TCP, UDP and NATS. Every surface calls it, so a request behaves the same everywhere."
   }
@@ -46,6 +46,6 @@ api: Your APIs {
 clients.desktop -> core.engine: bindings
 clients.web -> core.engine: CORS relay
 clients.cli -> core.runner: gostman run
-clients.agent -> core.runner: MCP, secrets hidden
+clients.agent -> core.runner: MCP
 core.runner -> files
-core.engine -> api: HTTP, gRPC, WS
+core.engine -> api: 13 protocols
