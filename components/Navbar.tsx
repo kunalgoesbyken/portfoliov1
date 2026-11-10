@@ -75,7 +75,7 @@ const Navbar = () => {
             const isActive = isActiveLink(item.href);
             return (
               <Link
-                className={`group/nav relative px-3 py-1.5 max-md:px-2.5 max-md:py-3 text-sm font-medium transition-colors ${isActive
+                className={`group/nav relative px-3 py-1.5 max-md:px-2.5 max-md:py-3 max-md:min-w-11 max-md:text-center text-sm font-medium transition-colors ${isActive
                     ? "text-neutral-900 dark:text-neutral-50"
                     : "text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-50"
                   }`}

@@ -10,7 +10,7 @@ import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 import { projectLinks, type ProjectLink } from "@/components/project-links";
 
 const TITLE_ACTION_CLASS =
-  "title-link truncate cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
+  "title-link truncate max-md:py-2.5 max-md:-my-2.5 cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
 
 const MEDIA_FRAME_CLASS =
   "relative w-full aspect-video overflow-hidden shrink-0 md:rounded-lg md:border md:border-neutral-200 md:dark:border-neutral-800 md:transition-[translate,border-color] md:duration-200 md:group-hover:-translate-y-0.5 md:group-hover:border-neutral-400 md:dark:group-hover:border-neutral-600 motion-reduce:transition-none";
