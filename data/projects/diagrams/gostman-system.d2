@@ -1,0 +1,51 @@
+direction: down
+
+clients: Where you work {
+  class: zone
+  desktop: Desktop app {
+    class: client
+    tooltip: "Wails shell around the React UI. It calls the Go engine through in-process bindings, so requests skip the network hop and CORS entirely. 23.7 MB executable, window up in about a second."
+  }
+  web: Web app {
+    class: client
+    tooltip: "The same React UI built with Vite as an installable PWA. Browsers block cross-origin calls, so requests go through a small Go relay on Vercel or a local gostman relay. Script checks run in a fresh Web Worker per script."
+  }
+  cli: CLI in CI {
+    class: client
+    tooltip: "gostman run executes a whole collection folder on every pull request and exits non-zero on a failed check. Text, JUnit, JSON and HTML reporters plug into any CI."
+  }
+  agent: Coding agent {
+    class: model
+    tooltip: "Claude Code, Codex or Cursor talk to gostman mcp over the Model Context Protocol: 15 tools such as send_request and run_folder. Secrets are filled in inside Gostman and scrubbed from every response in raw, URL-encoded, base64 and JSON-escaped form, so the agent never sees a token."
+  }
+}
+
+core: Gostman core (Go) {
+  class: zone
+  runner: Runner\nscripts, checks, reports {
+    class: service
+    tooltip: "Builds a run plan (filters, tags, data rows, iterations, parallelism), sends each request, applies extract rules, runs scripts in goja and writes reports. Pooling pre-booted script runtimes took a 400-request run from 3.9 s to 1.2 s and cut allocations by 74 percent."
+  }
+  engine: Request engine\n13 protocols {
+    class: service
+    tooltip: "One Go package owns variables, auth, body encoding, cookies, redirects, proxies and TLS for REST, GraphQL, gRPC, WebSocket, Socket.IO, MQTT, SignalR, SSE, SOAP, MCP, TCP, UDP and NATS. Every surface calls it, so a request behaves the same everywhere."
+  }
+  runner -> engine
+}
+
+files: Collections\nYAML in Git {
+  class: store
+  tooltip: "A workspace is a folder of plain YAML, one file per request, committed next to the code. Tokens, cookies and history never land in it. A bounded reader pool opens 5,000 requests in 5.4 s, down from 14.8 s, with byte-identical output."
+}
+
+api: Your APIs {
+  class: external
+  tooltip: "Any HTTP, gRPC, WebSocket or MQTT endpoint. Nothing else is contacted: no account, no telemetry, no vendor cloud."
+}
+
+clients.desktop -> core.engine: bindings
+clients.web -> core.engine: CORS relay
+clients.cli -> core.runner: gostman run
+clients.agent -> core.runner: MCP, secrets hidden
+core.runner -> files
+core.engine -> api: HTTP, gRPC, WS

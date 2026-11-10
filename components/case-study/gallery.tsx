@@ -1,82 +1,129 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { Maximize2, Play } from "lucide-react";
-import type { MediaItem } from "@/lib/media";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { Screenshot } from "@/lib/case-studies";
 
 const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
 
-const stillOf = (media: MediaItem) => (media.type === "video" ? media.poster : media.src);
+const SLIDE_HEIGHT = { mobile: 220, desktop: 420 };
+const MAX_SLIDE_WIDTH = 768;
+const SCROLL_EPSILON = 4;
 
-function Featured({ media, onOpen }: { media: MediaItem; onOpen: () => void }) {
+const TRACK_STYLE = {
+  "--slide-h-mobile": `${SLIDE_HEIGHT.mobile}px`,
+  "--slide-h-desktop": `${SLIDE_HEIGHT.desktop}px`,
+} as CSSProperties;
+
+const ARROW_CLASS =
+  "inline-flex size-8 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors enabled:cursor-pointer enabled:hover:border-neutral-500 enabled:hover:text-neutral-900 dark:enabled:hover:border-neutral-400 dark:enabled:hover:text-neutral-100 disabled:opacity-30";
+
+const ratioOf = ({ width, height }: Screenshot) => width / height;
+
+const slideSizes = (shot: Screenshot) => {
+  const at = (height: number) => Math.min(Math.round(height * ratioOf(shot)), MAX_SLIDE_WIDTH);
+  return `(max-width: 768px) ${at(SLIDE_HEIGHT.mobile)}px, ${at(SLIDE_HEIGHT.desktop)}px`;
+};
+
+const neighbourOffset = (track: HTMLElement, direction: 1 | -1) => {
+  const offsets = Array.from(track.children, (child) => (child as HTMLElement).offsetLeft - track.offsetLeft);
+  const current = track.scrollLeft;
+  if (direction === 1) return offsets.find((offset) => offset > current + SCROLL_EPSILON);
+  return offsets.findLast((offset) => offset < current - SCROLL_EPSILON);
+};
+
+function useTrackEdges() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ atStart: true, atEnd: false });
+
+  const update = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    setEdges({
+      atStart: track.scrollLeft <= SCROLL_EPSILON,
+      atEnd: track.scrollLeft + track.clientWidth >= track.scrollWidth - SCROLL_EPSILON,
+    });
+  };
+
+  const step = (direction: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const left = neighbourOffset(track, direction);
+    if (left !== undefined) track.scrollTo({ left, behavior: "smooth" });
+  };
+
+  return { trackRef, edges, update, step };
+}
+
+function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpen: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label={`Open ${media.caption ?? "preview"} full screen`}
-      className="group relative block w-full aspect-[16/10] overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 cursor-zoom-in"
+    <figure
+      className="m-0 shrink-0 snap-start [width:min(100%,calc(var(--slide-h)*var(--ratio)))]"
+      style={{ "--ratio": ratioOf(shot) } as CSSProperties}
     >
-      <Image
-        src={stillOf(media)}
-        alt={media.caption ?? ""}
-        fill
-        priority
-        sizes="(max-width: 896px) 100vw, 768px"
-        className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.015]"
-      />
-      <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/65 px-2.5 py-1 font-custom2 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-        {media.type === "video" ? <Play size={12} fill="currentColor" /> : <Maximize2 size={12} />}
-        {media.type === "video" ? "Play demo" : "Expand"}
-      </span>
-    </button>
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`View full screen: ${shot.caption}`}
+        className="block w-full cursor-zoom-in overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800"
+      >
+        <Image
+          src={shot.src}
+          alt={shot.caption}
+          width={shot.width}
+          height={shot.height}
+          sizes={slideSizes(shot)}
+          quality={80}
+          priority={index === 0}
+          className="block h-auto w-full"
+        />
+      </button>
+      <figcaption className="mt-2 font-custom2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">{shot.caption}</figcaption>
+    </figure>
   );
 }
 
-function Thumbs({ items, active, onSelect }: { items: MediaItem[]; active: number; onSelect: (index: number) => void }) {
-  return (
-    <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-subtle pb-1">
-      {items.map((media, i) => (
-        <button
-          key={media.src}
-          type="button"
-          onClick={() => onSelect(i)}
-          aria-label={media.caption}
-          aria-pressed={i === active}
-          className={`relative h-16 w-26 shrink-0 overflow-hidden rounded-md border transition-opacity cursor-pointer ${
-            i === active
-              ? "border-neutral-900 dark:border-neutral-100 opacity-100"
-              : "border-neutral-200 dark:border-neutral-800 opacity-60 hover:opacity-100"
-          }`}
-        >
-          <Image src={stillOf(media)} alt="" fill sizes="104px" className="object-cover object-top" />
-          {media.type === "video" && (
-            <Play size={14} fill="currentColor" className="absolute inset-0 m-auto text-white drop-shadow" aria-hidden="true" />
-          )}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-export function Gallery({ items }: { items: MediaItem[] }) {
-  const [active, setActive] = useState(0);
+export function Gallery({ items }: { items: Screenshot[] }) {
+  const { trackRef, edges, update, step } = useTrackEdges();
   const [open, setOpen] = useState<number | null>(null);
   const [hasLightbox, setHasLightbox] = useState(false);
+  if (items.length === 0) return null;
+
   const openAt = (index: number) => {
     setHasLightbox(true);
     setOpen(index);
   };
-  const media = items[active];
-  if (!media) return null;
 
   return (
-    <div className="mt-8">
-      <Featured media={media} onOpen={() => openAt(active)} />
-      <p className="mt-2 font-custom2 text-sm text-neutral-500 dark:text-neutral-400">{media.caption}</p>
-      {items.length > 1 && <Thumbs items={items} active={active} onSelect={setActive} />}
+    <section aria-label="Screenshots" className="mt-10">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="font-custom2 text-xs uppercase tracking-[0.14em] text-neutral-600 dark:text-neutral-400">
+          Screenshots <span className="text-neutral-400 dark:text-neutral-500">{items.length}</span>
+        </p>
+        {items.length > 1 && (
+          <div className="flex gap-2">
+            <button type="button" onClick={() => step(-1)} disabled={edges.atStart} className={ARROW_CLASS} aria-label="Previous screenshot">
+              <ChevronLeft size={16} />
+            </button>
+            <button type="button" onClick={() => step(1)} disabled={edges.atEnd} className={ARROW_CLASS} aria-label="Next screenshot">
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+      </div>
+      <div
+        ref={trackRef}
+        onScroll={update}
+        style={TRACK_STYLE}
+        className="scrollbar-subtle flex snap-x snap-mandatory items-start gap-4 overflow-x-auto pb-3 [--slide-h:var(--slide-h-mobile)] md:[--slide-h:var(--slide-h-desktop)]"
+      >
+        {items.map((shot, i) => (
+          <Slide key={shot.src} shot={shot} index={i} onOpen={() => openAt(i)} />
+        ))}
+      </div>
       {hasLightbox && <Lightbox items={items} index={open} onIndexChange={setOpen} />}
-    </div>
+    </section>
   );
 }

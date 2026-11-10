@@ -24,29 +24,7 @@ It is for teams that convert PDFs in scripts and pipelines and are tired of fixi
 
 Rather than fork an unmaintained converter, the package keeps pdf2docx intact, patches two internals that cause the damage, and repairs the output file in independent passes.
 
-<Diagram
-  title="Healing pipeline"
-  nodes={[
-    { id: "pdf", label: "Input PDF", sub: "text or scanned", col: 0, row: 1, kind: "client" },
-    { id: "ocr", label: "OCR pre-pass", sub: "PyMuPDF + Tesseract", col: 1, row: 0, kind: "ai" },
-    { id: "patch", label: "Patched pdf2docx", sub: "list detection on", col: 2, row: 1, kind: "service" },
-    { id: "lists", label: "List healer", sub: "styles + numbering", col: 3, row: 0, kind: "service" },
-    { id: "links", label: "Link injector", sub: "w:hyperlink", col: 3, row: 1, kind: "service" },
-    { id: "fonts", label: "Font mapper", sub: "Unicode fallback", col: 3, row: 2, kind: "service" },
-    { id: "out", label: "Healed .docx", sub: "editable in Word", col: 4, row: 1, kind: "store" },
-  ]}
-  edges={[
-    { from: "pdf", to: "ocr", label: "if scanned" },
-    { from: "ocr", to: "patch", label: "text layer" },
-    { from: "pdf", to: "patch", label: "text PDF" },
-    { from: "patch", to: "lists", label: "pass 1" },
-    { from: "patch", to: "links", label: "pass 2" },
-    { from: "patch", to: "fonts", label: "pass 3" },
-    { from: "lists", to: "out" },
-    { from: "links", to: "out" },
-    { from: "fonts", to: "out" },
-  ]}
-/>
+<Diagram name="pdf2docx-healer-pipeline" title="Healing pipeline" />
 
 1. **OCR pre-pass.** A page counts as scanned when it has almost no text. If more than 30% of pages are scanned, PyMuPDF's Tesseract integration produces a temporary text-layer PDF. Without Tesseract installed it logs and carries on.
 2. **Patch.** Upstream's `is_list_item` always returns false, and a `list_not_table` flag is dropped along the call chain, so lists become invisible tables. Two small monkey-patches fix both, applied once per process.

@@ -1,0 +1,45 @@
+direction: down
+
+inputs: Inputs {
+  class: zone
+  folder: Collection\nYAML or export {
+    class: store
+    tooltip: "A Gostman folder, a Postman or Bruno export, or an OpenAPI file, loaded by one bounded pool of readers sized at twice the CPU count."
+  }
+  data: Data rows\nCSV, JSON, XLSX {
+    class: store
+    tooltip: "Each row becomes one iteration with its own variables, so one collection tests many inputs. Rows with French and Japanese titles run unchanged."
+  }
+}
+
+run: gostman run {
+  class: zone
+  plan: Run plan {
+    class: service
+    tooltip: "Resolves folder filters, tags, --only, iterations and --parallel into an ordered list of executions before anything is sent."
+  }
+  engine: Request engine {
+    class: service
+    tooltip: "Sends the request, follows redirects, keeps cookies per run and applies extract rules so later requests can reuse values from earlier responses."
+  }
+  sandbox: Script sandbox\nfresh per script {
+    class: service
+    tooltip: "Pre-request and test scripts run in goja, a JavaScript engine written in Go, with the Postman pm and Bruno bru APIs. Every script gets a runtime no other script has touched; up to four are booted ahead and dropped after 30 s idle."
+  }
+  plan -> engine -> sandbox
+}
+
+api: API under test {
+  class: external
+  tooltip: "Any HTTP or gRPC service, local or remote."
+}
+
+reports: Reports\nJUnit, JSON, HTML {
+  class: client
+  tooltip: "Pass or fail per request, per check and per data row, with timings. The exit code fails the CI job when any check fails."
+}
+
+inputs.folder -> run.plan
+inputs.data -> run.plan
+run.engine -> api
+run.sandbox -> reports: exit code

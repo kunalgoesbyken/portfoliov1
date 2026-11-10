@@ -9,10 +9,8 @@ stats:
 gallery:
   - { src: /images/projects/seedfall/01-run-finds-bug.webp, caption: "A sweep of 100 seeds catches a lost acknowledged write" }
   - { src: /images/projects/seedfall/02-shrink.webp, caption: "Shrinking one failing seed from 33 faults to the 2 that matter" }
-  - { src: /images/projects/seedfall/03-timeline.webp, caption: "The replay timeline: messages between nodes beside the failing trace" }
-  - { src: /images/projects/seedfall/04-triage-report.webp, caption: "Triage report: 24 seeds, 4 failures grouped into one finding" }
+  - { src: /images/projects/seedfall/04-bugs-found.webp, caption: "Real bugs found in open source projects, each with a replayable seed" }
   - { src: /images/projects/seedfall/05-raft-finding.webp, caption: "Root-cause report for the hashicorp/raft snapshot fsync bug" }
-  - { src: /images/projects/seedfall/06-bugs-found.webp, caption: "Real bugs found in open source projects" }
 ---
 
 <Section kicker="For everyone" title="What it does">
@@ -31,54 +29,13 @@ It has already found real bugs in widely used projects, including NATS, hashicor
 
 Each node is compiled with the stock Go toolchain for `GOOS=wasip1` and run as its own wazero WebAssembly instance inside one host process. On wasip1 the Go runtime is single-threaded and every source of nondeterminism leaves through three WASI calls, so Seedfall implements those three itself: random bytes come from a seeded ChaCha8 stream, the clock is virtual, and blocking parks the node until its next timer or packet. No forked runtime, no source rewriting, and new Go releases keep working.
 
-<Diagram
-  title="Simulator architecture"
-  nodes={[
-    { id: "workload", label: "Workload", sub: "Go checks + config", col: 0, row: 0, kind: "client" },
-    { id: "node", label: "Your service", sub: "Go built for wasip1", col: 0, row: 2, kind: "external" },
-    { id: "wazero", label: "wazero runtime", sub: "one per node", col: 1, row: 1, kind: "service" },
-    { id: "sched", label: "Seeded scheduler", sub: "virtual clock", col: 2, row: 0, kind: "service" },
-    { id: "faults", label: "Fault injector", sub: "crash, tear, partition", col: 2, row: 2, kind: "service" },
-    { id: "porc", label: "Porcupine", sub: "linearizability", col: 3, row: 0, kind: "service" },
-    { id: "net", label: "Simulated network", sub: "latency, clogs, cuts", col: 3, row: 1, kind: "store" },
-    { id: "disk", label: "Simulated disk", sub: "page cache + fsync", col: 3, row: 2, kind: "store" },
-    { id: "out", label: "Seed + trace", sub: "replay, shrink, report", col: 4, row: 1, kind: "client" },
-  ]}
-  edges={[
-    { from: "workload", to: "wazero", label: "starts nodes" },
-    { from: "node", to: "wazero", label: "wasm" },
-    { from: "wazero", to: "sched", label: "3 WASI calls" },
-    { from: "sched", to: "faults", label: "fault plan" },
-    { from: "faults", to: "disk", label: "crash" },
-    { from: "faults", to: "net", label: "partition" },
-    { from: "sched", to: "porc", label: "op history" },
-    { from: "porc", to: "out", label: "verdict" },
-    { from: "disk", to: "out", label: "trace" },
-  ]}
-/>
+<Diagram name="seedfall-system" title="Simulator architecture" />
 
 Exactly one node runs at a time. The scheduler picks the earliest wake-up, breaks ties with the seed and jumps virtual time forward, so ten seconds of `time.Sleep` cost nothing. wasip1 has no preemption, so modules are instrumented with a call counter that triggers the Go runtime's own cooperative preemption after about four million calls without blocking.
 
 The simulated disk has an explicit durability model: writes sit in a page cache, `Sync` makes them durable and a crash keeps only durable data. Options add torn writes, reordered 4 KiB page writeback, strict POSIX directory durability, `EIO` on fsync with Linux's post-2018 semantics, full disks, lost and misdirected writes and bit flips. The network gives UDP seeded reordering and loss, TCP ordered streams with seeded latency, and one-way partitions, all registered with Go's own poller so plain `net/http` runs unchanged.
 
-<Diagram
-  title="Find, replay, shrink, prove"
-  nodes={[
-    { id: "sweep", label: "seedfall run", sub: "seeds 1..N in parallel", col: 0, row: 1, kind: "client" },
-    { id: "fail", label: "Failing seed", sub: "seed 1, 33 faults", col: 1, row: 1, kind: "store" },
-    { id: "replay", label: "Replay", sub: "same trace, same hash", col: 2, row: 0, kind: "service" },
-    { id: "shrink", label: "Shrink", sub: "ddmin to 2 faults", col: 2, row: 2, kind: "service" },
-    { id: "plan", label: "Minimal schedule", sub: "JSON fault file", col: 3, row: 1, kind: "store" },
-    { id: "verify", label: "seedfall verify", sub: "fix holds on new seeds", col: 4, row: 1, kind: "service" },
-  ]}
-  edges={[
-    { from: "sweep", to: "fail", label: "check broken" },
-    { from: "fail", to: "replay", label: "timeline" },
-    { from: "fail", to: "shrink", label: "smaller runs" },
-    { from: "shrink", to: "plan", label: "1-minimal" },
-    { from: "plan", to: "verify", label: "pin + sweep" },
-  ]}
-/>
+<Diagram name="seedfall-loop" title="Find, replay, shrink, prove" />
 
 <Highlights>
 <Highlight title="Determinism without forking Go" result="Same seed, same hash, 3 of 3 replays; run -check passes 200 of 200 seeds">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { ALL_PROJECTS, projectPath, type OpenSourceProject } from "@/lib/projects-data";
+import { ALL_PROJECTS, projectPath, type Project } from "@/lib/projects-data";
 
 const neighbours = (slug: string) => {
   const index = ALL_PROJECTS.findIndex((p) => p.slug === slug);
@@ -8,7 +8,7 @@ const neighbours = (slug: string) => {
   return [at(-1), at(1)];
 };
 
-function PagerLink({ project, direction }: { project: OpenSourceProject; direction: "previous" | "next" }) {
+function PagerLink({ project, direction }: { project: Project; direction: "previous" | "next" }) {
   const isNext = direction === "next";
   return (
     <Link

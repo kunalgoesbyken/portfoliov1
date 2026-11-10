@@ -1,0 +1,50 @@
+direction: down
+
+index: Incremental index {
+  class: zone
+  walk: Walk + diff\nSHA-256 per file {
+    class: service
+    tooltip: "Respects .gitignore, then compares each file SHA-256 and mtime with the cache. Only new or changed files continue, and deleted ones are tombstoned out of both indexes. A no-op re-index takes 95 ms."
+  }
+  chunk: Chunk\ntree-sitter ASTs {
+    class: service
+    tooltip: "Emits whole declarations per language. Anything over 3,000 characters is split along child nodes and greedily re-merged, so every byte lands in exactly one chunk and no function is cut in half."
+  }
+  embed: Embed\nnomic INT8 ONNX {
+    class: model
+    tooltip: "nomic-embed-text v1.5 quantised to INT8 and run locally through ONNX Runtime. Chunks are sorted by length and batched to limit padding, then mean-pooled into 768-dimension vectors."
+  }
+  walk -> chunk: changed files
+  chunk -> embed
+}
+
+disk: On disk {
+  class: zone
+  vectors: Vector log\n+ HNSW graph {
+    class: store
+    tooltip: "An append-only log: updates write a tombstone plus new records, compaction runs only when dead records outnumber live ones, and a torn tail is repaired on load. The hand-written HNSW graph stores the log length it was built from, and a stale graph falls back to an exact scan."
+  }
+  bm25: BM25 index\nTantivy {
+    class: store
+    tooltip: "Keyword index with a lenient query parser, so code-shaped queries such as foo::bar() never fail to parse."
+  }
+}
+
+query: Search {
+  class: zone
+  ask: Plain-language query {
+    class: client
+    tooltip: "Embedded once with the model query prefix, then sent to both rankers."
+  }
+  fuse: RRF fusion\ntop 5 {
+    class: service
+    tooltip: "Reciprocal Rank Fusion with k=60 merges the top 20 from each ranker by rank, not score, so cosine similarity and BM25 never need calibrating against each other."
+  }
+}
+
+index.embed -> disk.vectors
+index.chunk -> disk.bm25
+query.ask -> disk.vectors: by meaning
+query.ask -> disk.bm25: by keyword
+disk.vectors -> query.fuse
+disk.bm25 -> query.fuse

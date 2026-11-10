@@ -1,0 +1,46 @@
+direction: down
+
+you: Your code {
+  class: zone
+  workload: Workload\nwhat must stay true {
+    class: client
+    tooltip: "A small Go program that drives the system and states properties: sim.Always, sim.Eventually, liveness bounds, and recorded Put and Get histories checked for linearizability."
+  }
+  service: Your Go service\nunmodified {
+    class: external
+    tooltip: "Built with the stock Go toolchain for GOOS=wasip1. No forked runtime and no source rewriting, so new Go releases keep working."
+  }
+}
+
+sim: Seedfall simulator {
+  class: zone
+  runtime: wazero\none instance per node {
+    class: service
+    tooltip: "Each node is its own WebAssembly instance inside one host process. On wasip1 the Go runtime is single-threaded and every source of nondeterminism leaves through three WASI calls, which Seedfall implements itself."
+  }
+  sched: Seeded scheduler\nvirtual clock {
+    class: service
+    tooltip: "Runs exactly one node at a time, picks the earliest wake-up, breaks ties with the seed and jumps virtual time, so sleeps cost nothing. random_get is a ChaCha8 stream, which also fixes map order and select choice. A call counter forces cooperative preemption after about four million calls."
+  }
+  world: Simulated disk + network\ncrash, tear, partition {
+    class: store
+    tooltip: "A page cache with explicit durability: a crash keeps only fsynced data. Options add torn writes, reordered page writeback, strict POSIX directory durability, fsync EIO, lost writes and bit flips. TCP and UDP get seeded latency, loss and one-way partitions through the Go network poller."
+  }
+  check: Porcupine\nlinearizability {
+    class: service
+    tooltip: "Checks recorded operation histories against a sequential model. As a control, hashicorp/raft passes 600 seeds and a deliberately broken copy is caught."
+  }
+  runtime -> sched: 3 WASI calls
+  sched -> world: fault plan
+  sched -> check: history
+}
+
+out: Seed + trace\nreplay, shrink, report {
+  class: client
+  tooltip: "Any failure replays byte for byte from its seed, and run -check runs every seed twice and stops at the first differing host call. Shrinking cut one failure from 33 faults to 2 in 191 runs."
+}
+
+you.workload -> sim.runtime: starts nodes
+you.service -> sim.runtime: built for wasip1
+sim.check -> out: verdict
+sim.world -> out: trace

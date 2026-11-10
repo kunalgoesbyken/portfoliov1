@@ -29,27 +29,7 @@ Your mail goes straight from Gmail to your browser. The server only sees your ch
 
 A Next.js 15 and React 19 app with no mail backend. OAuth, token storage and every Gmail call run in the browser, and the only server code is one streaming chat route.
 
-<Diagram
-  title="System architecture"
-  nodes={[
-    { id: "ui", label: "React 19 UI", sub: "Next.js 15", col: 0, row: 1, kind: "client" },
-    { id: "store", label: "Zustand store", sub: "mail, filters, draft", col: 1, row: 0, kind: "store" },
-    { id: "gmail", label: "Gmail service", sub: "ky + MIME parsing", col: 1, row: 2, kind: "service" },
-    { id: "google", label: "Gmail API", sub: "Google OAuth 2.0", col: 2, row: 2, kind: "external" },
-    { id: "chat", label: "/api/chat", sub: "Vercel AI SDK", col: 2, row: 0, kind: "service" },
-    { id: "llm", label: "Groq model", sub: "gpt-oss-120b", col: 3, row: 0, kind: "ai" },
-    { id: "tools", label: "Tool calls", sub: "open, nav, compose", col: 3, row: 1, kind: "ai" },
-  ]}
-  edges={[
-    { from: "ui", to: "store", label: "state" },
-    { from: "ui", to: "gmail", label: "list, send" },
-    { from: "gmail", to: "google", label: "Bearer token" },
-    { from: "store", to: "chat", label: "prompt + context" },
-    { from: "chat", to: "llm", label: "streamText" },
-    { from: "llm", to: "tools", label: "stream" },
-    { from: "tools", to: "ui", label: "fill draft" },
-  ]}
-/>
+<Diagram name="mailflow-ai-system" title="System architecture" />
 
 Each chat request carries the user's text and a compact context: the current view, the selected email, active filters and the ten most recent emails as 100-character snippets. The route streams a response from Groq with four tools declared as Zod schemas: `openEmail`, `navigateView`, `composeEmail` and `replyToEmail`. The server only acknowledges tool calls; the client applies them to the store when the stream finishes, so every AI action is a visible change in the interface.
 

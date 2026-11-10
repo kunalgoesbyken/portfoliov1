@@ -6,8 +6,6 @@ stats:
   - { value: "2", label: "rankers fused: BM25 and vectors (RRF)" }
   - { value: "5.1 MB", label: "index for 18.5k lines of Go" }
   - { value: "0", label: "bytes of code sent off the machine" }
-gallery:
-  - { src: /images/projects/codebase-indexer/01-search.webp, caption: "A real session: a no-op re-index, then a search by meaning" }
 ---
 
 <Section kicker="For everyone" title="What it does">
@@ -26,30 +24,7 @@ It understands Rust, Go, Python, TypeScript, Java, C and C++, plus Markdown and 
 
 About 1,200 lines of Rust with no database or vector service behind it. The vector store, the HNSW graph and the change tracking are all hand-written.
 
-<Diagram
-  title="Indexing and query pipeline"
-  nodes={[
-    { id: "walker", label: "Walker", sub: "gitignore-aware", col: 0, row: 0, kind: "service" },
-    { id: "delta", label: "Delta detector", sub: "SHA-256 + mtime", col: 1, row: 0, kind: "service" },
-    { id: "chunker", label: "Chunker", sub: "tree-sitter ASTs", col: 2, row: 0, kind: "service" },
-    { id: "embedder", label: "Embedder", sub: "nomic INT8 ONNX", col: 3, row: 0, kind: "ai" },
-    { id: "store", label: "Vector store", sub: "append log + HNSW", col: 4, row: 0, kind: "store" },
-    { id: "query", label: "query", sub: "plain-language search", col: 3, row: 1, kind: "client" },
-    { id: "bm25", label: "BM25 index", sub: "Tantivy", col: 2, row: 2, kind: "store" },
-    { id: "rrf", label: "RRF fusion", sub: "k=60, top 5", col: 4, row: 2, kind: "service" },
-  ]}
-  edges={[
-    { from: "walker", to: "delta", label: "files" },
-    { from: "delta", to: "chunker", label: "changed" },
-    { from: "chunker", to: "embedder", label: "chunks" },
-    { from: "chunker", to: "bm25", label: "chunks" },
-    { from: "embedder", to: "store", label: "768-d" },
-    { from: "query", to: "embedder", label: "embed" },
-    { from: "query", to: "bm25", label: "keywords" },
-    { from: "store", to: "rrf", label: "top 20 by vector" },
-    { from: "bm25", to: "rrf", label: "top 20 by keyword" },
-  ]}
-/>
+<Diagram name="codebase-indexer-pipeline" title="Indexing and query pipeline" />
 
 1. **Walk and diff.** The walker respects `.gitignore`. Every file's SHA-256 and modification time are compared with the cache, so only new or changed files continue, and vanished files are tombstoned out of both indexes.
 2. **Chunk.** tree-sitter parses each file and emits whole declarations: functions, impls, structs, classes. Anything over 3,000 characters is split along its child nodes and greedily re-merged, so every byte lands in exactly one chunk and no function is cut in half.

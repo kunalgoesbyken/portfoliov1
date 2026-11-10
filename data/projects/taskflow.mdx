@@ -30,31 +30,7 @@ It syncs with GitHub issues and pull requests and can be self-hosted with Docker
 
 A Next.js 15 App Router app. Server components load data through Prisma; client components use TanStack Query against 26 route handlers. Supabase provides auth, Postgres and realtime change events.
 
-<Diagram
-  title="System architecture"
-  nodes={[
-    { id: "browser", label: "Browser", sub: "React 19 + TanStack", col: 0, row: 1, kind: "client" },
-    { id: "mw", label: "Middleware", sub: "session + route guard", col: 1, row: 0, kind: "service" },
-    { id: "api", label: "Route handlers", sub: "26 endpoints", col: 1, row: 1, kind: "service" },
-    { id: "auth", label: "Supabase Auth", sub: "email + GitHub", col: 2, row: 0, kind: "external" },
-    { id: "prisma", label: "Prisma", sub: "scoped queries", col: 2, row: 1, kind: "service" },
-    { id: "db", label: "Postgres", sub: "7 tables", col: 3, row: 1, kind: "store" },
-    { id: "rt", label: "Realtime", sub: "change signals", col: 2, row: 2, kind: "external" },
-    { id: "gh", label: "GitHub", sub: "signed webhook", col: 0, row: 2, kind: "external" },
-    { id: "ai", label: "Gemini", sub: "Shift Brief stream", col: 3, row: 0, kind: "ai" },
-  ]}
-  edges={[
-    { from: "browser", to: "mw" },
-    { from: "mw", to: "auth", label: "refresh" },
-    { from: "browser", to: "api", label: "fetch" },
-    { from: "api", to: "prisma", label: "per-user" },
-    { from: "prisma", to: "db", label: "pooled SQL" },
-    { from: "db", to: "rt", label: "row changes" },
-    { from: "rt", to: "browser", label: "invalidate" },
-    { from: "gh", to: "api", label: "HMAC verified" },
-    { from: "api", to: "ai", label: "task context" },
-  ]}
-/>
+<Diagram name="taskflow-system" title="System architecture" />
 
 <Highlights>
 <Highlight title="Realtime without a second data path" result="Live updates always render the same joined shape as the API">

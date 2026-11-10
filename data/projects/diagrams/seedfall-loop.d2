@@ -1,0 +1,37 @@
+direction: right
+
+sweep: seedfall run\nseeds 1..N {
+  class: client
+  tooltip: "Runs seeds in parallel jobs. 200 seeds took 9.4 s on a laptop, about 87x faster than real time."
+}
+
+fail: Failing seed\n33 faults {
+  class: store
+  tooltip: "The seed number is the whole bug report: same seed, same failure, on any machine."
+}
+
+replay: Replay\nsame trace, same hash {
+  class: service
+  tooltip: "Prints a determinism hash over every host call; 3 of 3 replays matched exactly. Writes an HTML timeline of messages, faults and the failing check."
+}
+
+shrink: Shrink\ndelta debugging {
+  class: service
+  tooltip: "ddmin over the fault schedule, then a capped workload, a trimmed duration and simplified faults. A candidate is kept only if it fails with the same class, node, property and message, so shrinking never swaps one bug for another."
+}
+
+plan: Minimal schedule\n2 faults {
+  class: store
+  tooltip: "Saved as JSON that replay, inspect and verify all accept, so the minimal case can be pinned in CI."
+}
+
+verify: seedfall verify\nfix holds on new seeds {
+  class: service
+  tooltip: "Replays the failing schedule against the patched code and sweeps fresh seeds, so a fix is proven rather than assumed."
+}
+
+sweep -> fail
+fail -> replay
+fail -> shrink
+shrink -> plan
+plan -> verify

@@ -1,0 +1,47 @@
+direction: down
+
+pdf: Input PDF {
+  class: external
+  tooltip: "Text or scanned. A page counts as scanned when it has almost no text; OCR kicks in when more than 30 percent of pages are scanned."
+}
+
+ocr: OCR pre-pass\nonly if scanned {
+  class: model
+  tooltip: "PyMuPDF Tesseract integration produces a temporary text-layer PDF at 300 DPI. Without Tesseract installed it logs and carries on."
+}
+
+convert: pdf2docx\ntwo internals patched {
+  class: service
+  tooltip: "Upstream is_list_item always returned false and a list_not_table flag was dropped along the call chain, so lists became invisible tables. Two monkey-patches fix both, applied once per process, instead of forking an unmaintained project."
+}
+
+repair: Repair passes {
+  class: zone
+  lists: Lists\nWord numbering {
+    class: service
+    tooltip: "Splits list items out of merged paragraphs, detects nesting from indentation and applies Word list styles. Lettered and roman lists get generated OOXML numbering definitions, and a sequence-reset check keeps headings like 4. Results as headings."
+  }
+  links: Links\nreal hyperlinks {
+    class: service
+    tooltip: "Finds http, https, ftp, www and mailto text inside runs and replaces it with real w:hyperlink elements with external relationships."
+  }
+  fonts: Fonts\nUnicode fallback {
+    class: service
+    tooltip: "Maps missing fonts by name first, then by Unicode range: CJK, Arabic, Hebrew, Thai, Devanagari and Cyrillic."
+  }
+}
+
+docx: Healed .docx {
+  class: store
+  tooltip: "Each pass has its own error handling, so a failure in one never costs the fixes from the others. On a sample: 0 to 9 real list items and 0 to 3 clickable links."
+}
+
+pdf -> ocr
+pdf -> convert
+ocr -> convert
+convert -> repair.lists
+convert -> repair.links
+convert -> repair.fonts
+repair.lists -> docx
+repair.links -> docx
+repair.fonts -> docx

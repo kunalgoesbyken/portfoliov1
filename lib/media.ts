@@ -1,6 +1,4 @@
-interface MediaBase {
+export interface MediaItem {
   src: string;
-  caption?: string;
+  caption: string;
 }
-
-export type MediaItem = (MediaBase & { type: "image" }) | (MediaBase & { type: "video"; poster: string });

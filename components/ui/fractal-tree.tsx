@@ -3,12 +3,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 
+const STROKE_COLORS = { dark: "#a3a3a33a", light: "#33333333" };
+
+const strokeFor = (theme: string | undefined) => (theme === "dark" ? STROKE_COLORS.dark : STROKE_COLORS.light);
+
 export default function FractalTree() {
     const el = useRef<HTMLCanvasElement>(null);
-    const { theme } = useTheme();
-    // Stroke color lives in a ref so a theme change updates the color live
-    // instead of tearing down and rebuilding the whole canvas animation.
-    const colorRef = useRef(theme === "dark" ? "#88888825" : "#33333325");
+    const { resolvedTheme } = useTheme();
+    const colorRef = useRef(strokeFor(resolvedTheme));
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [shouldAnimate, setShouldAnimate] = useState(true);
     const [isLargeScreen, setIsLargeScreen] = useState(false);
@@ -46,10 +48,9 @@ export default function FractalTree() {
         return () => mediaQuery.removeEventListener("change", handleChange);
     }, []);
 
-    // Keep the stroke color in sync with the theme without restarting the animation
     useEffect(() => {
-        colorRef.current = theme === "dark" ? "#88888825" : "#33333325";
-    }, [theme]);
+        colorRef.current = strokeFor(resolvedTheme);
+    }, [resolvedTheme]);
 
     // Pause animation when canvas is off-screen
     useEffect(() => {

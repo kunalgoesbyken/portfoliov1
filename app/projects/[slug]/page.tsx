@@ -48,7 +48,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
         <MDXRemote
           source={content}
           components={CASE_STUDY_COMPONENTS}
-          options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }}
+          options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
         />
       </article>
       <ProjectPager slug={slug} />

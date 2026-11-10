@@ -7,7 +7,7 @@ export interface ProjectLinks {
   pypi?: string;
 }
 
-export interface OpenSourceProject extends ProjectLinks {
+export interface Project extends ProjectLinks {
   slug: string;
   title: string;
   src: string;
@@ -15,20 +15,11 @@ export interface OpenSourceProject extends ProjectLinks {
   tech: TechKey[];
 }
 
-export interface Project extends OpenSourceProject {
-  poster?: string;
-  video?: string;
-  thumbVideo?: string;
-}
-
 export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "gostman",
     title: "Gostman",
     src: "/images/gostman-landing.jpg",
-    poster: "/images/gostman-landing.jpg",
-    video: "/videos/gostman-full.mp4",
-    thumbVideo: "/videos/gostman-preview.mp4",
     description:
       "Open source API client for REST, GraphQL, gRPC and WebSocket: a native desktop app (Go + Wails), a web app, and a single-binary CLI that runs collections in CI and serves them to coding agents over MCP. No account, no telemetry, no paid tier.",
     tech: ["go", "react"],
@@ -76,7 +67,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   },
 ];
 
-export const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
+export const OPEN_SOURCE_PROJECTS: Project[] = [
   {
     slug: "taskflow",
     title: "TaskFlow",
@@ -109,6 +100,6 @@ export const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
   },
 ];
 
-export const ALL_PROJECTS: OpenSourceProject[] = [...DEPLOYED_PROJECTS, ...OPEN_SOURCE_PROJECTS];
+export const ALL_PROJECTS: Project[] = [...DEPLOYED_PROJECTS, ...OPEN_SOURCE_PROJECTS];
 
 export const projectPath = (slug: string) => `/projects/${slug}`;

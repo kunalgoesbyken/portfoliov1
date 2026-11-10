@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, type MouseEvent, type ReactNode, type Ref } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Maximize2, Play } from "lucide-react";
-import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, projectPath, type OpenSourceProject, type Project } from "@/lib/projects-data";
+import { Maximize2 } from "lucide-react";
+import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, projectPath, type Project } from "@/lib/projects-data";
 import type { TechKey } from "@/lib/tech-icons";
 import type { MediaItem } from "@/lib/media";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
@@ -25,78 +25,7 @@ const DESKTOP_LINK_CLASS = "icon-btn-ghost";
 const MOBILE_LINK_CLASS =
   "frame-dashed inline-flex size-9 items-center justify-center text-neutral-700 dark:text-neutral-300 transition-colors hover:border-neutral-500 dark:hover:border-neutral-400";
 
-const useProjectVisibility = () => {
-  const [isInView, setIsInView] = useState(false);
-  const observerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const element = observerRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setIsInView(true);
-          observer.unobserve(element);
-        }
-      },
-      { rootMargin: "200px", threshold: 0.01 }
-    );
-
-    observer.observe(element);
-    return () => observer.unobserve(element);
-  }, []);
-
-  return { isInView, observerRef };
-};
-
-const useVideoPlayback = () => {
-  const [isReady, setIsReady] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const isPlaying = useRef(false);
-  const hasLoaded = useRef(false);
-
-  const handleCanPlay = useCallback(() => setIsReady(true), []);
-
-  const play = useCallback(() => {
-    if (typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0)) return;
-    const video = videoRef.current;
-    if (!video) return;
-    if (!hasLoaded.current) {
-      video.load();
-      hasLoaded.current = true;
-    }
-    if (isReady && !isPlaying.current) {
-      video.play().catch(() => {});
-      isPlaying.current = true;
-    }
-  }, [isReady]);
-
-  const pause = useCallback(() => {
-    const video = videoRef.current;
-    if (video && isPlaying.current) {
-      video.pause();
-      video.currentTime = 0;
-      isPlaying.current = false;
-    }
-  }, []);
-
-  return { videoRef, isReady, handleCanPlay, play, pause };
-};
-
-function CardShell({
-  ref,
-  onActivate,
-  onMouseEnter,
-  onMouseLeave,
-  children,
-}: {
-  ref?: Ref<HTMLDivElement>;
-  onActivate: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  children: ReactNode;
-}) {
+function CardShell({ onActivate, children }: { onActivate: () => void; children: ReactNode }) {
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("a, button")) return;
     if (window.getSelection()?.toString()) return;
@@ -105,10 +34,7 @@ function CardShell({
 
   return (
     <div
-      ref={ref}
       onClick={handleClick}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
       className="group flex flex-col h-full min-w-0 cursor-pointer max-md:overflow-hidden max-md:frame-dashed"
     >
       {children}
@@ -262,72 +188,28 @@ function ProjectCard({
   openMedia: (media: MediaItem) => void;
 }) {
   const router = useRouter();
-  const { isInView, observerRef } = useProjectVisibility();
-  const { videoRef, isReady, handleCanPlay, play, pause } = useVideoPlayback();
-  const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    if (isHovered && isInView) {
-      play();
-    } else {
-      pause();
-    }
-  }, [isHovered, isInView, play, pause]);
-
-  const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-  const shouldMountVideo = !isTouchDevice && !!project.thumbVideo && isInView;
-
-  const demo = project.video ?? project.thumbVideo;
-  const hasVideo = !!demo;
-  const preview: MediaItem = demo
-    ? { type: "video", src: demo, poster: project.poster ?? project.src, caption: project.title }
-    : { type: "image", src: project.src, caption: project.title };
-  const openProjectMedia = () => openMedia(preview);
+  const preview: MediaItem = { src: project.src, caption: project.title };
 
   return (
-    <CardShell
-      ref={observerRef}
-      onActivate={() => router.push(projectPath(project.slug))}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <CardShell onActivate={() => router.push(projectPath(project.slug))}>
       <div className={`${MEDIA_FRAME_CLASS} md:mb-4`}>
         <Image
-          src={project.poster || project.src}
+          src={project.src}
           alt={project.title}
           fill
           sizes="(max-width: 768px) 50vw, 448px"
-          quality={60}
+          quality={70}
           priority={idx === 0}
-          fetchPriority={idx === 0 ? "high" : "auto"}
-          loading={idx === 0 ? "eager" : undefined}
-          decoding={idx === 0 ? "sync" : "async"}
-          className="object-cover"
+          className="object-cover object-top"
         />
-
-        {shouldMountVideo && (
-          <video
-            ref={videoRef}
-            src={project.thumbVideo}
-            preload="none"
-            muted
-            loop
-            playsInline
-            onCanPlay={handleCanPlay}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-out ${
-              isHovered && isReady ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
-          />
-        )}
-
         <button
           type="button"
-          onClick={openProjectMedia}
-          aria-label={`${hasVideo ? "Play demo of" : "Expand screenshot of"} ${project.title}`}
-          className={`absolute bottom-1.5 left-1.5 md:bottom-auto md:left-auto md:top-2.5 md:right-2.5 inline-flex items-center gap-1 md:gap-1.5 rounded-full bg-black/65 text-white text-[10px] md:text-xs font-custom2 px-2 py-0.5 md:px-2.5 md:py-1 cursor-zoom-in transition-opacity md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 ${hasVideo ? "" : "max-md:hidden"}`}
+          onClick={() => openMedia(preview)}
+          aria-label={`Expand screenshot of ${project.title}`}
+          className="max-md:hidden absolute top-2.5 right-2.5 inline-flex items-center gap-1.5 rounded-full bg-black/65 text-white text-xs font-custom2 px-2.5 py-1 cursor-zoom-in opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
         >
-          {hasVideo ? <Play size={10} fill="currentColor" aria-hidden="true" /> : <Maximize2 size={11} aria-hidden="true" />}
-          {hasVideo ? "Demo" : "Expand"}
+          <Maximize2 size={11} aria-hidden="true" />
+          Expand
         </button>
       </div>
 
@@ -346,7 +228,7 @@ function ProjectCard({
   );
 }
 
-function OpenSourceCard({ project }: { project: OpenSourceProject }) {
+function OpenSourceCard({ project }: { project: Project }) {
   const router = useRouter();
   return (
     <CardShell onActivate={() => router.push(projectPath(project.slug))}>

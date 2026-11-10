@@ -33,28 +33,7 @@ The output is ready to train on: WebDataset shards, a manifest of every clip and
 
 A Rust workspace of ten crates, each owning one stage. Measurement and judgement are kept apart: `score` computes the numbers once and `FilterPolicy` decides, so thresholds can change without re-reading any audio.
 
-<Diagram
-  title="Pipeline"
-  nodes={[
-    { id: "audio", label: "Raw recordings", sub: "wav mp3 flac ogg mp4", col: 0, row: 0, kind: "external" },
-    { id: "decode", label: "Decode", sub: "16 kHz mono, leveled", col: 1, row: 0, kind: "service" },
-    { id: "segment", label: "Segment", sub: "3-30 s speech clips", col: 2, row: 0, kind: "service" },
-    { id: "score", label: "Score + policy", sub: "SNR, level, clip, tone", col: 3, row: 0, kind: "service" },
-    { id: "shards", label: "Training shards", sub: "WebDataset tar", col: 4, row: 0, kind: "store" },
-    { id: "rejects", label: "Rejected clips", sub: "with named reason", col: 4, row: 1, kind: "store" },
-    { id: "live", label: "Streaming service", sub: "WebSocket sessions", col: 1, row: 2, kind: "client" },
-    { id: "wasm", label: "Browser demo", sub: "same code as WASM", col: 3, row: 2, kind: "client" },
-  ]}
-  edges={[
-    { from: "audio", to: "decode", label: "files" },
-    { from: "decode", to: "segment", label: "samples" },
-    { from: "segment", to: "score", label: "clips" },
-    { from: "score", to: "shards", label: "accept" },
-    { from: "score", to: "rejects", label: "reject" },
-    { from: "live", to: "segment", label: "PCM frames" },
-    { from: "wasm", to: "score", label: "inspect" },
-  ]}
-/>
+<Diagram name="aerosieve-pipeline" title="Pipeline" />
 
 1. **Decode** reads any common format, converts to 16 kHz mono and levels loudness, while remembering the source's own full scale so clipping can still be measured afterwards.
 2. **Segment** runs a hysteresis state machine modelled on Silero's speech timestamps: speech starts above one threshold, continues above a lower one, and ends only after 500 ms of quiet. Long segments are cut at their deepest internal dip. Property tests check that output is ordered, non-overlapping and always 3 to 30 seconds.

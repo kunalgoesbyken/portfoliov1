@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 import { projectLinks } from "@/components/project-links";
-import type { OpenSourceProject } from "@/lib/projects-data";
+import type { Project } from "@/lib/projects-data";
 
-export function CaseStudyHeader({ project, category, summary }: { project: OpenSourceProject; category: string; summary: string }) {
+export function CaseStudyHeader({ project, category, summary }: { project: Project; category: string; summary: string }) {
   return (
     <header>
       <Link

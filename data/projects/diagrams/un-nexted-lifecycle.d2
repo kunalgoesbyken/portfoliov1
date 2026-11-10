@@ -1,0 +1,38 @@
+direction: down
+
+pages: src/pages\n*.tsx {
+  class: store
+  tooltip: "about.tsx becomes /about and blog/[slug].tsx a dynamic route. Files starting with an underscore are skipped."
+}
+
+server: Bun.serve {
+  class: zone
+  router: File router\nglob to regex {
+    class: service
+    tooltip: "Bun.Glob scans the pages folder at startup, normalises path separators, and compiles each pattern to a regular expression with named capture groups for params. Only the literal parts are escaped."
+  }
+  data: getServerSideProps {
+    class: service
+    tooltip: "Awaited per request with params and pathname. A throwing data function renders a 500 page instead of crashing the server; an unmatched path renders the 404 page."
+  }
+  render: renderToString {
+    class: service
+    tooltip: "react-dom/server renders HTML. Props are embedded as JSON with the less-than sign escaped, so serialised data can never close the script tag. About 1 ms to first byte for a static page."
+  }
+  router -> data -> render
+}
+
+build: Bun.build\none chunk per page {
+  class: service
+  tooltip: "A build plugin generates a page map of literal imports, so Bun.build code-splits every page into its own lazily loaded chunk."
+}
+
+browser: Browser\nhydrateRoot {
+  class: client
+  tooltip: "Reads the embedded props, loads only the matched page chunk and hydrates, so React attaches handlers to the server HTML instead of re-rendering it."
+}
+
+pages -> server.router: startup scan
+pages -> build
+server.render -> browser: HTML + props
+build -> browser: page chunk

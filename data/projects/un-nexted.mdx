@@ -22,28 +22,7 @@ It is a learning project, small enough to read top to bottom in one sitting. It 
 
 Four files, one per stage, so a request can be followed from the router to hydration. Bun is the runtime, bundler, TypeScript compiler and package manager, which removes Babel, webpack and a separate `tsc` setup.
 
-<Diagram
-  title="Request lifecycle"
-  nodes={[
-    { id: "pages", label: "src/pages", sub: "*.tsx page files", col: 0, row: 0, kind: "store" },
-    { id: "router", label: "File router", sub: "glob to regex", col: 1, row: 0, kind: "service" },
-    { id: "browser", label: "Browser", sub: "GET /users", col: 0, row: 2, kind: "client" },
-    { id: "server", label: "Bun.serve", sub: "match, load, render", col: 2, row: 1, kind: "service" },
-    { id: "gssp", label: "getServerSideProps", sub: "per-page data", col: 3, row: 0, kind: "service" },
-    { id: "render", label: "renderToString", sub: "react-dom/server", col: 3, row: 1, kind: "service" },
-    { id: "build", label: "Bun.build", sub: "client bundle", col: 3, row: 2, kind: "service" },
-    { id: "hydrate", label: "hydrateRoot", sub: "page goes live", col: 4, row: 1, kind: "client" },
-  ]}
-  edges={[
-    { from: "pages", to: "router", label: "startup scan" },
-    { from: "browser", to: "server", label: "request" },
-    { from: "router", to: "server", label: "route" },
-    { from: "server", to: "gssp", label: "context" },
-    { from: "gssp", to: "render", label: "props" },
-    { from: "render", to: "hydrate", label: "HTML + props" },
-    { from: "build", to: "hydrate", label: "JS" },
-  ]}
-/>
+<Diagram name="un-nexted-lifecycle" title="Request lifecycle" />
 
 1. **Route.** At startup `Bun.Glob` scans the pages folder, turns each path into a URL pattern and compiles it to a regular expression with capture groups for `[param]` segments.
 2. **Load.** For each request the server imports the page module and awaits its `getServerSideProps`. A missing route renders the 404 page; a throwing data function renders a 500 page instead of crashing the server.

@@ -16,13 +16,9 @@ export function TechIconTooltip({ tech, size = "md", scope }: TechIconTooltipPro
         const Icon = iconMap[key];
 
         return (
-          <button
-            key={`${scope}-${key}`}
-            type="button"
-            className="group/tech relative cursor-pointer bg-transparent border-0 p-0"
-          >
+          <span key={`${scope}-${key}`} tabIndex={0} className="group/tech relative inline-flex outline-none">
             <Icon
-              className={`${iconSize} text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors`}
+              className={`${iconSize} text-neutral-500 dark:text-neutral-400`}
               aria-label={techNames[key]}
             />
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-20 hidden group-hover/tech:block group-focus/tech:block" role="tooltip">
@@ -31,7 +27,7 @@ export function TechIconTooltip({ tech, size = "md", scope }: TechIconTooltipPro
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-neutral-100 dark:bg-neutral-800 rotate-45 border-b border-r border-neutral-200 dark:border-neutral-700" />
               </div>
             </div>
-          </button>
+          </span>
         );
       })}
     </div>

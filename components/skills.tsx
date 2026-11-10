@@ -71,9 +71,9 @@ export default function Skills() {
                 <div className="w-full py-8 max-md:py-6">
                     <LogoSlider
                         logos={skills.map((skill) => (
-                            <div key={skill.name} className="flex flex-col items-center justify-center gap-2 group cursor-default">
-                                <skill.icon className="w-8 h-8 md:w-10 md:h-10 text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors" />
-                                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 font-custom2 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors">
+                            <div key={skill.name} className="flex flex-col items-center justify-center gap-2">
+                                <skill.icon className="w-8 h-8 md:w-10 md:h-10 text-neutral-500 dark:text-neutral-400" />
+                                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 font-custom2">
                                     {skill.name}
                                 </span>
                             </div>

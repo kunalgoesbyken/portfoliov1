@@ -1,0 +1,37 @@
+direction: down
+
+browser: In your browser {
+  class: zone
+  ui: Inbox + assistant\nReact 19 {
+    class: client
+    tooltip: "One Zustand store holds mail per mailbox, filters, the open thread and the composer, so a filter change never re-renders the compose window. A 30-second sync refreshes the current view; fixing its effect dependencies cut 640 requests in 11 s to 3."
+  }
+  gmail: Gmail client\nOAuth token stays here {
+    class: service
+    tooltip: "OAuth code exchange, token storage and every Gmail REST call run in the browser, so there is no mail backend. Messages are fetched with Promise.allSettled, so one broken message never empties the inbox, and HTML bodies are sanitised with DOMPurify."
+  }
+  ui -> gmail
+}
+
+server: Server {
+  class: zone
+  chat: /api/chat\n4 typed tools, no send {
+    class: service
+    tooltip: "One streaming route on the Vercel AI SDK. The model gets openEmail, navigateView, composeEmail and replyToEmail as Zod-typed tools and no way to send mail. Context is capped at the ten most recent emails as 100-character snippets."
+  }
+}
+
+google: Gmail API {
+  class: external
+  tooltip: "Called directly from the browser with the user's own token and the gmail.modify scope."
+}
+
+llm: Groq model {
+  class: model
+  tooltip: "openai/gpt-oss-120b on Groq, streamed back token by token."
+}
+
+browser.gmail -> google: REST
+browser.ui -> server.chat: prompt + 10 snippets
+server.chat -> llm: stream
+server.chat -> browser.ui: tool calls fill the draft

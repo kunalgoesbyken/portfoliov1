@@ -13,8 +13,8 @@ interface LightboxProps {
   onIndexChange: (index: number | null) => void;
 }
 
-const NAV_BUTTON_CLASS =
-  "absolute top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer z-10";
+const ROUND_BUTTON_CLASS =
+  "inline-flex items-center justify-center size-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer";
 
 const wrap = (index: number, length: number) => (index + length) % length;
 
@@ -31,21 +31,11 @@ function useLightboxKeys(index: number | null, length: number, onIndexChange: Li
   }, [index, length, onIndexChange]);
 }
 
-function MediaView({ media }: { media: MediaItem }) {
-  if (media.type === "video") {
-    return <video src={media.src} poster={media.poster} className="w-full h-auto" controls autoPlay muted playsInline />;
-  }
-  return (
-    <div className="relative w-full aspect-[16/10]">
-      <Image src={media.src} alt={media.caption ?? ""} fill sizes="90vw" className="object-contain" />
-    </div>
-  );
-}
-
 export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
   useLightboxKeys(index, items.length, onIndexChange);
   const media = index === null ? null : items[index];
   const position = (index ?? 0) + 1;
+  const hasMany = items.length > 1;
   const close = () => onIndexChange(null);
   const step = (delta: number) => index !== null && onIndexChange(wrap(index + delta, items.length));
 
@@ -56,46 +46,42 @@ export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
           onClick={close}
           role="dialog"
           aria-modal="true"
-          aria-label={media.caption ?? "Media preview"}
-          className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 cursor-pointer"
+          aria-label={media.caption}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/90 p-4 md:p-10"
         >
-          <m.figure
-            initial={{ scale: 0.92, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.92, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-[92%] max-w-6xl cursor-default"
-          >
-            <div className="relative bg-black rounded-xl overflow-hidden shadow-xl">
-              <button
-                onClick={close}
-                className="absolute top-3 right-3 p-2 bg-neutral-200 dark:bg-neutral-700 rounded-full cursor-pointer hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors z-10"
-                aria-label="Close preview"
-              >
-                <X size={20} className="text-neutral-900 dark:text-neutral-100" />
+          <button onClick={close} className={`${ROUND_BUTTON_CLASS} absolute top-4 right-4`} aria-label="Close preview">
+            <X size={20} />
+          </button>
+          <figure onClick={(e) => e.stopPropagation()} className="flex max-h-full flex-col items-center gap-3">
+            <Image
+              key={media.src}
+              src={media.src}
+              alt={media.caption}
+              width={0}
+              height={0}
+              sizes="(max-width: 768px) 100vw, 90vw"
+              quality={85}
+              className="h-auto max-h-[80vh] w-auto max-w-full rounded-md"
+            />
+            <figcaption className="font-custom2 text-sm text-neutral-300">
+              {media.caption}
+              {hasMany && <span className="ml-2 text-neutral-500">{position} / {items.length}</span>}
+            </figcaption>
+          </figure>
+          {hasMany && (
+            <div onClick={(e) => e.stopPropagation()} className="flex gap-3">
+              <button onClick={() => step(-1)} className={ROUND_BUTTON_CLASS} aria-label="Previous screenshot">
+                <ChevronLeft size={20} />
               </button>
-              <MediaView key={media.src} media={media} />
+              <button onClick={() => step(1)} className={ROUND_BUTTON_CLASS} aria-label="Next screenshot">
+                <ChevronRight size={20} />
+              </button>
             </div>
-            {items.length > 1 && (
-              <>
-                <button onClick={() => step(-1)} className={`${NAV_BUTTON_CLASS} left-2 md:-left-14`} aria-label="Previous">
-                  <ChevronLeft size={22} />
-                </button>
-                <button onClick={() => step(1)} className={`${NAV_BUTTON_CLASS} right-2 md:-right-14`} aria-label="Next">
-                  <ChevronRight size={22} />
-                </button>
-              </>
-            )}
-            {media.caption && (
-              <figcaption className="mt-3 text-center font-custom2 text-sm text-neutral-300">
-                {media.caption}
-                {items.length > 1 && <span className="ml-2 text-neutral-500">{position} / {items.length}</span>}
-              </figcaption>
-            )}
-          </m.figure>
+          )}
         </m.div>
       )}
     </AnimatePresence>
