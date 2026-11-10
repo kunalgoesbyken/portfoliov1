@@ -1,6 +1,6 @@
 {
-  "index.chunk": "Chunks follow tree-sitter declarations instead of fixed-size windows, because windows cut functions in half and duplicate context. Cost: only Rust, Go, Python, TypeScript, Java and C/C++ have grammars, so other source languages are not indexed.",
-  "index.embed": "A local INT8 ONNX embedding model on the CPU instead of a hosted embedding API, because code never leaves the machine. Cost: a 137 MB model download, and queries take 0.9 to 1.8 s since each one starts the process and loads the model.",
-  "disk.vectors": "An append-only log with tombstones plus a hand-written HNSW graph instead of a database, because updates never rewrite the file and a crash leaves only a torn tail, repaired on load. Cost: dead records stay on disk until they outnumber live ones.",
+  "index.chunk": "tree-sitter declarations instead of fixed-size windows, because windows cut functions and duplicate context. Cost: only Rust, Go, Python, TypeScript, Java and C/C++ have grammars, and code outside declarations, such as imports, is not indexed.",
+  "index.embed": "A local INT8 ONNX model on the CPU instead of a hosted embedding API, so code never leaves the machine. Cost: a one-time 137 MB download, and the model loads on every command, so queries take 0.9 to 1.8 s.",
+  "disk.vectors": "An append-only log with tombstones plus a hand-written HNSW graph instead of a database, so updates never rewrite the file. Cost: the whole log is read into memory per query, and the graph is rebuilt on each changed index run.",
   "fuse": "Reciprocal Rank Fusion instead of adding raw scores, because cosine similarity and BM25 sit on incompatible scales. Cost: only ranks are used, so a far stronger match gets no more weight than a marginally stronger one."
 }

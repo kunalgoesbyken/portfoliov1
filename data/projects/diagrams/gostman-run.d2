@@ -2,44 +2,50 @@ direction: right
 
 inputs: Inputs {
   class: zone
-  folder: Collection\nYAML or export {
+  folder: Collection\nYAML, Postman, Bruno {
     class: store
-    tooltip: "A Gostman folder, a Postman or Bruno export, or an OpenAPI file, loaded by one bounded pool of readers sized at twice the CPU count."
+    tooltip: "A Gostman folder read by the workspace package, a Postman or Bruno export, or an OpenAPI file, loaded into one runner.Collection. Folders are read by a bounded pool of readers sized from the CPU count."
   }
   data: Data rows\nCSV, JSON, XLSX {
     class: store
-    tooltip: "Each row becomes one iteration with its own variables, so one collection tests many inputs. Rows with French and Japanese titles run unchanged."
+    tooltip: "runner/data.go parses the file into rows. Each row is one iteration with its own variables, so one collection tests many inputs."
   }
 }
 
 run: gostman run {
   class: zone
-  plan: Run plan {
+  plan: Run plan\nSession.Run {
     class: service
     tooltip: "Resolves folder filters, tags, --only, iterations and --parallel into an ordered list of executions before anything is sent."
   }
-  engine: Request engine {
+  pre: Pre-request\ngoja script {
     class: service
-    tooltip: "Sends the request, follows redirects, keeps cookies per run and applies extract rules so later requests can reuse values from earlier responses."
+    tooltip: "Runs pre-request scripts with the Postman pm and Bruno bru APIs inside goja, with a time limit and a 512 MB memory watchdog. Each script gets a runtime no other script has touched."
   }
-  sandbox: Script sandbox\nfresh per script {
+  engine: Send\nengine, rpc, mcpclient {
     class: service
-    tooltip: "Pre-request and test scripts run in goja, a JavaScript engine written in Go, with the Postman pm and Bruno bru APIs. Every script gets a runtime no other script has touched; up to four are booted ahead of time."
+    tooltip: "session.transmit picks engine.Send for HTTP-style requests, rpc.Invoke for gRPC or mcpclient.Invoke for MCP. Cookies are kept per run."
   }
-  plan -> engine -> sandbox
+  post: Extract + checks\ngoja {
+    class: service
+    tooltip: "Extract rules write variables for later requests. Post-response scripts and assertions then run, and checks that need no user code share one session runtime. OpenAPI contract checks run last."
+  }
+  plan -> pre: per request
+  pre -> engine: send
+  engine -> post: response
 }
 
 api: API under test {
   class: external
-  tooltip: "Any HTTP or gRPC service, local or remote."
+  tooltip: "Any HTTP, gRPC or MCP service, local or remote. WebSocket requests are skipped in a run."
 }
 
-reports: Reports\nJUnit, JSON, HTML {
+reports: Reports\ntext, JSON, JUnit, HTML {
   class: client
-  tooltip: "Pass or fail per request, per check and per data row, with timings. The exit code fails the CI job when any check fails."
+  tooltip: "The report package writes text, JSON, JUnit, HTML or Markdown, with pass or fail per request and per check. The exit code is 0 for pass, 1 for a failed check, 2 for bad usage and 3 for no response."
 }
 
-inputs.folder -> run.plan
-inputs.data -> run.plan
+inputs.folder -> run.plan: load
+inputs.data -> run.plan: rows
 run.engine -> api
-run.sandbox -> reports: exit code
+run.post -> reports: results

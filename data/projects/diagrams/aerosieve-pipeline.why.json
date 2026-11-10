@@ -1,6 +1,6 @@
 {
-  "core.decode": "Clipping is measured against the source's full scale instead of the leveled audio, because leveling could turn a clipped file down 3 dB and hide the damage. Cost: score and clip_ratio now take the full scale as an argument, so every caller must pass it.",
-  "core.segment": "A hysteresis segmenter fed by a signal-level detector instead of a neural voice detector, because it needs no model or dependencies. Cost: it measures energy, not speech, so loud music passes as speech. Silero VAD is optional and the CLI does not expose it.",
-  "core.score": "Four deterministic measurements instead of a learned quality model, because they need no clean reference and thresholds can change without re-reading audio. Cost: babble noise reads up to 2.7 dB cleaner than it is, and a single sustained instrument can pass as speech.",
-  "surfaces.live": "Batch runs the same streaming segmenter instead of a separate algorithm, so live and batch verdicts cannot drift apart. Cost: a clip's verdict arrives only once its closing pause has been heard."
+  "core.segment": "A level-based EnergyDetector behind a SpeechDetector trait instead of a neural detector, because it needs no model file. Cost: it measures energy, not speech, so loud music passes. Silero is a cargo feature and the CLI does not expose it.",
+  "core.acoustic": "Four deterministic measurements instead of a learned quality model, with scoring kept apart from FilterPolicy, so thresholds change without re-reading audio. Cost: babble noise reads up to 2.7 dB cleaner than it is.",
+  "core.shard": "Shards are built in a staging directory and renamed into place, so readers never see a partial tar. Cost: staging and output must be on the same volume, and the writer refuses an output directory that already holds a run.",
+  "entry.serve": "The live path runs the same StreamSegmenter that batch uses, so verdicts cannot drift apart. Cost: a clip is judged only after its closing pause, and live audio is not loudness-leveled."
 }

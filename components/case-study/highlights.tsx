@@ -1,21 +1,19 @@
 import type { ReactNode } from "react";
 
 export function Highlights({ children }: { children: ReactNode }) {
-  return <div className="not-prose my-6 grid gap-3 md:grid-cols-2">{children}</div>;
+  return <div className="not-prose my-8 divide-y divide-neutral-200 dark:divide-neutral-800 border-y border-neutral-200 dark:border-neutral-800">{children}</div>;
 }
 
 export function Highlight({ title, result, children }: { title: string; result?: string; children: ReactNode }) {
   return (
-    <article className="frame-dashed flex flex-col gap-2 bg-white/60 dark:bg-neutral-900/40 p-4">
-      <h3 className="!m-0 font-custom !font-normal text-xl leading-snug text-neutral-900 dark:text-neutral-50">{title}</h3>
-      <div className="font-custom2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 [&_code]:text-[0.8rem] [&_code]:font-mono">
+    <article className="grid gap-x-8 gap-y-2 py-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div>
+        <h3 className="font-custom text-xl leading-snug text-neutral-900 dark:text-neutral-50">{title}</h3>
+        {result && <p className="mt-2 font-custom2 text-sm leading-snug text-amber-700 dark:text-amber-400">{result}</p>}
+      </div>
+      <div className="font-custom2 text-[0.95rem] leading-relaxed text-neutral-700 dark:text-neutral-300 [&_code]:font-mono [&_code]:text-[0.8rem]">
         {children}
       </div>
-      {result && (
-        <p className="mt-auto pt-2 border-t border-dashed border-neutral-300 dark:border-neutral-700 font-custom2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
-          {result}
-        </p>
-      )}
     </article>
   );
 }

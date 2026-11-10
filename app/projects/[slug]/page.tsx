@@ -11,6 +11,7 @@ import { Section } from "@/components/case-study/section";
 import { Highlight, Highlights } from "@/components/case-study/highlights";
 import { Diagram } from "@/components/case-study/diagram";
 import { ProjectPager } from "@/components/case-study/pager";
+import { Stack } from "@/components/case-study/stack";
 import { getCaseStudy } from "@/lib/case-studies";
 import { ALL_PROJECTS, findProject } from "@/lib/projects-data";
 
@@ -48,6 +49,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
           options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
         />
       </article>
+      <Stack items={meta.stack} />
       <ProjectPager slug={slug} />
     </Container>
   );

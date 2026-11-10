@@ -1,5 +1,6 @@
 {
-  "server.router": "The pages folder is scanned at startup and each file compiled to a regular expression, instead of a hand-written route config, so a file is the route. Cost: the table is built once, so a page added later is not routed until the server restarts.",
+  "router": "The pages folder is scanned once at startup and each file compiled to a regular expression, instead of a hand-written route config, so a file is the route. Cost: a page added later is not routed until the server restarts, and the first match in scan order wins.",
   "server.render": "Server rendering with renderToString instead of client-only rendering, because pages arrive as real HTML for search engines and first paint. Cost: nothing is sent until the whole page has rendered, and there is no streaming.",
-  "build": "A generated page map of literal import() calls instead of one bundle, so Bun.build splits every page into its own lazy chunk. Cost: the map comes from the routes found at startup, so adding a page needs a rebuild."
+  "build": "A generated page map of literal import() calls instead of one bundle, so Bun.build splits every page into its own lazy chunk. Cost: the map comes from the routes found at startup, so adding a page needs a rebuild.",
+  "browser": "Hydrating with the server's props from a script tag instead of refetching, so the first client render matches the server HTML. Cost: the data travels twice, once inside the HTML and once as JSON."
 }

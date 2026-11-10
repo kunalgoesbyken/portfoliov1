@@ -4,15 +4,23 @@ role: "Solo, design to release"
 timeline: "Nov 2026"
 summary: A deterministic simulation tester for Go. It runs your unmodified service in a simulated world where it controls the clock, the disk and the network, crashes it thousands of ways, and replays any failure exactly from a single number.
 stats:
-  - { value: "18", label: "bug reports across 10 open source Go projects" }
-  - { value: "33 → 2", label: "faults left after automatic shrinking" }
-  - { value: "200 / 200", label: "seeds replayed with identical traces" }
-  - { value: "87x", label: "faster than real time, 21.5 runs a second" }
+  - { value: "10", label: "open source Go projects where it found a bug" }
+  - { value: "87x", label: "faster than real time over a 200-seed sweep" }
+  - { value: "17", label: "MCP tools an AI coding agent can call" }
 gallery:
   - { src: /images/projects/seedfall/01-run-finds-bug.webp, caption: "A sweep of 100 seeds catches a lost acknowledged write" }
   - { src: /images/projects/seedfall/02-shrink.webp, caption: "Shrinking one failing seed from 33 faults to the 2 that matter" }
   - { src: /images/projects/seedfall/04-bugs-found.webp, caption: "Real bugs found in open source projects, each with a replayable seed" }
   - { src: /images/projects/seedfall/05-raft-finding.webp, caption: "Root-cause report for the hashicorp/raft snapshot fsync bug" }
+stack:
+  - "Go"
+  - "WebAssembly"
+  - "wazero"
+  - "Porcupine"
+  - "Model Context Protocol"
+  - "GitHub Actions"
+  - "Docker"
+  - "Vercel"
 ---
 
 <Section kicker="For everyone" title="What it does">
@@ -29,13 +37,19 @@ It has already found real bugs in widely used projects, including NATS, hashicor
 
 <Section kicker="For engineers" title="How it is built">
 
-Each node is compiled with the stock Go toolchain for `GOOS=wasip1` and run as its own wazero WebAssembly instance inside one host process. On wasip1 the Go runtime is single-threaded and every source of nondeterminism leaves through three WASI calls, so Seedfall implements those three itself: random bytes come from a seeded ChaCha8 stream, the clock is virtual, and blocking parks the node until its next timer or packet. No forked runtime, no source rewriting, and new Go releases keep working.
+The repository is one Go module. `sim` is the small library a workload imports for properties, operation history and `sim.Listen` and `sim.Dial`. `engine` is the simulator. `cmd/seedfall` is the CLI and the MCP server, `verify` and `report` produce proofs and triage output, and `seedfalltest` runs a sweep from `go test`.
 
 <Diagram name="seedfall-system" title="Simulator architecture" />
 
-Exactly one node runs at a time. The scheduler picks the earliest wake-up, breaks ties with the seed and jumps virtual time forward, so ten seconds of `time.Sleep` cost nothing. wasip1 has no preemption, so modules are instrumented with a call counter that triggers the Go runtime's own cooperative preemption after about four million calls without blocking.
+One run of one seed goes like this:
 
-The simulated disk has an explicit durability model: writes sit in a page cache, `Sync` makes them durable and a crash keeps only durable data. Options add torn writes, reordered 4 KiB page writeback, strict POSIX directory durability, `EIO` on fsync with Linux's post-2018 semantics, full disks, lost and misdirected writes and bit flips. The network gives UDP seeded reordering and loss, TCP ordered streams with seeded latency, and one-way partitions, all registered with Go's own poller so plain `net/http` runs unchanged.
+1. `engine.Build` compiles each node package with the stock Go toolchain for `GOOS=wasip1`. `NewRunner` rewrites the wasm to add a call counter to every function (`instrument.go`) and compiles it once with wazero, cached under `.seedfall/cache`.
+2. `Runner.run` builds a `world` for the seed: an in-memory file system and a network endpoint per node, seeded random streams for scheduling, network, disk and I/O faults, and a fault list generated up front.
+3. `world.loop` runs exactly one node at a time. It takes the earliest of the next fault, restart or node wake-up, breaks ties with the seed and jumps virtual time forward, so ten seconds of `time.Sleep` cost nothing.
+4. On wasip1 every source of nondeterminism leaves through three WASI calls, which the host implements: `random_get` is a ChaCha8 stream, `clock_time_get` is the virtual clock and `poll_oneoff` parks the node. A separate `seedfall` host module carries sockets, properties and operation history. Nothing needs a forked runtime or rewritten source.
+5. wasip1 has no preemption, so after 4,194,304 counted calls without blocking the counter calls back into the host, which uses the Go runtime's own cooperative preemption.
+6. The disk (`memfs.go`) keeps writes in a page cache and a crash keeps only synced data. Options add torn writes, reordered 4 KiB page writeback, strict directory durability, `EIO` on fsync, full disks, lost writes and bit flips. The network (`net.go`) gives TCP ordered streams with seeded latency, UDP that can reorder and drop, and one-way partitions. `sim.Listen` and `sim.Dial` reach it directly and an opt-in `net_overlay` patches Go's `net` package so plain `net/http` runs unchanged.
+7. At the end the recorded history is checked with Porcupine, and a hash over every host call proves two runs of a seed were identical.
 
 <Diagram name="seedfall-loop" title="Find, replay, shrink, prove" />
 
@@ -44,19 +58,19 @@ The simulated disk has an explicit durability model: writes sit in a page cache,
 Reproducing a concurrent, distributed Go program byte for byte usually means patching the runtime. Routing every source of nondeterminism through three WASI calls made it possible with the stock toolchain. `seedfall run -check` runs each seed twice and stops at the first host call that differs.
 </Highlight>
 <Highlight title="Shrinking that never swaps bugs" result="33 faults to 2, one minute of virtual time to 991 ms, in 191 runs">
-Delta debugging removes faults, then the workload is capped, the duration trimmed and each fault simplified. A candidate is kept only if it fails with the same class, node, property and message. Every fault type draws from its own seeded stream, so removing one barely disturbs the rest of the run.
+Delta debugging removes faults, then the workload is capped, the duration trimmed and each fault simplified. A candidate is kept only if it fails with the same class, node, property and message. Scheduling, network latency, disk tearing, fault timing and I/O faults each draw from their own seeded stream, so removing one fault barely disturbs the rest of the run.
 </Highlight>
-<Highlight title="A crash model that matches real disks" result="Found that hashicorp/raft never fsyncs its snapshot directory">
-Most storage bugs only appear under strict POSIX rules, torn writes or failing fsyncs, none of which a laptop disk shows. In raft's case, log compaction after an unsynced rename leaves an empty snapshot, and the node panics in `NewRaft` on every restart.
+<Highlight title="A crash model with strict file system rules" result="Found that hashicorp/raft never fsyncs its snapshot directory">
+Most storage bugs only appear under strict POSIX rules, torn writes or failing fsyncs, none of which a laptop disk shows. In raft's case, a crash after log compaction leaves an empty snapshot directory, and the node panics in `NewRaft` on every restart.
 </Highlight>
 <Highlight title="Proof that a pass means something" result="Every finding ships a root cause, a replay command and a verified patch">
 `seedfall mutate` swaps in a deliberately broken disk, for example fsync as a no-op, and requires your checks to notice. `seedfall verify` replays the failing schedule against a patched copy and sweeps fresh seeds.
 </Highlight>
 <Highlight title="Built for coding agents" result="Found bugs in 2 of 9 AI-written crash-safe stores that passed their own tests">
-An MCP server and four skills let an agent set up, run, shrink and prove a fix with no API key. In one experiment, three Claude models each wrote three crash-safe key-value stores; Seedfall found two that can refuse to open forever after a specific crash.
+`seedfall mcp` and four skills let an agent set up, run, shrink and prove a fix with no API key. In one experiment, three Claude models each wrote three crash-safe key-value stores; Seedfall found two that can refuse to open forever after a specific crash.
 </Highlight>
 <Highlight title="Fast enough for CI" result="200 seeds in 9.4 s on a laptop">
-Seeds run in parallel jobs and virtual time skips idle waits, so a failing seed replays 0.99 s of simulated time in 0.1 to 0.3 s of real time.
+Seeds are independent, so `seedfall run -j N` runs N at once, and virtual time skips idle waits. A GitHub Action runs the same sweep in CI. The cost is booting: a large guest such as nats-server takes 0.1 to 0.3 s to start each node.
 </Highlight>
 </Highlights>
 
@@ -65,8 +79,6 @@ Seeds run in parallel jobs and virtual time skips idle waits, so a failing seed 
 | Real bugs found | 18 root-cause reports across NATS JetStream, hashicorp/raft, nutsdb, buntdb, bitcask, diskv, bbolt and others |
 | Upstream | 9 issues filed, 1 fixed upstream (tidwall/buntdb) |
 | Controls | hashicorp/raft passes 600 seeds and etcd-io/raft 100; a deliberately broken copy of each is caught |
-| Codebase | 20,073 lines of Go in the core, 348 tests, 31 runnable example systems |
-
-**Stack:** Go, WebAssembly (wasip1), wazero, Porcupine, ChaCha8, delta debugging, PCT scheduling, Model Context Protocol, GitHub Actions.
+| Codebase | 20,073 lines of Go outside tests and examples, 348 tests, 31 runnable example systems |
 
 </Section>

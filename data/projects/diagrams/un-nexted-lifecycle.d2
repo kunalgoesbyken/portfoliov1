@@ -2,37 +2,45 @@ direction: right
 
 pages: src/pages\n*.tsx {
   class: store
-  tooltip: "about.tsx becomes /about and blog/[slug].tsx a dynamic route. Files starting with an underscore are skipped."
+  tooltip: "The app code. index.tsx is /, about.tsx is /about and blog/[slug].tsx is a dynamic route. _app.tsx, _document.tsx and nested files that start with an underscore are skipped."
 }
 
-server: Bun.serve {
+router: router.ts\nglob to regex {
+  class: service
+  tooltip: "Bun.Glob scans src/pages once at startup. Each file becomes a URL pattern compiled to a regular expression with a capture group per [param], and match() returns the first route that fits along with its params."
+}
+
+server: Bun.serve (server.ts) {
   class: zone
-  router: File router\nglob to regex {
-    class: service
-    tooltip: "Bun.Glob scans the pages folder at startup, normalises path separators, and compiles each pattern to a regular expression with named capture groups for params. Only the literal parts are escaped."
-  }
   data: getServerSideProps {
     class: service
-    tooltip: "Awaited per request with params and pathname. A throwing data function renders a 500 page instead of crashing the server; an unmatched path renders the 404 page."
+    tooltip: "renderPage imports the matched page module and awaits getServerSideProps with params and pathname, merging the result into the props. An unmatched path renders 404.tsx with status 404, and a failed import or throwing data function returns a plain 500 page."
   }
   render: renderToString {
     class: service
-    tooltip: "react-dom/server renders HTML. Props are embedded as JSON with the less-than sign escaped, so serialised data can never close the script tag. About 1 ms to first byte for a static page."
+    tooltip: "react-dom/server renders the page into an HTML template. The pathname, props and page file path are written into a script tag with id __UNNEXTED_DATA__ as JSON with the less-than sign escaped, so the data cannot close the tag."
   }
-  router -> data -> render
+  data -> render: props
 }
 
-build: Bun.build\none chunk per page {
+build: build.ts\nBun.build {
   class: service
-  tooltip: "A build plugin generates a page map of literal imports, so Bun.build code-splits every page into its own lazily loaded chunk."
+  tooltip: "Bundles client.tsx for the browser as ES modules with code splitting. A plugin supplies the virtual module unnexted:pages, a map from each page's file path to a literal import(), so every page becomes its own chunk. It runs at every server start."
 }
 
-browser: Browser\nhydrateRoot {
+dist: dist/\nclient.js + chunks {
+  class: store
+  tooltip: "Build output. Bun.serve returns .js and .js.map files from here by file name, with no-cache in development and a one-year max-age in production."
+}
+
+browser: client.tsx\nhydrateRoot {
   class: client
-  tooltip: "Reads the embedded props, loads only the matched page chunk and hydrates, so React attaches handlers to the server HTML instead of re-rendering it."
+  tooltip: "Reads the embedded data, looks up the page loader in unnexted:pages by file path, imports only that chunk and calls hydrateRoot with the same props, so React attaches handlers to the server HTML instead of re-rendering it."
 }
 
-pages -> server.router: startup scan
-pages -> build
+pages -> router: scan at startup
+router -> server.data: match URL
+router -> build: route list
+build -> dist: write chunks
 server.render -> browser: HTML + props
-build -> browser: page chunk
+dist -> browser: JS chunks

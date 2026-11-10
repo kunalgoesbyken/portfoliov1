@@ -4,10 +4,10 @@ role: "Solo, design to release"
 timeline: "Jun 2026 – Nov 2026"
 summary: A Rust pipeline that turns raw audio recordings into clean training data for speech models, and names the reason for every clip it throws away.
 stats:
-  - { value: "99.9%", label: "of 24,409 injected defects caught across six languages" }
-  - { value: "940x", label: "faster than real time on a laptop CPU" }
-  - { value: "14.8 ms", label: "p95 verdict latency at 1,000 live streams" }
-  - { value: "10", label: "Rust crates, 135 tests, one 1.7 MB WASM build" }
+  - { value: "6", label: "named rejection reasons, from low_snr to silence" }
+  - { value: "4", label: "deterministic measurements per clip, no ML model needed" }
+  - { value: "3 to 30 s", label: "length of every clip it keeps" }
+  - { value: "6", label: "languages benchmarked, from English to Marathi" }
 gallery:
   - { src: /images/projects/aerosieve/01-demo-mixed.webp, caption: "The browser demo judging a 70 second recording clip by clip, with reasons" }
   - { src: /images/projects/aerosieve/02-demo-noisy.webp, caption: "A noisy recording: which clips fail and why" }
@@ -15,6 +15,21 @@ gallery:
   - { src: /images/projects/aerosieve/04-sievebench-languages.webp, caption: "SieveBench per language: audio kept and defects caught" }
   - { src: /images/projects/aerosieve/05-snr-accuracy.webp, caption: "Estimated noise level against injected noise for three noise types" }
   - { src: /images/projects/aerosieve/06-speed.webp, caption: "940x real time in batch and 14.8 ms live verdicts" }
+stack:
+  - "Rust"
+  - "Symphonia"
+  - "rayon"
+  - "axum"
+  - "tokio"
+  - "WebAssembly"
+  - "wasm-bindgen"
+  - "PyO3"
+  - "maturin"
+  - "WebDataset"
+  - "Prometheus"
+  - "Silero VAD"
+  - "ONNX Runtime"
+  - "GitHub Actions"
 ---
 
 <Section kicker="For everyone" title="What it does">
@@ -27,22 +42,24 @@ Every rejected clip gets a plain reason: `low_snr`, `clipping`, `tonal`, `too_qu
 
 It is built for teams training speech recognition and voice AI, especially in languages where cleaned public data is scarce. It was tested on English, Hindi, Tamil, Bengali, Telugu and Marathi.
 
-The output is ready to train on: WebDataset shards, a manifest of every clip and a stats file. The same engine runs as a command-line tool, a Rust library, a Python package, a live WebSocket service for calls and voice agents, and in the browser, where your audio never leaves the page.
+The output is ready to train on: WebDataset shards, a manifest of every kept clip and a stats file. The same engine runs as a command-line tool, a Rust library, a Python package, a live WebSocket service for calls and voice agents, and in the browser, where your audio never leaves the page.
 
 </Section>
 
 <Section kicker="For engineers" title="How it is built">
 
-A Rust workspace of ten crates, each owning one stage. Measurement and judgement are kept apart: `score` computes the numbers once and `FilterPolicy` decides, so thresholds can change without re-reading any audio.
+A Rust workspace of ten crates, plus two binding crates (`bindings/python`, `bindings/wasm`) built separately. The `aerosieve` library crate wires the stages together: `Pipeline` writes shards, `Inspector` only judges, and `LiveInspector` judges audio that arrives in pieces. `aerosieve-cli` (clap) and `aerosieve-serve` (axum) are thin front ends over it, and `aerosieve-lexical` normalizes transcripts from YAML rules.
 
 <Diagram name="aerosieve-pipeline" title="Pipeline" />
 
-1. **Decode** reads any common format, converts to 16 kHz mono and levels loudness, while remembering the source's own full scale so clipping can still be measured afterwards.
-2. **Segment** runs a hysteresis state machine modelled on Silero's speech timestamps: speech starts above one threshold, continues above a lower one, and ends only after 500 ms of quiet. Long segments are cut at their deepest internal dip. Property tests check that output is ordered, non-overlapping and always 3 to 30 seconds.
-3. **Score** computes four deterministic numbers with no ML model: WADA-SNR, RMS level, clip ratio and spectral flatness over the 300 to 3400 Hz speech band.
-4. **Shard** writes accepted clips to WebDataset tar files with a manifest, in input order, so a parallel run is byte-identical to a single-threaded one.
+1. **Decode** (`aerosieve-decode`): Symphonia reads wav, mp3, flac, ogg or mp4, downmixes, and rubato resamples to 16 kHz. Loudness is nudged toward -20 dBFS with at most 3 dB of gain, and the source's own full scale is kept so clipping can still be measured.
+2. **Segment** (`aerosieve-segment`): a `SpeechDetector` gives each 32 ms window a speech probability. The default `EnergyDetector` uses signal level and needs no model. A hysteresis state machine, modelled on Silero's speech timestamps, ends a clip only after 500 ms of quiet. Clips under 3 s are dropped and longer ones are cut at their deepest internal dip, to at most 30 s.
+3. **Score** (`aerosieve-acoustic`): `score` returns four numbers with no ML model, WADA-SNR, RMS level, clip ratio and spectral flatness over 300 to 3400 Hz. `FilterPolicy::evaluate` then returns the first failing `RejectReason`, so thresholds can change without re-reading audio.
+4. **Shard** (`aerosieve-shard`): accepted clips become `.wav` and `.json` pairs in `shard-*.tar` files, built in a staging directory and renamed into place, with `manifest.jsonl` and `stats.json`. Rejected clips are not written. Their reasons are counted in the run totals and printed by `aerosieve inspect`.
 
-The live service is axum and tokio. Memory per session is bounded by the utterance in progress, sessions and frame sizes are capped, and a Prometheus histogram tracks decision latency.
+`Pipeline::process_files` inspects one batch of files per round with rayon and writes results in input order, so a parallel run matches a single-threaded one. `Segmenter::segment` is the `StreamSegmenter` fed the whole file.
+
+The live service exposes `/v1/stream`. Clients send 16-bit PCM frames over a WebSocket, each session holds a `LiveInspector`, and a verdict goes back once the pause that ends a clip is heard. Sessions (256 by default), utterance length, frame size and idle time are capped, and `/metrics` serves Prometheus text with a decision-latency histogram. The browser build compiles the same crates to WebAssembly: an `Inspection` decodes and scores once, then re-applies any `FilterPolicy` to the stored measurements.
 
 <Highlights>
 <Highlight title="A benchmark that cannot grade itself" result="24,385 of 24,409 defects caught; the right reason named for all but 2">
@@ -52,7 +69,7 @@ SieveBench damages clean speech in 28 known ways (six noise levels, clipping, ne
 Loudness leveling was hiding clipping, so distorted files passed as clean; clipping is now measured against the source's full scale. Speech was also being cut at every 100 ms word gap, which left 23 of 73 clean English recordings with no clip at all; pauses under 500 ms are now bridged.
 </Highlight>
 <Highlight title="One state machine for live and batch" result="1,000 concurrent streams on a 4-core laptop, 0 failures">
-Batch processing is the streaming segmenter fed the whole file, so live and batch verdicts cannot disagree. A property test streams random audio in random chunk sizes and checks clips and scores match exactly.
+Batch processing is the streaming segmenter fed the whole file, so live and batch verdicts cannot disagree. A property test streams in random chunk sizes and checks the segments match, and a live test checks clips and scores match exactly across several chunk sizes. The live path judges samples as received, with no loudness leveling.
 </Highlight>
 <Highlight title="Noise measured without a clean reference" result="Within about 1.3 dB from 0 to 20 dB SNR">
 WADA-SNR estimates noise from the amplitude distribution of the clip alone. Babble reads up to 2.7 dB too clean, which is documented as a limitation instead of hidden. Flatness skips bins near Nyquist, where resampled audio is empty and speech would look tonal.
@@ -71,10 +88,8 @@ Decode, segment and score compile to a 1.7 MB WebAssembly module. The demo store
 | Batch speed | 43 min of audio in 2.75 s on 8 threads (8.1 s on 1 thread) |
 | Live verdict latency | 14.8 ms p95 with 1,000 concurrent streams |
 | Unpaced server throughput | 7,650x real time with 16 clients |
-| Codebase | about 8,500 lines of Rust, 10 crates, 135 tests |
+| Codebase | about 8,500 lines of Rust, 10 workspace crates, 135 tests |
 
 Speed and streaming figures were measured on a Core i5-9300H laptop (4 cores, 8 threads).
-
-**Stack:** Rust, axum, tokio, rayon, WebAssembly (wasm-bindgen), PyO3 and maturin, WebDataset, Prometheus, optional Silero VAD (ONNX), GitHub Actions.
 
 </Section>

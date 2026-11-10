@@ -1,47 +1,51 @@
 direction: right
 
-pdf: Input PDF {
+pdf: Input PDF\nheal() or pdf2docx-heal {
   class: external
-  tooltip: "Text or scanned. A page counts as scanned when it has almost no text; OCR kicks in when more than 30 percent of pages are scanned."
+  tooltip: "Text or scanned. heal() in converter.py is the entry point, and the pdf2docx-heal command in cli.py calls it with flags for OCR and for switching each repair off."
 }
 
-ocr: OCR pre-pass\nonly if scanned {
+ocr: ocr_pipeline.py\nopt-in OCR {
   class: model
-  tooltip: "PyMuPDF Tesseract integration produces a temporary text-layer PDF at 300 DPI. Without Tesseract installed it logs and carries on."
+  tooltip: "Runs only with --ocr. A page with under 50 characters of text counts as scanned, and when more than 30 percent of pages are scanned each one is rendered at 300 DPI and OCR'd by PyMuPDF's Tesseract call into a temp PDF. A page whose OCR fails is copied unchanged."
 }
 
-convert: pdf2docx\ntwo internals patched {
+patches: patches.py\n2 monkey-patches {
   class: service
-  tooltip: "Upstream is_list_item always returned false and a list_not_table flag was dropped along the call chain, so lists became invisible tables. Two monkey-patches fix both, applied once per process, instead of forking an unmaintained project."
+  tooltip: "Replaces pdf2docx.common.share.is_list_item, which never matches upstream, and wraps Blocks.collect_stream_lines to force list_not_table=True. Applied once per process, only when list repair is on."
 }
 
-repair: Repair passes {
+convert: pdf2docx\nConverter {
+  class: service
+  tooltip: "The upstream converter, unmodified apart from the two patches. It writes the first-pass .docx to disk."
+}
+
+repair: post_processor.py\nthree passes, in order {
   class: zone
-  lists: Lists\nWord numbering {
+  lists: list_detector.py\nWord lists {
     class: service
-    tooltip: "Splits list items out of merged paragraphs, detects nesting from indentation and applies Word list styles. Lettered and roman lists get generated OOXML numbering definitions, and a sequence-reset check keeps headings like 4. Results as headings."
+    tooltip: "Splits merged paragraphs on bullet and number prefixes, reads nesting from the left indent and applies the built-in List Bullet and List Number styles. Lettered and roman lists get a generated OOXML numbering definition, and a sequence-reset check keeps titles like 4. Results as normal paragraphs."
   }
-  links: Links\nreal hyperlinks {
+  links: link_injector.py\nhyperlinks {
     class: service
-    tooltip: "Finds http, https, ftp, www and mailto text inside runs and replaces it with real w:hyperlink elements with external relationships."
+    tooltip: "Finds http, https, ftp, www and mailto text in body paragraphs and replaces it with w:hyperlink elements backed by external relationships, with blue underlined runs."
   }
-  fonts: Fonts\nUnicode fallback {
+  fonts: font_mapper.py\nfont fallback {
     class: service
-    tooltip: "Maps missing fonts by name first, then by Unicode range: CJK, Arabic, Hebrew, Thai, Devanagari and Cyrillic."
+    tooltip: "Looks the font name up in a fallback table, then falls back by Unicode range for CJK, Arabic, Hebrew, Thai, Devanagari and Cyrillic text, then to Arial."
   }
+  lists -> links: same file
+  links -> fonts: same file
 }
 
 docx: Healed .docx {
   class: store
-  tooltip: "Each pass has its own error handling, so a failure in one never costs the fixes from the others. On a sample: 0 to 9 real list items and 0 to 3 clickable links."
+  tooltip: "Each pass opens the file with python-docx, edits it and saves it in place, inside its own try block, so one failing pass never costs the fixes from the others."
 }
 
-pdf -> ocr
-pdf -> convert
-ocr -> convert
-convert -> repair.lists
-convert -> repair.links
-convert -> repair.fonts
-repair.lists -> docx
-repair.links -> docx
-repair.fonts -> docx
+pdf -> ocr: scanned?
+pdf -> convert: text PDF
+ocr -> convert: temp PDF
+patches -> convert: patch
+convert -> repair.lists: write .docx
+repair.fonts -> docx: save

@@ -1,58 +1,57 @@
 direction: right
 
-surfaces: Same core, four surfaces {
-  class: zone
-  batch: CLI, crate, Python {
-    class: client
-    tooltip: "aerosieve-cli on crates.io, the Rust library, and PyO3 bindings for Python. Batch runs inspect files in parallel with rayon and write results in input order, so shards are byte-identical to a single-threaded run."
-  }
-  live: WebSocket service {
-    class: client
-    tooltip: "axum and tokio. Memory per session is bounded by the utterance in progress, and sessions and frame sizes are capped. It held 1,000 concurrent streams on a 4-core laptop with verdicts at 14.8 ms p95 and zero failures."
-  }
-  wasm: Browser, via WASM {
-    class: client
-    tooltip: "Decode, segment and score compiled to a 1.7 MB WebAssembly module. Audio never leaves the page, and moving a threshold re-applies the policy to stored measurements without decoding again."
-  }
-}
-
-audio: Raw recordings\nany format {
+audio: Audio files\nwav, mp3, flac, ogg, mp4 {
   class: external
-  tooltip: "wav, mp3, flac, ogg or mp4 from any source. Real corpora are full of silence, hiss, clipping, test tones and phone-line audio."
+  tooltip: "Recordings from any source. Real corpora are full of silence, hiss, clipping, test tones and phone-line audio."
 }
 
-core: AeroSieve core (Rust) {
+entry: Entry points {
   class: zone
-  decode: Decode\n16 kHz mono {
-    class: service
-    tooltip: "Converts to 16 kHz mono and levels loudness, but remembers the source full scale. Without that, leveling hid clipping; the benchmark caught this bug."
+  cli: aerosieve-cli\nclap: curate, inspect {
+    class: client
+    tooltip: "The aerosieve binary. curate writes shards and prints rejection counts by reason. inspect prints one verdict per clip and writes nothing. --policy loads threshold overrides from JSON."
   }
-  segment: Segment\n3 to 30 s clips {
-    class: service
-    tooltip: "A hysteresis state machine modelled on Silero speech timestamps: start above one threshold, continue above a lower one, end after 500 ms of quiet. Bridging short pauses raised kept Hindi speech from 16.4 to 25.6 minutes. Batch mode is this same streaming segmenter fed the whole file."
+  bindings: Python and WASM\nPyO3, wasm-bindgen {
+    class: client
+    tooltip: "bindings/python (inspect and curate, built with maturin) and bindings/wasm (the browser demo). The WASM build decodes and scores once, then re-applies a policy to stored measurements on every slider move."
   }
-  score: Score + policy\nSNR, level, clipping {
-    class: service
-    tooltip: "Four deterministic numbers with no ML model: WADA-SNR, RMS level, clip ratio and spectral flatness over 300 to 3400 Hz. Measurement and judgement are separate, so thresholds change without re-reading audio."
+  serve: aerosieve-serve\naxum WebSocket {
+    class: client
+    tooltip: "Serves /v1/stream, /metrics and /healthz. Each session holds a LiveInspector. Sessions, utterance length, frame size and idle time are capped, and a hand-written histogram tracks decision latency."
   }
-  decode -> segment -> score
 }
 
-out: Output {
+core: aerosieve library {
   class: zone
-  shards: Training shards\nWebDataset {
-    class: store
-    tooltip: "Tar shards with audio plus JSON per clip, a manifest.jsonl and stats.json, ready for a training data loader."
+  decode: aerosieve-decode\nSymphonia, rubato {
+    class: service
+    tooltip: "Decodes any container Symphonia can read, downmixes, resamples to 16 kHz and levels RMS toward -20 dBFS within 3 dB. It keeps the applied gain so full_scale() can recover the source's own peak."
   }
-  rejects: Rejected clips\nwith a reason {
-    class: store
-    tooltip: "Every dropped clip names its first failing check: low_snr, clipping, tonal, too_quiet, too_loud or silence. SieveBench caught 24,385 of 24,409 injected defects and named the right one for all but 2."
+  segment: aerosieve-segment\nhysteresis VAD {
+    class: service
+    tooltip: "A SpeechDetector scores each 32 ms window. EnergyDetector is the default and Silero via ONNX Runtime is a cargo feature. A state machine ends a clip after 500 ms of quiet, keeps 3 to 30 s, and cuts long runs at their deepest dip."
   }
+  acoustic: aerosieve-acoustic\nscore + FilterPolicy {
+    class: service
+    tooltip: "score returns WADA-SNR, RMS dBFS, clip ratio and spectral flatness, with no ML model. FilterPolicy::evaluate returns the first failing RejectReason, or none if the clip is kept."
+  }
+  shard: aerosieve-shard\nWebDataset writer {
+    class: service
+    tooltip: "Writes each kept clip as a .wav and .json pair in shard-*.tar, plus manifest.jsonl and stats.json. Shards are built in a staging directory and renamed into the output directory when complete."
+  }
+  decode -> segment: 16 kHz mono
+  segment -> acoustic: clips
+  acoustic -> shard: kept
 }
 
-audio -> core.decode
-surfaces.batch -> core.decode
-surfaces.live -> core.segment: PCM
-surfaces.wasm -> core.decode
-core.score -> out.shards: keep
-core.score -> out.rejects: drop
+out: Training data {
+  class: store
+  tooltip: "shard-*.tar, manifest.jsonl and stats.json in the output directory. Only kept clips are stored. Rejection reasons are counted in the run totals and shown per clip by inspect and the live service."
+}
+
+audio -> entry.cli: files
+audio -> entry.bindings: files or bytes
+entry.cli -> core.decode: Pipeline
+entry.bindings -> core.decode: Inspector
+entry.serve -> core.segment: PCM s16le
+core.shard -> out: tar

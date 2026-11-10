@@ -1,5 +1,6 @@
 {
-  "ocr": "OCR runs only when more than 30% of pages are scanned, instead of on every file, so text PDFs skip it. Cost: a mostly-text file with a few scanned pages is not OCR'd, so those pages come out empty.",
-  "convert": "Two monkey-patches to pdf2docx internals instead of a fork, because the cause is dead code upstream and the package can follow new releases. Cost: the patches target internal paths and pdf2docx has no upper version pin, so a release that moves them can break it.",
-  "docx": "Each repair pass has its own error handling instead of one all-or-nothing step, so one failure never costs the other fixes. Cost: errors print only in verbose mode, so with the quiet flag a failed pass is skipped silently."
+  "ocr": "OCR is opt-in and fires only when over 30% of pages are scanned, instead of running on every file, because Tesseract is a separate system install. Cost: a file with a few scanned pages among many text pages gets no OCR.",
+  "patches": "Two monkey-patches on pdf2docx internals instead of a fork, because the cause is dead code upstream. Cost: they hit internal names with no upper version pin, and stay active for the rest of the process.",
+  "repair.lists": "Built-in List Bullet and List Number styles, with custom OOXML only for lettered and roman lists, because built-in styles are decimal only. Cost: detection reads text prefixes, so prose that starts like a list can be misread.",
+  "repair.fonts": "A static fallback table instead of probing installed fonts, so it needs no OS access. Cost: a font name the table does not know becomes Arial, and only body paragraphs are touched, not tables."
 }

@@ -1,46 +1,53 @@
 direction: right
 
-you: Your code {
+guest: Guest side, Go built for wasip1 {
   class: zone
-  workload: Workload\nwhat must stay true {
+  workload: Workload\nsim package {
     class: client
-    tooltip: "A small Go program that drives the system and states properties: sim.Always, sim.Eventually, liveness bounds, and recorded Put and Get histories checked for linearizability."
+    tooltip: "A small Go program built with the stock toolchain that drives the cluster. It imports sim for Always, Eventually and Sometimes properties, Put and Get history records, sim.Budget and sim.Listen. Outside the simulator, sim.Listen and sim.Dial call the standard net package."
   }
   service: Your Go service\nunmodified {
     class: external
-    tooltip: "Built with the stock Go toolchain for GOOS=wasip1. No forked runtime and no source rewriting, so new Go releases keep working."
+    tooltip: "Each node package is built with GOOS=wasip1. No forked runtime and no source rewriting. Code that needs cgo cannot build, and mmap or flock code needs a built-in or hand-written shim."
   }
 }
 
-sim: Seedfall simulator {
+host: Host side, the seedfall process {
   class: zone
-  runtime: wazero\none per node {
+  runtime: wazero\nengine.Runner {
     class: service
-    tooltip: "Each node is its own WebAssembly instance inside one host process. On wasip1 the Go runtime is single-threaded and every source of nondeterminism leaves through three WASI calls, which Seedfall implements itself."
+    tooltip: "Compiles each guest once, after adding a call counter to every function in the wasm (instrument.go), and caches the result in .seedfall/cache. Every node start or restart is a fresh module instance."
   }
-  sched: Seeded scheduler\nvirtual clock {
+  sched: world.loop\nseeded scheduler {
     class: service
-    tooltip: "Runs exactly one node at a time, picks the earliest wake-up, breaks ties with the seed and jumps virtual time, so sleeps cost nothing. random_get is a ChaCha8 stream, which also fixes map order and select choice. A call counter forces cooperative preemption after about four million calls."
+    tooltip: "Runs exactly one node at a time. It picks the earliest fault, restart or wake-up, breaks ties with the seed and jumps virtual time forward. The clock, random_get (ChaCha8) and poll_oneoff are the three WASI calls it implements."
   }
-  world: Simulated world\ndisk, net, faults {
+  disk: memfs.go\nin-memory disk {
     class: store
-    tooltip: "A page cache with explicit durability: a crash keeps only fsynced data. Options add torn writes, reordered page writeback, strict POSIX directory durability, fsync EIO, lost writes and bit flips. TCP and UDP get seeded latency, loss and one-way partitions through the Go network poller."
+    tooltip: "One file system per node with a page cache: Sync makes writes durable and a crash keeps only durable data. Options add torn writes, reordered page writeback, strict_dirs, fsync EIO, full disks, lost writes and bit flips."
   }
-  check: Porcupine\nlinearizability {
+  net: net.go\nsimulated network {
     class: service
-    tooltip: "Checks recorded operation histories against a sequential model. As a control, hashicorp/raft passes 600 seeds and a deliberately broken copy is caught."
+    tooltip: "Ordered TCP streams with seeded latency and UDP datagrams that can reorder, drop or duplicate. Faults are rules on one direction of a link, so one-way partitions fall out of the same code."
   }
-  runtime -> sched: 3 WASI calls
-  sched -> world: faults
-  sched -> check: history
+  check: history checker\nPorcupine {
+    class: service
+    tooltip: "After the run, Put and Get records are checked for linearizability with Porcupine against a sequential model. With the list-append model, an in-house Elle-style checker looks for isolation anomalies in sim.Txn histories."
+  }
+  runtime -> sched: WASI calls
+  runtime -> disk: file I/O
+  runtime -> net: sockets
+  sched -> disk: crashes
+  sched -> net: partitions
 }
 
 out: Seed + trace\nreplay, shrink {
   class: client
-  tooltip: "Any failure replays byte for byte from its seed, and run -check runs every seed twice and stops at the first differing host call. Shrinking cut one failure from 33 faults to 2 in 191 runs."
+  tooltip: "The result holds the seed, fault list, trace and a hash over every host call. replay, shrink and verify all start from the seed, and run -check runs each seed twice and stops at the first host call that differs."
 }
 
-you.workload -> sim.runtime
-you.service -> sim.runtime: wasip1
-sim.check -> out: verdict
-sim.world -> out: trace
+guest.workload -> host.runtime
+guest.service -> host.runtime: wasm
+host.runtime -> host.check: history
+host.check -> out: verdict
+host.sched -> out: trace

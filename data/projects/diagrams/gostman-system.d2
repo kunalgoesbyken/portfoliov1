@@ -1,51 +1,59 @@
 direction: right
 
-clients: Where you work {
+desktop: Desktop app\nWails + React {
+  class: client
+  tooltip: "A Wails shell around the React UI. App.SendRequest in gostman-gui/app.go calls engine.Send in the same process, so there is no network hop and no CORS. It also reads and saves the workspace folder and starts the mock server and traffic capture."
+}
+
+web: Web app\nReact PWA, Vite {
+  class: client
+  tooltip: "The same React UI built with the web Vite config. lib/backend/web.js posts every request to /api/proxy, because browsers block cross-origin calls. WebSocket traffic goes straight from the browser, and scripts run in a fresh Web Worker each."
+}
+
+hosted: gostman.com on Vercel {
   class: zone
-  desktop: Desktop app {
-    class: client
-    tooltip: "Wails shell around the React UI. It calls the Go engine through in-process bindings, so requests skip the network hop and CORS entirely. 23.7 MB executable, window up in about a second."
-  }
-  web: Web app {
-    class: client
-    tooltip: "The same React UI built with Vite as an installable PWA. Browsers block cross-origin calls, so requests go through a small Go relay on Vercel or a local gostman relay. Script checks run in a fresh Web Worker per script."
-  }
-  cli: CLI in CI {
-    class: client
-    tooltip: "gostman run executes a whole collection folder on every pull request and exits non-zero on a failed check. Text, JUnit, JSON and HTML reporters plug into any CI."
-  }
-  agent: Coding agent {
-    class: model
-    tooltip: "Claude Code, Codex or Cursor talk to gostman mcp over the Model Context Protocol: 15 tools such as send_request and run_folder. Secrets are filled in inside Gostman and scrubbed from every response in raw, URL-encoded, base64 and JSON-escaped form, so the agent never sees a token."
+  proxy: /api/proxy\nGo function {
+    class: service
+    tooltip: "api/proxy.go takes an engine.Request as JSON and returns an engine.Response. Its hosted policy blocks private addresses, cuts responses at 3 MB and caps timeouts at 30 s. The same handler runs in gostman relay and gostman serve."
   }
 }
 
-core: Gostman core (Go) {
-  class: zone
-  runner: Runner\nscripts, checks, reports {
-    class: service
-    tooltip: "Builds a run plan (filters, tags, data rows, iterations, parallelism), sends each request, applies extract rules, runs scripts in goja and writes reports. Pooling pre-booted script runtimes took a 400-request run from 3.9 s to 1.2 s and cut allocations by 74 percent."
-  }
-  engine: Request engine\nHTTP, gRPC, WS + more {
-    class: service
-    tooltip: "One Go package owns variables, auth, body encoding, cookies, redirects, proxies and TLS for REST, GraphQL, gRPC, WebSocket, Socket.IO, MQTT, SignalR, SSE, SOAP, MCP, TCP, UDP and NATS. Every surface calls it, so a request behaves the same everywhere."
-  }
-  runner -> engine
+runner: gostman run\nrunner + goja {
+  class: service
+  tooltip: "The Go runner package loads a collection, plans the run, and calls the bundled JavaScript inside goja for scripts, checks and extract rules. It sends through the engine, rpc or mcpclient and returns a report with an exit code."
+}
+
+mcp: gostman mcp\nagent.Desk {
+  class: service
+  tooltip: "Serves 17 tools such as send_request and run_folder over stdio or loopback HTTP with a bearer token, plus one tool per request tagged with --expose-tag. It wraps a runner session, fills secrets in only for hosts your own requests already call, and scrubs them from every reply."
+}
+
+agent: Coding agent {
+  class: model
+  tooltip: "Claude Code, Codex or Cursor, connected over the Model Context Protocol. It sees request ids, names and responses with secret values replaced by their names."
+}
+
+engine: engine + rpc + mcpclient\nGo packages {
+  class: service
+  tooltip: "engine prepares and sends requests: variables, auth, body encoding, cookies, redirects, proxies and certificates for HTTP, GraphQL, SOAP, SSE, TCP, UDP and NATS. rpc handles gRPC and mcpclient handles MCP servers. The engine keeps no state between requests."
 }
 
 files: Collections\nYAML in Git {
   class: store
-  tooltip: "A workspace is a folder of plain YAML, one file per request, committed next to the code. Tokens, cookies and history never land in it. A bounded reader pool opens 5,000 requests in 5.4 s, down from 14.8 s, with byte-identical output."
+  tooltip: "The workspace package reads a folder of plain YAML, one file per request. Tokens, cookies and history never go into it. A bounded reader pool opens 5,000 requests in 5.4 s, down from 14.8 s."
 }
 
 api: Your APIs {
   class: external
-  tooltip: "Any HTTP, gRPC, WebSocket or MQTT endpoint. Nothing else is contacted: no account, no telemetry, no vendor cloud."
+  tooltip: "Any HTTP, gRPC, WebSocket, MQTT or MCP endpoint. There is no account and no telemetry, so nothing else is contacted for requests."
 }
 
-clients.desktop -> core.engine: bindings
-clients.web -> core.engine: CORS relay
-clients.cli -> core.runner: gostman run
-clients.agent -> core.runner: MCP
-core.runner -> files
-core.engine -> api: 13 protocols
+desktop -> engine: Wails binding
+desktop -> files: open, save
+web -> hosted.proxy: POST
+hosted.proxy -> engine: hosted policy
+agent -> mcp: MCP
+mcp -> runner: session
+runner -> engine: send
+runner -> files: load
+engine -> api: HTTP, gRPC, TCP

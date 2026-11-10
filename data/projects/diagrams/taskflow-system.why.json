@@ -1,4 +1,6 @@
 {
-  "app.api": "A bulk change is one updateMany plus one createMany instead of a query per task, so 2 statements for any batch size. Cost: the two are not yet wrapped in a transaction, so a failure between them could leave a change without its audit event.",
-  "supabase.realtime": "Realtime events only invalidate the query cache and the client refetches, instead of applying the event payload, because payloads carry no joined rows such as the assignee. Cost: every change event triggers an extra API round trip."
+  "app.routes": "Access control lives in Prisma where clauses (creator or assignee) instead of Postgres row-level security, so queries stay typed and simple. Cost: Prisma bypasses RLS, so a check missed in a new route exposes data.",
+  "app.mw": "Middleware reads the cookie session and skips /api, while each handler calls getUser itself, instead of verifying every request in one place. Cost: one extra Supabase Auth call per API request, and the page guard is only a redirect.",
+  "supabase.realtime": "Realtime events only invalidate the query cache and trigger a refetch, instead of applying the payload, because payloads carry no joined rows such as the assignee. Cost: every change event costs an extra API round trip.",
+  "gemini": "The Shift Brief streams Gemini output as server-sent events, so text appears at once instead of after the full response. Cost: a timeout or mid-stream failure ends the brief with an error, and nothing is cached or retried."
 }

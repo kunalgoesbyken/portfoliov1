@@ -1,4 +1,4 @@
 {
-  "inputs.folder": "One bounded pool of readers for the whole tree instead of re-checking every parent folder per file, which took 26% of load time. Cost: gains are uneven, with a 5,000-request folder opening in 3.1 to 12.9 s across six runs on a busy laptop.",
-  "run.sandbox": "A fresh goja runtime per script instead of one shared runtime, because imported Postman and Bruno scripts are untrusted. Cost: booting one per script made a 400-request run take 3.9 s, until up to four pre-booted spares brought it to 1.2 s."
+  "inputs.folder": "One bounded pool of readers for the whole tree instead of re-checking every parent folder per file, which took 26% of load time. Cost: gains are uneven; a 5,000-request folder opened in 3.1 to 12.9 s across six runs.",
+  "run.pre": "A fresh goja runtime per script instead of a shared one, because imported Postman and Bruno scripts are untrusted. Cost: one runtime per script made 400 scripts take 3.6 s, until up to four pre-booted spares cut it to 2.0 s."
 }

@@ -4,10 +4,19 @@ role: "Solo, design to release"
 timeline: "Jun 2026 – Oct 2026"
 summary: Offline code search in Rust that finds code by meaning as well as by keyword, runs entirely on your own machine, and re-processes only the files you changed.
 stats:
-  - { value: "95 ms", label: "re-index when nothing changed" }
-  - { value: "2", label: "rankers fused: BM25 and vectors (RRF)" }
-  - { value: "5.1 MB", label: "index for 18.5k lines of Go" }
+  - { value: "2", label: "rankers merged by rank: Tantivy BM25 and a hand-written HNSW graph" }
+  - { value: "768", label: "dimensions per code chunk embedding" }
+  - { value: "3,000", label: "non-whitespace characters per chunk before it is split" }
   - { value: "0", label: "bytes of code sent off the machine" }
+stack:
+  - "Rust"
+  - "tree-sitter"
+  - "ONNX Runtime"
+  - "nomic-embed-text"
+  - "Hugging Face tokenizers"
+  - "Tantivy"
+  - "bincode"
+  - "clap"
 ---
 
 <Section kicker="For everyone" title="What it does">
@@ -16,7 +25,7 @@ Searching code with grep only works when you already know the exact word the aut
 
 codebase-indexer lets you search a codebase by what the code does. Run `index` once, then ask a question in plain words and get the five best matches with file, line range and the code itself. Exact identifiers still work too, because every search combines keyword matching with meaning matching.
 
-It is built for developers working on private code who cannot send it to a hosted service. The embedding model runs locally on the CPU, so nothing leaves the machine. After the first run it keeps itself up to date cheaply: unchanged files are skipped, edited files are re-read, deleted files disappear from results.
+It is built for developers working on private code who cannot send it to a hosted service. The embedding model runs locally on the CPU after a one-time download, so nothing leaves the machine. After the first run it keeps itself up to date cheaply: unchanged files are skipped, edited files are re-read, deleted files disappear from results.
 
 It understands Rust, Go, Python, TypeScript, Java, C and C++, plus Markdown and config files.
 
@@ -24,28 +33,28 @@ It understands Rust, Go, Python, TypeScript, Java, C and C++, plus Markdown and 
 
 <Section kicker="For engineers" title="How it is built">
 
-About 1,200 lines of Rust with no database or vector service behind it. The vector store, the HNSW graph and the change tracking are all hand-written.
+About 1,200 lines of Rust in one binary with two commands, `index` and `query`. There is no database or vector service behind it: the vector log, the HNSW graph and the change tracking are all hand-written. Everything is stored in a `.indexer/` folder inside the indexed project.
 
 <Diagram name="codebase-indexer-pipeline" title="Indexing and query pipeline" />
 
-1. **Walk and diff.** The walker respects `.gitignore`. Every file's SHA-256 and modification time are compared with the cache, so only new or changed files continue, and vanished files are tombstoned out of both indexes.
-2. **Chunk.** tree-sitter parses each file and emits whole declarations: functions, impls, structs, classes. Anything over 3,000 characters is split along its child nodes and greedily re-merged, so every byte lands in exactly one chunk and no function is cut in half.
-3. **Embed.** nomic-embed-text v1.5 runs as an INT8 ONNX model. Chunks are sorted by length and batched to limit padding, padded to a power of two, mean-pooled and normalised into 768-dimension vectors, with the model's documented task prefixes.
-4. **Store.** Vectors go into an append-only log. Updates write a tombstone plus new records, compaction runs only when dead records outnumber live ones, and a torn tail from a crash is repaired on load.
-5. **Search.** A query embeds once, takes the top 20 from the HNSW graph and the top 20 from BM25, and merges them with Reciprocal Rank Fusion.
+1. **Walk and diff** (`walker.rs`, `delta.rs`). The `ignore` crate walks the tree, honours `.gitignore`, keeps only supported file types and skips lockfiles. Each file's SHA-256 and modification time are compared with `cache.bin`. Only new or changed files continue, and vanished files are tombstoned out of both indexes.
+2. **Chunk** (`chunker.rs`). tree-sitter parses each file and emits whole declarations: functions, impls, structs, classes. Anything over 3,000 non-whitespace characters is split along its child nodes and greedily re-merged, so chunks never overlap. Markdown splits at headings and config files at the size limit.
+3. **Embed** (`embedder.rs`). nomic-embed-text v1.5 runs as an INT8 model through ONNX Runtime. Chunks are sorted by length, batched eight at a time, padded to a power of two, mean-pooled and normalised into 768-dimension vectors, with the model's `search_document` and `search_query` prefixes.
+4. **Store** (`store.rs`, `hnsw.rs`, `bm25.rs`). Records go into an append-only `vectors.bin` log, and chunk text goes into a Tantivy index. Updates write a tombstone plus new records, and compaction runs only when dead records outnumber live ones. At 1,000 records or more, a graph snapshot is rebuilt and saved as `vectors.hnsw`.
+5. **Search** (`query.rs`). A query is embedded once, then the top 20 from the vector side and the top 20 from BM25 are merged with Reciprocal Rank Fusion (k=60) into five results.
 
 <Highlights>
 <Highlight title="Incremental indexing that survives edits and deletes" result="No-op re-index in 95 ms; a one-file edit re-embeds only that file">
 Embedding is the expensive step, so a content hash decides what reaches it. The log-structured store absorbs changes with tombstones instead of rewriting, which also makes it crash-tolerant.
 </Highlight>
 <Highlight title="A persisted HNSW graph that cannot go stale" result="A stale or corrupt graph falls back to an exact scan, never wrong results">
-The graph (M=16, efConstruction=200, diversity heuristic for neighbour pruning) is saved next to the log along with the log length it was built from, and checked for consistency on load. Below 1,000 records an exact cosine scan is used, since it is both fast and exact.
+The graph (M=16, efConstruction=200, diversity heuristic for neighbour pruning) is saved next to the log along with the log length it was built from, and checked for consistency on load. Below 1,000 records an exact cosine scan is used, since it is both fast and exact. The graph is rebuilt from scratch whenever an index run changes anything.
 </Highlight>
 <Highlight title="Hybrid retrieval without score calibration" result="Exact identifiers and loose descriptions both find the right code">
 Keyword scores and cosine similarity live on incompatible scales. Fusing by rank instead of score means they never need calibrating. Asking "preempt goroutine at yield point" over Seedfall's engine returned the preemption config, its handler and the instrumentation helper.
 </Highlight>
-<Highlight title="Chunks that follow the syntax tree" result="Search results are whole, readable functions">
-Fixed-size windows split functions and duplicate context. Declaration-level chunks with a recursive split and greedy re-merge keep every result a complete unit of code, capped at a depth of 32 to bound pathological files.
+<Highlight title="Chunks that follow the syntax tree" result="Search results are whole declarations, not arbitrary windows">
+Fixed-size windows split functions and duplicate context. Declaration-level chunks with a recursive split and greedy re-merge keep results whole whenever a declaration fits, capped at a depth of 32 to bound pathological files. Code outside declarations, such as imports, is not indexed.
 </Highlight>
 </Highlights>
 
@@ -58,7 +67,5 @@ Fixed-size windows split functions and duplicate context. Declaration-level chun
 | Query, including process start and model load | 0.9 to 1.8 s |
 
 Measured on a CPU-only Windows laptop with the release build.
-
-**Stack:** Rust, tree-sitter, ONNX Runtime (ort), nomic-embed-text v1.5 INT8, tokenizers, Tantivy, custom HNSW, bincode, SHA-256.
 
 </Section>

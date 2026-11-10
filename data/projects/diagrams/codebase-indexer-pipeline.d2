@@ -1,48 +1,53 @@
 direction: right
 
-index: Incremental index {
+index: index command {
   class: zone
-  walk: Walk + diff\nSHA-256 per file {
+  walk: Walker + delta\nignore, SHA-256 {
     class: service
-    tooltip: "Respects .gitignore, then compares each file SHA-256 and mtime with the cache. Only new or changed files continue, and deleted ones are tombstoned out of both indexes. A no-op re-index takes 95 ms."
+    tooltip: "walker.rs honours .gitignore, keeps supported file types and skips lockfiles. delta.rs hashes every file and compares hash and mtime with the cache, so only new or changed files continue and deleted ones are purged."
   }
-  chunk: Chunk\ntree-sitter ASTs {
+  chunk: Chunker\ntree-sitter {
     class: service
-    tooltip: "Emits whole declarations per language. Anything over 3,000 characters is split along child nodes and greedily re-merged, so every byte lands in exactly one chunk and no function is cut in half."
+    tooltip: "chunker.rs parses Rust, Go, Python, TypeScript, Java and C/C++ into whole declarations. Over 3,000 non-whitespace characters, a node is split along its children and re-merged. Markdown splits at headings, config files at the size limit."
   }
-  embed: Embed\nnomic INT8 ONNX {
+  embed: Embedder\nONNX Runtime, nomic INT8 {
     class: model
-    tooltip: "nomic-embed-text v1.5 quantised to INT8 and run locally through ONNX Runtime. Chunks are sorted by length and batched to limit padding, then mean-pooled into 768-dimension vectors."
+    tooltip: "embedder.rs runs nomic-embed-text v1.5 INT8 through ort with Hugging Face tokenizers. Chunks are sorted by length, batched eight at a time, padded to a power of two, mean-pooled and L2-normalised into 768 dimensions."
   }
-  walk -> chunk: changed
-  chunk -> embed
+  walk -> chunk: changed files
+  chunk -> embed: chunks
 }
 
-disk: On disk {
+disk: .indexer/ {
   class: zone
-  vectors: Vector log\n+ HNSW graph {
+  cache: File cache\ncache.bin {
     class: store
-    tooltip: "An append-only log: updates write a tombstone plus new records, compaction runs only when dead records outnumber live ones, and a torn tail is repaired on load. The hand-written HNSW graph stores the log length it was built from, and a stale graph falls back to an exact scan."
+    tooltip: "A bincode list of path, SHA-256 and modification time per file. It is saved at the end of an index run, and files that failed to index are dropped from it so they are retried next time."
   }
-  bm25: BM25 index\nTantivy {
+  vectors: VectorStore\nvectors.bin + HNSW {
     class: store
-    tooltip: "Keyword index with a lenient query parser, so code-shaped queries such as foo::bar() never fail to parse."
+    tooltip: "store.rs keeps an append-only record log with tombstones, compacted when dead records outnumber live ones. hnsw.rs builds a graph snapshot (vectors.hnsw) at 1,000 records or more. A stale or inconsistent snapshot falls back to an exact scan."
+  }
+  bm25: Bm25Index\nTantivy {
+    class: store
+    tooltip: "bm25.rs stores chunk text with its path and line range in a Tantivy index. Queries use the lenient parser, so code-shaped input such as foo::bar() never fails to parse."
   }
 }
 
-ask: Query\nplain language {
+ask: query command\nCLI {
   class: client
-  tooltip: "Embedded once with the model query prefix, then sent to both rankers."
+  tooltip: "Embeds the query once with the search_query prefix, then asks the vector store and the BM25 index for 20 candidates each."
 }
 
-fuse: RRF fusion\ntop 5 {
+fuse: rrf_fuse\nk=60, top 5 {
   class: service
-  tooltip: "Reciprocal Rank Fusion with k=60 merges the top 20 from each ranker by rank, not score, so cosine similarity and BM25 never need calibrating against each other."
+  tooltip: "query.rs merges the two ranked lists with Reciprocal Rank Fusion, keyed by file and start line, and prints the top five chunks with file, line range and code."
 }
 
-index.embed -> disk.vectors
-index.chunk -> disk.bm25
-ask -> disk.vectors: meaning
-ask -> disk.bm25: keyword
-disk.vectors -> fuse
-disk.bm25 -> fuse
+index.walk <-> disk.cache: hash + mtime
+index.chunk -> disk.bm25: text
+index.embed -> disk.vectors: vectors
+ask -> disk.vectors: query vector
+ask -> disk.bm25: keywords
+disk.vectors -> fuse: top 20
+disk.bm25 -> fuse: top 20

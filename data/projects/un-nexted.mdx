@@ -2,12 +2,16 @@
 category: Framework internals
 role: "Solo, design to release"
 timeline: "Jan 2026 – Nov 2026"
-summary: The core of Next.js, rebuilt from scratch in about 700 lines of Bun and React, covering file-system routing, server-side data loading, server rendering and hydration, to understand how a meta-framework actually works.
+summary: The core of Next.js, rebuilt from scratch in under 700 lines of Bun and React, covering file-system routing, server-side data loading, server rendering and hydration, to understand how a meta-framework actually works.
 stats:
-  - { value: "~700", label: "lines for the whole framework core" }
-  - { value: "1 ms", label: "median time to first byte for a server-rendered page" }
-  - { value: "1", label: "lazily loaded chunk per page" }
-  - { value: "2", label: "dependencies: React and React DOM" }
+  - { value: "6", label: "source files in the framework core" }
+  - { value: "2", label: "runtime dependencies: React and React DOM" }
+  - { value: "5", label: "demo pages, with a counter, server data and a dynamic route" }
+stack:
+  - "Bun"
+  - "React"
+  - "React DOM"
+  - "TypeScript"
 ---
 
 <Section kicker="For everyone" title="What it does">
@@ -22,30 +26,29 @@ It is a learning project, small enough to read top to bottom in one sitting. It 
 
 <Section kicker="For engineers" title="How it is built">
 
-Four files, one per stage, so a request can be followed from the router to hydration. Bun is the runtime, bundler, TypeScript compiler and package manager, which removes Babel, webpack and a separate `tsc` setup.
+Four files, one per stage: `router.ts`, `build.ts`, `server.ts` and `client.tsx`, plus a shared `types.ts`. Bun is the runtime, bundler and package manager, and it runs TypeScript directly, so there is no Babel or webpack. The `typescript` package is only there for type checking.
 
 <Diagram name="un-nexted-lifecycle" title="Request lifecycle" />
 
-1. **Route.** At startup `Bun.Glob` scans the pages folder, turns each path into a URL pattern and compiles it to a regular expression with capture groups for `[param]` segments.
-2. **Load.** For each request the server imports the page module and awaits its `getServerSideProps`. A missing route renders the 404 page; a throwing data function renders a 500 page instead of crashing the server.
-3. **Render.** `react-dom/server` renders the component to HTML. Props and the route table are embedded as JSON with `<` escaped, so serialised data can never close the script tag.
-4. **Hydrate.** A build plugin generates a page map of literal `import()` calls, so `Bun.build` splits every page into its own lazily loaded chunk. The browser reads the same props, loads only the matched page and calls `hydrateRoot`, so React attaches event handlers to the HTML it already has instead of re-rendering it.
+1. **Route.** At startup `Bun.Glob` scans `src/pages` for `.tsx` files, skipping `_app.tsx`, `_document.tsx` and nested files that start with an underscore. Each path becomes a URL pattern, compiled to a regular expression with a capture group per `[param]` segment. The first match in scan order wins.
+2. **Build.** `startServer()` in `server.ts` initialises the router, then calls `buildClient()`. `Bun.build` bundles `client.tsx` for the browser as ES modules with code splitting. A plugin provides a virtual module, `unnexted:pages`, that maps each page's file path to a literal `import()`, so every page becomes its own chunk in `dist/`.
+3. **Load.** For each request `renderPage` matches the path, imports the page module and awaits `getServerSideProps` with `params` and `pathname`. An unmatched path renders `404.tsx` with a 404 status. A failed import or a throwing data function returns a plain error page with a 500 status instead of crashing the server.
+4. **Render.** `renderToString` from `react-dom/server` produces the HTML. The pathname, props and page file path go into a `<script id="__UNNEXTED_DATA__">` tag as JSON with `<` escaped as the Unicode sequence `\u003c`, so the data cannot close the script tag.
+5. **Hydrate.** `Bun.serve` also serves the `.js` files from `dist/`. In the browser, `client.tsx` reads the data tag, looks up the page loader in `unnexted:pages`, imports only that chunk and calls `hydrateRoot` with the same props, so React attaches event handlers to the HTML it already has instead of re-rendering it.
 
 <Highlights>
 <Highlight title="A router from a glob" result="Zero configuration, dynamic segments included">
-A directory tree becomes an ordered URL table with named params, the same contract as the Next.js pages router.
+A directory tree becomes a list of URL patterns with named params, using the same file-name convention as the Next.js pages router. Catch-all routes and static-over-dynamic priority are not implemented.
 </Highlight>
 <Highlight title="Hydration that matches by construction" result="The same props drive both renders">
-Hydration errors happen when the client renders different data than the server. Shipping the exact server props and route table in the HTML makes the first client render identical.
+Hydration errors happen when the client renders different data than the server. Shipping the exact server props in the HTML makes the first client render identical.
 </Highlight>
-<Highlight title="Safe serialisation" result="No XSS through embedded data">
+<Highlight title="Safe serialisation" result="Embedded data cannot close the script tag">
 Data embedded in a script tag is a classic injection point. Escaping `<` in the serialised JSON closes it without a sanitiser dependency.
 </Highlight>
-<Highlight title="Fast by default" result="1 ms median time to first byte for a static page">
-With no framework layers between the request and `renderToString`, a static page and the 404 page both render in about a millisecond on a laptop, and the browser downloads only the code for the page it is on.
+<Highlight title="Page-level code splitting" result="The browser loads only the page it is on">
+The generated page map uses a literal `import()` per route, which lets `Bun.build` emit a separate chunk for each page. Hydration then imports just the chunk for the current route.
 </Highlight>
 </Highlights>
-
-**Stack:** Bun, React, React DOM, TypeScript.
 
 </Section>

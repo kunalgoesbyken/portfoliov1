@@ -2,36 +2,36 @@ direction: right
 
 sweep: seedfall run\nseeds 1..N {
   class: client
-  tooltip: "Runs seeds in parallel jobs. 200 seeds took 9.4 s on a laptop, about 87x faster than real time."
+  tooltip: "engine.Sweep runs seeds as parallel jobs (-j) and stops at the first failure unless told to keep going. 200 seeds took 9.4 s on a laptop."
 }
 
 fail: Failing seed\n33 faults {
   class: store
-  tooltip: "The seed number is the whole bug report: same seed, same failure, on any machine."
+  tooltip: "The seed number is the whole bug report. It fixes the scheduling, network, disk and fault streams, so the same seed gives the same failure on any machine."
 }
 
-replay: Replay\nsame trace, same hash {
+replay: seedfall replay\nsame trace, same hash {
   class: service
-  tooltip: "Prints a determinism hash over every host call; 3 of 3 replays matched exactly. Writes an HTML timeline of messages, faults and the failing check."
+  tooltip: "Reruns the seed and prints the full trace and a determinism hash over every host call. With -html it writes a timeline of messages, faults and the failing check."
 }
 
-shrink: Shrink\ndelta debugging {
+shrink: seedfall shrink\ndelta debugging {
   class: service
-  tooltip: "ddmin over the fault schedule, then a capped workload, a trimmed duration and simplified faults. A candidate is kept only if it fails with the same class, node, property and message, so shrinking never swaps one bug for another."
+  tooltip: "ddmin over the fault list, then a capped workload, a trimmed duration and simplified faults, repeated until nothing changes. A candidate is kept only if it fails with the same class, node, property and message."
 }
 
 plan: Minimal schedule\n2 faults {
   class: store
-  tooltip: "Saved as JSON that replay, inspect and verify all accept, so the minimal case can be pinned in CI."
+  tooltip: "Saved as .seedfall/seed-N.faults.json. replay, inspect and verify take it with -faults, and seedfall pin keeps it as a regression that later sweeps replay."
 }
 
 verify: seedfall verify\nfix holds on new seeds {
   class: service
-  tooltip: "Replays the failing schedule against the patched code and sweeps fresh seeds, so a fix is proven rather than assumed."
+  tooltip: "Replays the failing schedule against the patched code, double-checking determinism, then sweeps fresh seeds sized for 95 percent confidence and writes a Markdown proof. Optional -mutate also checks that the checks would notice a broken disk."
 }
 
-sweep -> fail
-fail -> replay
-fail -> shrink
-shrink -> plan
-plan -> verify
+sweep -> fail: first failure
+fail -> replay: same seed
+fail -> shrink: ddmin
+shrink -> plan: saves
+plan -> verify: -faults

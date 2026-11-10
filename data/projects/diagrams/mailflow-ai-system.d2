@@ -2,35 +2,46 @@ direction: right
 
 browser: In your browser {
   class: zone
-  ui: Inbox + assistant\nReact 19 {
+  app: App + useAppStore\nReact 19, Zustand {
     class: client
-    tooltip: "One Zustand store holds mail per mailbox, filters, the open thread and the composer, so a filter change never re-renders the compose window. A 30-second sync refreshes the current view; fixing its effect dependencies cut 640 requests in 11 s to 3."
+    tooltip: "One Zustand store holds mail per mailbox, filters, the open thread and the composer. Only the user and sign-in flag are persisted. A 30 second timer refetches the current view, and filtering and sorting run client side."
   }
-  gmail: Gmail client\ntoken stays local {
+  auth: /auth/callback\nstate check, sessionStorage {
     class: service
-    tooltip: "OAuth code exchange, token storage and every Gmail REST call run in the browser, so there is no mail backend. Messages are fetched with Promise.allSettled, so one broken message never empties the inbox, and HTML bodies are sanitised with DOMPurify."
+    tooltip: "Checks the random OAuth state against sessionStorage, sends the code to the token route and stores the returned access and refresh tokens in sessionStorage. Token refresh in services/auth.ts goes through the same route."
   }
-  ui -> gmail
+  gmail: GmailService\nky, Promise.allSettled {
+    class: service
+    tooltip: "Calls the Gmail REST API directly with the stored access token. Messages are fetched in parallel with Promise.allSettled, so one failed message is skipped. HTML bodies are sanitised with DOMPurify before rendering."
+  }
 }
 
-server: Server {
+server: Next.js route handlers on Vercel {
   class: zone
-  chat: /api/chat\n4 typed tools, no send {
+  oauth: "/api/auth/token\nserver-only client secret" {
     class: service
-    tooltip: "One streaming route on the Vercel AI SDK. The model gets openEmail, navigateView, composeEmail and replyToEmail as Zod-typed tools and no way to send mail. Context is capped at the ten most recent emails as 100-character snippets."
+    tooltip: "Exchanges the authorization code, and later the refresh token, for tokens at Google using GMAIL_CLIENT_SECRET, which is never sent to the browser."
+  }
+  chat: /api/chat\nstreamText, 4 tools {
+    class: service
+    tooltip: "Streams a Groq response with openEmail, navigateView, composeEmail and replyToEmail as Zod-typed tools. Each tool only returns an acknowledgement and none can send mail. The system prompt limits the model to email ids in the context."
   }
 }
 
-google: Gmail API {
+google: Google\nOAuth + Gmail API {
   class: external
-  tooltip: "Called directly from the browser with the user's own token and the gmail.modify scope."
+  tooltip: "The token endpoint serves the code exchange and refresh. The Gmail API is called from the browser with the gmail.modify scope and the user's own access token."
 }
 
-llm: Groq model {
+groq: Groq\ngpt-oss-120b {
   class: model
-  tooltip: "openai/gpt-oss-120b on Groq, streamed back token by token."
+  tooltip: "Receives the chat history plus a compact context: current view, selected email, filters and the ten most recent emails as 100 character snippets. Replies stream back token by token."
 }
 
-browser.gmail -> google: REST
-browser.ui <-> server.chat: prompt / tool calls
-server.chat -> llm: stream
+browser.auth -> server.oauth: code / refresh token
+server.oauth -> google: token exchange
+browser.auth -> browser.gmail: access token
+browser.app -> browser.gmail: list / send
+browser.gmail -> google: REST + Bearer
+browser.app <-> server.chat: prompt / tool calls
+server.chat -> groq: stream

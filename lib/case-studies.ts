@@ -18,6 +18,7 @@ export interface CaseStudyMeta {
   role: string;
   timeline: string;
   stats: Stat[];
+  stack: string[];
   gallery: Screenshot[];
 }
 
@@ -37,7 +38,7 @@ const fail = (slug: string, field: string): never => {
 const requireText = (slug: string, field: string, value: unknown): string =>
   typeof value === "string" && value.trim() ? value : fail(slug, field);
 
-const requireList = (slug: string, field: string, value: unknown): Raw[] => {
+const requireList = <T,>(slug: string, field: string, value: unknown): T[] => {
   if (value === undefined) return [];
   return Array.isArray(value) ? value : fail(slug, field);
 };
@@ -58,8 +59,9 @@ const parseMeta = async (slug: string, data: Raw): Promise<CaseStudyMeta> => ({
   category: requireText(slug, "category", data.category),
   role: requireText(slug, "role", data.role),
   timeline: requireText(slug, "timeline", data.timeline),
-  stats: requireList(slug, "stats", data.stats).map((raw) => parseStat(slug, raw)),
-  gallery: await Promise.all(requireList(slug, "gallery", data.gallery).map((raw) => parseScreenshot(slug, raw))),
+  stats: requireList<Raw>(slug, "stats", data.stats).map((raw) => parseStat(slug, raw)),
+  stack: requireList<unknown>(slug, "stack", data.stack).map((raw) => requireText(slug, "stack", raw)),
+  gallery: await Promise.all(requireList<Raw>(slug, "gallery", data.gallery).map((raw) => parseScreenshot(slug, raw))),
 });
 
 export const getCaseStudy = async (slug: string): Promise<CaseStudy> => {

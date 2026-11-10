@@ -5,44 +5,66 @@ timeline: "Apr 2025 – Nov 2026"
 summary: A free, open source API client for REST, GraphQL, gRPC, WebSocket and more that runs as a desktop app, in the browser and as one command-line binary for CI and AI coding agents. No account, no telemetry, no paid tier.
 stats:
   - { value: "57", label: "releases shipped, 1,341 downloads" }
-  - { value: "3.3x", label: "faster CI runs after reworking the script runtime" }
-  - { value: "13", label: "protocols behind one request model" }
-  - { value: "147k", label: "lines of Go and React, one engine" }
+  - { value: "13", label: "protocols, from REST to NATS" }
+  - { value: "17", label: "tools a coding agent can call over MCP" }
+  - { value: "150k", label: "lines of Go and JavaScript across the app and CLI" }
 gallery:
   - { src: /images/projects/gostman/01-send-and-checks.webp, caption: "A request sent in the web app, three checks passing" }
   - { src: /images/projects/gostman/02-graphql-schema.webp, caption: "A GraphQL query with variables, the schema browser and the response" }
   - { src: /images/projects/gostman/03-collection-post.webp, caption: "An imported collection: a POST sent and its script checks passing" }
   - { src: /images/projects/gostman/04-runner-report.webp, caption: "The HTML report from gostman run: 12 requests across four data rows" }
   - { src: /images/projects/gostman/05-import-script-prompt.webp, caption: "Importing a Postman file asks before bringing in its scripts" }
+stack:
+  - "Go"
+  - "Wails"
+  - "React"
+  - "Vite"
+  - "Tailwind CSS"
+  - "Zustand"
+  - "CodeMirror"
+  - "goja"
+  - "esbuild"
+  - "gRPC"
+  - "Model Context Protocol"
+  - "Docker"
+  - "Vercel"
+  - "GitHub Actions"
 ---
 
 <Section kicker="For everyone" title="What it does">
 
 Every team that builds an API needs a way to call it, check the answers and repeat those checks before each release. The popular tools put shared collections, data-driven runs, report export and secret managers behind a paid plan and an account, so teams end up keeping one copy of their requests in the app and another in their test suite.
 
-Gostman is one free tool for all of it. You build requests in the app, or import them from Postman, Bruno, Insomnia, OpenAPI, HAR or curl, add checks such as "status is 200" or "the first item's userId is 1", and everything is saved as plain YAML files in a folder you can commit to Git.
+Gostman is one free tool for all of it. You build requests in the app, or import them from Postman, Bruno, Insomnia, OpenAPI, HAR or curl, add checks such as "status is 200" or "the first item's userId is 1", and save everything as plain YAML files in a folder you can commit to Git.
 
-The same files then work in three places. Send a request by hand from the desktop or web app. Run the whole folder with `gostman run` on every pull request and get a text, JUnit, JSON or HTML report. Or let a coding agent such as Claude Code or Cursor call your API through `gostman mcp`, without ever seeing your tokens.
+The same files then work in three places. Send a request by hand from the desktop or web app. Run the whole folder with `gostman run` on every pull request and get a text, JUnit, JSON, HTML or Markdown report. Or let a coding agent such as Claude Code or Cursor call your API through `gostman mcp`, without ever seeing your tokens.
 
-Nothing is uploaded. The apps and the CLI talk only to the hosts you send requests to. The same download also does load testing, mock servers, OpenAPI linting, secret scanning and code generation in 21 languages, in 10 interface languages.
+There is no account and no telemetry. The desktop app and the CLI contact only the hosts you send requests to and the services you set up, and the web app relays requests through a small proxy unless you run your own. The same download also does load testing, mock servers, OpenAPI linting, secret scanning and code generation for 21 targets, with 10 interface languages.
 
 </Section>
 
 <Section kicker="For engineers" title="How it is built">
 
-One Go request engine owns variable substitution, auth, body encoding, cookies, redirects, proxies and certificates for 13 protocols. Every front end is a thin shell over it, so a request behaves the same on a laptop, in a browser and in CI.
+The backend is one Go module and the interface is one React app in `gostman-gui/frontend`, shared by the desktop and web builds. The `engine` package decides what is sent: variable substitution, auth, body encoding, redirects, proxies, certificates and, in the hosted web proxy, a block on private addresses. It covers REST, GraphQL, SOAP, server-sent events, raw TCP and UDP and NATS. gRPC goes through `rpc`, MCP servers through `mcpclient`, and the React app speaks WebSocket, Socket.IO, MQTT and SignalR over a WebSocket transport.
 
 <Diagram name="gostman-system" title="System architecture" />
 
-Browsers block cross-origin requests, so the web build forwards through a small Go function on Vercel, or through `gostman relay` running locally. `gostman serve` hosts the web app and the proxy from one binary, published as a Docker image with every release.
+Each surface reaches the engine differently:
 
-Scripts use `test()` and `expect()` and run Postman and Bruno snippets as written. There is one JavaScript runtime: in the browser it runs in a fresh Web Worker per script, and in the CLI the same code is bundled and run inside goja, a JavaScript engine written in Go.
+- **Desktop:** a Wails binding, `App.SendRequest`, calls `engine.Send` in the same process.
+- **Web:** `lib/backend/web.js` posts to `/api/proxy`, a Go function on Vercel (`api/proxy.go`) with a hosted policy: private addresses blocked, responses cut at 3 MB, 30 s timeout. `gostman relay` and `gostman serve` run the same handler locally or in a Docker image.
+- **CLI:** `gostman run` uses the Go `runner` package.
+- **Agents:** `gostman mcp` serves the `agent` package's 17 tools over stdio or loopback HTTP, on top of the same `runner` session.
+
+The send pipeline exists twice, in `lib/execution.js` for the apps and in `runner/` for the CLI. Both run one JavaScript codebase for scripts, checks and extract rules. In the browser each script gets a fresh Web Worker, and in the CLI `src/cli/runtime.js` is bundled with esbuild into `runner/sandbox/bundle.js` and run inside goja, a JavaScript engine written in Go.
 
 <Diagram name="gostman-run" title="What happens during gostman run" />
 
+For each request, `session.execute` fills typed variables, runs pre-request scripts, fetches a fresh OAuth token if needed, sends through `engine.Send`, `rpc.Invoke` or `mcpclient.Invoke`, keeps cookies, applies extract rules, then runs post-response scripts and assertions. The `report` package writes the result and the exit code is 0 for pass, 1 for a failed check, 2 for bad usage and 3 for no response.
+
 <Highlights>
 <Highlight title="One scripting runtime, two hosts" result="400-request run: 3.9 s to 1.2 s, allocations down 74%">
-Scripts from imported collections are untrusted, so each one gets a runtime no other script has touched. Booting a fresh runtime per script was the bottleneck, so up to four runtimes are booted ahead of time, while checks that run no user code share one.
+Scripts from imported collections are untrusted, so each one gets a runtime no other script has touched. Starting a new runtime for every check was the cost, so checks that run no user code now share one. Up to four runtimes for real scripts are booted ahead of time, which spreads the work over more cores but leaves CPU time unchanged.
 </Highlight>
 <Highlight title="Secrets a coding agent cannot read" result="Agents run real calls without ever seeing the values">
 The MCP server fills in a secret only for an address where one of your own requests already sends it, and scrubs every response for that secret in raw, URL-encoded, base64 and JSON-escaped forms. Writes are checked against a revision so two agents cannot silently overwrite each other.
@@ -50,8 +72,8 @@ The MCP server fills in a secret only for an address where one of your own reque
 <Highlight title="Huge responses without a frozen UI" result="20 MB JSON: DOM nodes 16,113 to 934, longest frame 271 ms to 90 ms">
 The collection tree is windowed (33 rows in the DOM out of 5,258), JSONPath and extract rules run in workers with time limits, and large uploads stream instead of sitting in memory as base64. Pasting a 60,000-line body went from an 82.8 s freeze to a 12 ms key press.
 </Highlight>
-<Highlight title="Parallel folder loading, identical output" result="Opening 5,000 requests: 14.8 s to 5.4 s">
-The old walk re-checked every parent folder for every file. One bounded pool of readers now reads the whole tree and assembles it in the original order, verified byte for byte against folders with broken files, duplicate ids, junctions and deep nesting.
+<Highlight title="Parallel folder loading, same order" result="Opening 5,000 requests: 14.8 s to 5.4 s">
+The old walk re-checked every parent folder for every file, 26% of load time in a profile. One bounded pool of readers in `workspace/readahead.go` now reads the whole tree, sized from the CPU count, and the collection is assembled in the original order.
 </Highlight>
 </Highlights>
 
@@ -62,8 +84,6 @@ The old walk re-checked every parent folder for every file. One bounded pool of 
 | 20 MB JSON response, JS heap | 60.9 MB | 35.7 MB |
 | Opening a 5,000-request folder | 14.8 s | 5.4 s |
 
-Figures come from the benchmarks committed in the repository. The project has shipped 57 releases and 744 commits.
-
-**Stack:** Go, Wails, React, Vite, Tailwind CSS, Zustand, CodeMirror 6, goja, Web Workers, grpc-go, Model Context Protocol, Docker, Vercel, GitHub Actions.
+Figures come from `benchmarks/results.md` in the repository, measured on a four-core laptop that was also running other build jobs.
 
 </Section>

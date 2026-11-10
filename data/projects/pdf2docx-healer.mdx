@@ -3,20 +3,24 @@ category: Python library
 role: "Solo, design to release"
 timeline: "Jun 2026 – Nov 2026"
 summary: A published Python package that wraps the popular pdf2docx converter and repairs what it loses, so bullet lists, numbering, clickable links, CJK fonts and scanned pages survive the conversion from PDF to Word.
-stats:
-  - { value: "0 → 9", label: "list items kept as real Word lists on a sample" }
-  - { value: "0 → 3", label: "links kept clickable on the same sample" }
-  - { value: "6", label: "classes of formatting loss repaired" }
-  - { value: "1", label: "pip install, drop-in API and CLI" }
+stack:
+  - "Python"
+  - "pdf2docx"
+  - "PyMuPDF"
+  - "python-docx"
+  - "lxml"
+  - "Tesseract"
+  - "PyPI"
+  - "GitHub Actions"
 ---
 
 <Section kicker="For everyone" title="What it does">
 
 Converting a PDF to an editable Word file sounds solved until you open the result. With pdf2docx, the most popular open source converter, bullets and numbered items get glued into one paragraph, web addresses become plain text, Chinese, Japanese and Korean fonts can fail to load, and scanned PDFs come out empty.
 
-pdf2docx-healer fixes those problems automatically. Install it with `pip install pdf2docx-healer`, then call `heal("report.pdf", "report.docx")` or run `pdf2docx-heal report.pdf`. Add `--ocr` for scanned documents.
+pdf2docx-healer fixes those problems automatically. Install it with `pip install pdf2docx-healer`, then call `heal("report.pdf", "report.docx")` or run `pdf2docx-heal report.pdf`. For scanned documents, install Tesseract and add `--ocr`.
 
-You get a Word file where lists are real Word lists with the right nesting and numbering style, links are clickable, and fonts map to ones installed on the machine. Each repair can be switched off on its own.
+You get a Word file where lists are real Word lists with the right nesting and numbering style, links are clickable, and Chinese, Japanese and Korean fonts fall back to common ones through a built-in table. Each repair can be switched off on its own.
 
 It is for teams that convert PDFs in scripts and pipelines and are tired of fixing formatting by hand.
 
@@ -24,23 +28,29 @@ It is for teams that convert PDFs in scripts and pipelines and are tired of fixi
 
 <Section kicker="For engineers" title="How it is built">
 
-Rather than fork an unmaintained converter, the package keeps pdf2docx intact, patches two internals that cause the damage, and repairs the output file in independent passes.
+The package keeps pdf2docx intact, patches the two internals that lose list items, and repairs the finished file in separate passes. `heal()` in `src/docx_healer/converter.py` runs the whole flow, and the `pdf2docx-heal` command in `cli.py` is a thin wrapper around it.
 
 <Diagram name="pdf2docx-healer-pipeline" title="Healing pipeline" />
 
-1. **OCR pre-pass.** A page counts as scanned when it has almost no text. If more than 30% of pages are scanned, PyMuPDF's Tesseract integration produces a temporary text-layer PDF. Without Tesseract installed it logs and carries on.
-2. **Patch.** Upstream's `is_list_item` always returns false, and a `list_not_table` flag is dropped along the call chain, so lists become invisible tables. Two small monkey-patches fix both, applied once per process.
-3. **Repair.** List items are split out of merged paragraphs and given Word's list styles, URLs become real hyperlink elements, and fonts fall back by name and then by Unicode range (CJK, Arabic, Hebrew, Thai, Devanagari, Cyrillic).
+1. **OCR pre-pass (opt-in).** With `--ocr`, `ocr_pipeline.py` marks a page as scanned when it has under 50 characters of text. If more than 30% of pages are scanned, each scanned page is rendered at 300 DPI and turned into a text-layer PDF by PyMuPDF's Tesseract call, saved to a temp file. A page whose OCR fails, for example without Tesseract, is copied unchanged.
+2. **Patch.** `patches.py` replaces upstream's `is_list_item`, which never matches, and wraps `Blocks.collect_stream_lines` to force `list_not_table=True`. Without these, list lines end up as table cells. The patches are applied once per process.
+3. **Convert.** The unmodified pdf2docx `Converter` writes the .docx.
+4. **Repair.** `post_processor.py` runs three passes on the saved file with python-docx and lxml, each in its own try block.
+   - `list_detector.py` splits merged paragraphs on bullet and number prefixes, reads nesting from the left indent, and applies the built-in `List Bullet` and `List Number` styles. Lettered and roman lists get a generated numbering definition instead.
+   - `link_injector.py` finds http, https, ftp, www and mailto text in body paragraphs and wraps it in `w:hyperlink` elements with external relationships.
+   - `font_mapper.py` looks the font name up in a fallback table, then falls back by Unicode range, then to Arial.
+
+Pushing a `v*` tag runs a GitHub Actions workflow that builds the package and publishes it to PyPI with trusted publishing.
 
 <Highlights>
 <Highlight title="Fix the cause, not the symptom" result="Two monkey-patches instead of a fork">
 The design notes trace lost bullets to dead code upstream. Patching just those points keeps the package small and lets it follow new pdf2docx releases.
 </Highlight>
 <Highlight title="Real Word lists, not look-alikes" result="Lettered and roman lists work too">
-Word's built-in styles only cover bullets and decimals, so lettered and roman lists get custom OOXML numbering definitions with generated ids that never collide across runs.
+Word's built-in list styles only cover bullets and decimals, so lettered and roman lists get a custom OOXML numbering definition, with ids taken as the next free number in the file.
 </Highlight>
 <Highlight title="Headings that look like list items" result="Section titles stay headings">
-"4. Numbered List" is a title, not an item. A sequence-reset check plus heading heuristics keeps titles as normal paragraphs, and a cleanup pass removes list styling applied by mistake.
+"4. Numbered List" is a title, not an item. A sequence-reset check plus title-case heuristics keeps titles as normal paragraphs, and a cleanup pass resets a short title left styled at the end of a list.
 </Highlight>
 <Highlight title="Fail-soft by design" result="One failing pass never costs the others">
 Each repair pass has its own error handling and OCR degrades gracefully, so a font problem can never lose the lists and links already fixed.
@@ -53,7 +63,5 @@ Each repair pass has its own error handling and OCR degrades gracefully, so a fo
 | Clickable hyperlinks | 0 | 3 |
 | Paragraphs (merged lists split apart) | 6 | 15 |
 | Conversion time | 0.27 s | 0.32 s |
-
-**Stack:** Python, pdf2docx, PyMuPDF, python-docx, lxml, Tesseract (optional), published to PyPI with GitHub Actions.
 
 </Section>
