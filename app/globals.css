@@ -418,6 +418,14 @@ body {
   opacity: 0.18;
 }
 
+.diagram-explorer g[data-why] > .shape > * {
+  stroke: var(--color-amber-700);
+}
+
+.dark .diagram-explorer g[data-why] > .shape > * {
+  stroke: var(--color-amber-400);
+}
+
 .diagram-explorer g[data-selected] > .shape > *,
 .diagram-explorer g[data-node]:focus-visible > .shape > * {
   stroke-width: 3.5px;

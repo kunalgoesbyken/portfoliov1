@@ -1,0 +1,5 @@
+{
+  "browser.gmail": "Gmail is called straight from the browser instead of through a mail backend, so tokens stay in the tab's sessionStorage and no server holds mail. Cost: the token exchange also runs in the browser, so the OAuth client secret ships in the bundle. Moving only that exchange to a server is the fix.",
+  "browser.ui": "A fixed 30-second poll of the current view instead of a shorter interval, to balance freshness against Gmail quota. Cost: new mail can appear up to 30 s late, and a faulty effect once turned this poll into 640 requests in 11 s.",
+  "server.chat": "Four typed tools that only prefill drafts, with no send tool, instead of letting the model act directly, so every AI action is visible and a person confirms sends. Cost: the assistant cannot finish a task alone and sees only the ten most recent emails."
+}

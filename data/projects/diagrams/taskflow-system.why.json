@@ -1,0 +1,4 @@
+{
+  "app.api": "A bulk change is one updateMany plus one createMany instead of a query per task, so 2 statements for any batch size. Cost: the two are not yet wrapped in a transaction, so a failure between them could leave a change without its audit event.",
+  "supabase.realtime": "Realtime events only invalidate the query cache and the client refetches, instead of applying the event payload, because payloads carry no joined rows such as the assignee. Cost: every change event triggers an extra API round trip."
+}

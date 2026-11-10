@@ -1,5 +1,7 @@
 ---
 category: Team productivity
+role: "Solo, design to release"
+timeline: "Jan 2026 – Nov 2026"
 summary: A task board for remote teams that makes handing work from one timezone to the next explicit, with live updates, bulk actions, GitHub sync and an AI shift brief.
 stats:
   - { value: "26", label: "API route handlers, every query scoped per user" }
@@ -36,7 +38,7 @@ A Next.js 15 App Router app. Server components load data through Prisma; client 
 <Highlight title="Realtime without a second data path" result="Live updates always render the same joined shape as the API">
 Supabase Realtime payloads carry no joined rows, so applying them directly leaves tasks without an assignee or creator. Each event is treated as a signal that invalidates the TanStack Query cache and triggers a refetch, so there is one data path instead of two.
 </Highlight>
-<Highlight title="All-or-nothing bulk operations" result="A 50-task change is 2 statements, not 100">
+<Highlight title="Bulk changes in two statements" result="A 50-task change is 2 statements, not 100">
 The bulk endpoint first checks that the caller can access every selected id; one foreign id rejects the whole request. The change is a single `updateMany` plus one `createMany` for the audit trail.
 </Highlight>
 <Highlight title="Verified webhooks and encrypted tokens" result="Secrets validated at startup, never stored in plain text">

@@ -55,6 +55,12 @@ export function DiagramPanel({ title, selection, onSelect, onClose, keepOpenWith
               <Dialog.Description className="mt-3 font-custom2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {selection.node.detail}
               </Dialog.Description>
+              {selection.node.why && (
+                <div className="mt-6 border-l-2 border-amber-700 dark:border-amber-400 pl-4">
+                  <p className="font-custom2 text-xs uppercase tracking-[0.14em] text-amber-700 dark:text-amber-400">Why this choice</p>
+                  <p className="mt-2 font-custom2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">{selection.node.why}</p>
+                </div>
+              )}
               <LinkList heading="Receives from" links={selection.inputs} icon={<ArrowLeft size={14} />} onSelect={onSelect} />
               <LinkList heading="Sends to" links={selection.outputs} icon={<ArrowRight size={14} />} onSelect={onSelect} />
             </>

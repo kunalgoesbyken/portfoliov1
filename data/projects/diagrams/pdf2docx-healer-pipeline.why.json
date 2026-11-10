@@ -1,0 +1,5 @@
+{
+  "ocr": "OCR runs only when more than 30% of pages are scanned, instead of on every file, so text PDFs skip it. Cost: a mostly-text file with a few scanned pages is not OCR'd, so those pages come out empty.",
+  "convert": "Two monkey-patches to pdf2docx internals instead of a fork, because the cause is dead code upstream and the package can follow new releases. Cost: the patches target internal paths and pdf2docx has no upper version pin, so a release that moves them can break it.",
+  "docx": "Each repair pass has its own error handling instead of one all-or-nothing step, so one failure never costs the other fixes. Cost: errors print only in verbose mode, so with the quiet flag a failed pass is skipped silently."
+}

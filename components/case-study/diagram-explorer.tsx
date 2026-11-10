@@ -2,12 +2,24 @@
 
 import { memo, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { DiagramPanel } from "@/components/case-study/diagram-panel";
-import { applyFocus, nodeKeyAt, readGraph, selectionOf, type DiagramGraph, type DiagramNode, type DiagramSelection } from "@/components/case-study/diagram-graph";
+import { DiagramLegend } from "@/components/case-study/diagram-legend";
+import {
+  applyFocus,
+  kindsOf,
+  nodeKeyAt,
+  readGraph,
+  selectionOf,
+  type DiagramGraph,
+  type DiagramNode,
+  type DiagramRationale,
+  type DiagramSelection,
+} from "@/components/case-study/diagram-graph";
 
 interface DiagramExplorerProps {
   title: string;
   lightSvg: string;
   darkSvg: string;
+  rationale: DiagramRationale;
 }
 
 const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: string; darkSvg: string }) {
@@ -19,16 +31,19 @@ const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: str
   );
 });
 
-export function DiagramExplorer({ title, lightSvg, darkSvg }: DiagramExplorerProps) {
+export function DiagramExplorer({ title, lightSvg, darkSvg, rationale }: DiagramExplorerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<DiagramGraph | null>(null);
   const [hovered, setHovered] = useState<DiagramNode | null>(null);
   const [selection, setSelection] = useState<DiagramSelection | null>(null);
+  const [legend, setLegend] = useState<ReturnType<typeof kindsOf>>({ kinds: [], hasRationale: false });
   const selectedKey = selection?.node.key ?? null;
 
   useEffect(() => {
-    if (rootRef.current) graphRef.current = readGraph(rootRef.current);
-  }, []);
+    if (!rootRef.current) return;
+    graphRef.current = readGraph(rootRef.current, rationale);
+    setLegend(kindsOf(graphRef.current));
+  }, [rationale]);
 
   useEffect(() => {
     if (graphRef.current) applyFocus(graphRef.current, hovered?.key ?? selectedKey, selectedKey);
@@ -77,6 +92,7 @@ export function DiagramExplorer({ title, lightSvg, darkSvg }: DiagramExplorerPro
       >
         <SvgLayers lightSvg={lightSvg} darkSvg={darkSvg} />
       </div>
+      <DiagramLegend kinds={legend.kinds} hasRationale={legend.hasRationale} />
       <DiagramPanel
         title={title}
         selection={selection}

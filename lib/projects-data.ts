@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import type { TechKey } from "@/lib/tech-icons";
 
 export interface ProjectLinks {
@@ -103,3 +104,5 @@ export const OPEN_SOURCE_PROJECTS: Project[] = [
 export const ALL_PROJECTS: Project[] = [...DEPLOYED_PROJECTS, ...OPEN_SOURCE_PROJECTS];
 
 export const projectPath = (slug: string) => `/projects/${slug}`;
+
+export const findProject = (slug: string) => ALL_PROJECTS.find((p) => p.slug === slug) ?? notFound();

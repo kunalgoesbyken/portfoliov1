@@ -2,8 +2,12 @@ export interface DiagramNode {
   key: string;
   label: string;
   detail: string;
+  kind: string;
+  why: string;
   groups: SVGGElement[];
 }
+
+export type DiagramRationale = Record<string, string>;
 
 interface DiagramEdge {
   from: string;
@@ -54,13 +58,20 @@ const textOf = (group: SVGGElement) => {
   return (text?.querySelector("tspan") ?? text)?.textContent?.trim() ?? "";
 };
 
-const addNode = (graph: DiagramGraph, group: SVGGElement, key: string, title: SVGTitleElement) => {
+const addNode = (graph: DiagramGraph, group: SVGGElement, key: string, title: SVGTitleElement, rationale: DiagramRationale) => {
   const existing = graph.nodes.get(key);
   if (existing) {
     existing.groups.push(group);
     return;
   }
-  graph.nodes.set(key, { key, label: textOf(group) || key, detail: title.textContent?.trim() ?? "", groups: [group] });
+  graph.nodes.set(key, {
+    key,
+    label: textOf(group) || key,
+    detail: title.textContent?.trim() ?? "",
+    kind: group.classList[1] ?? "",
+    why: rationale[key] ?? "",
+    groups: [group],
+  });
 };
 
 const addEdge = (graph: DiagramGraph, group: SVGGElement, ends: { from: string; to: string }) => {
@@ -78,21 +89,27 @@ const markNode = (node: DiagramNode) =>
     group.setAttribute("tabindex", "0");
     group.setAttribute("role", "button");
     group.setAttribute("aria-label", `${node.label}: show details`);
+    group.toggleAttribute("data-why", !!node.why);
   });
 
-export const readGraph = (root: HTMLElement): DiagramGraph => {
+export const readGraph = (root: HTMLElement, rationale: DiagramRationale): DiagramGraph => {
   const graph: DiagramGraph = { nodes: new Map(), edges: [] };
   root.querySelectorAll<SVGGElement>("svg g[class]").forEach((group) => {
     const key = decodeKey(group);
     if (!key) return;
     const title = group.querySelector<SVGTitleElement>(":scope > title");
     const ends = parseEdgeKey(key);
-    if (title) addNode(graph, group, key, title);
+    if (title) addNode(graph, group, key, title, rationale);
     else if (ends) addEdge(graph, group, ends);
   });
   root.querySelectorAll("svg title").forEach((title) => title.remove());
   graph.nodes.forEach(markNode);
   return graph;
+};
+
+export const kindsOf = (graph: DiagramGraph) => {
+  const nodes = [...graph.nodes.values()];
+  return { kinds: [...new Set(nodes.map((node) => node.kind))], hasRationale: nodes.some((node) => node.why) };
 };
 
 const linksOf = (graph: DiagramGraph, edges: DiagramEdge[], end: "from" | "to"): DiagramLink[] =>

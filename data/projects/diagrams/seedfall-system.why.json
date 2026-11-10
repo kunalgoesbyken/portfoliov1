@@ -1,0 +1,6 @@
+{
+  "you.service": "The stock Go toolchain targeting wasip1 instead of a forked runtime or rewritten source, so new Go releases keep working. Cost: no cgo, so libraries such as RocksDB bindings or go-sqlite3 cannot run, and mmap or flock code needs a stand-in.",
+  "sim.sched": "Preempts a node after about four million counted calls instead of by elapsed time, because a count replays identically. Cost: loops with no function calls are never interrupted unless preempt.loops is on, which slows the guest, so it is off by default.",
+  "sim.world": "A simulated disk with an explicit durability model instead of the real file system, so a crash keeps only fsynced data and strict POSIX cases can be tested. Cost: it tests a model, not the real kernel, and XFS has no model of its own.",
+  "sim.check": "Recorded histories are checked against a sequential model with Porcupine instead of only single-result assertions, because concurrent operations must look as if they ran one at a time. Cost: checking is NP-complete, so after 30 s of real time that seed is abandoned."
+}

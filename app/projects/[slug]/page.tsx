@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import Container from "@/components/containers";
@@ -13,7 +12,7 @@ import { Highlight, Highlights } from "@/components/case-study/highlights";
 import { Diagram } from "@/components/case-study/diagram";
 import { ProjectPager } from "@/components/case-study/pager";
 import { getCaseStudy } from "@/lib/case-studies";
-import { ALL_PROJECTS } from "@/lib/projects-data";
+import { ALL_PROJECTS, findProject } from "@/lib/projects-data";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -22,8 +21,6 @@ const CASE_STUDY_COMPONENTS = { ...getMDXComponents({}), Section, Highlights, Hi
 export const dynamicParams = false;
 
 export const generateStaticParams = () => ALL_PROJECTS.map(({ slug }) => ({ slug }));
-
-const findProject = (slug: string) => ALL_PROJECTS.find((p) => p.slug === slug) ?? notFound();
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -41,7 +38,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
     <Container className="min-h-screen px-6 sm:px-10 pt-24 md:p-20 md:pb-10 mx-auto">
       <PageBorder side="right" />
       <PageBorder side="left" />
-      <CaseStudyHeader project={project} category={meta.category} summary={meta.summary} />
+      <CaseStudyHeader project={project} meta={meta} />
       <StatStrip stats={meta.stats} />
       <Gallery items={meta.gallery} />
       <article className="prose max-w-none font-custom2 tracking-normal">

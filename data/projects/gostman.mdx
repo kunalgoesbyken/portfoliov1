@@ -1,5 +1,7 @@
 ---
 category: Developer tool
+role: "Solo, design to release"
+timeline: "Apr 2025 – Nov 2026"
 summary: A free, open source API client for REST, GraphQL, gRPC, WebSocket and more that runs as a desktop app, in the browser and as one command-line binary for CI and AI coding agents. No account, no telemetry, no paid tier.
 stats:
   - { value: "57", label: "releases shipped, 1,341 downloads" }
@@ -40,7 +42,7 @@ Scripts use `test()` and `expect()` and run Postman and Bruno snippets as writte
 
 <Highlights>
 <Highlight title="One scripting runtime, two hosts" result="400-request run: 3.9 s to 1.2 s, allocations down 74%">
-Scripts from imported collections are untrusted, so each one gets a runtime no other script has touched. Booting a fresh runtime per script was the bottleneck, so a small pool of runtimes is started ahead of time and dropped after 30 seconds idle, while checks that run no user code share one.
+Scripts from imported collections are untrusted, so each one gets a runtime no other script has touched. Booting a fresh runtime per script was the bottleneck, so up to four runtimes are booted ahead of time, while checks that run no user code share one.
 </Highlight>
 <Highlight title="Secrets a coding agent cannot read" result="Agents run real calls without ever seeing the values">
 The MCP server fills in a secret only for an address where one of your own requests already sends it, and scrubs every response for that secret in raw, URL-encoded, base64 and JSON-escaped forms. Writes are checked against a revision so two agents cannot silently overwrite each other.

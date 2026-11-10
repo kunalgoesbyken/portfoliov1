@@ -1,12 +1,10 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import sharp from "sharp";
 import { DEPLOYED_PROJECTS } from "@/lib/projects-data";
 import { SITE_NAME, SITE_TAGLINES, SITE_URL } from "@/lib/site";
+import { OG_SIZE, loadOgFonts, toPngDataUrl } from "@/lib/og";
 
 export const alt = `${SITE_NAME}: backend systems, Rust, Go and AI tools shipped to production`;
-export const size = { width: 1200, height: 630 };
+export const size = OG_SIZE;
 export const contentType = "image/png";
 
 const PREVIEW_COUNT = 2;
@@ -16,22 +14,11 @@ const CARD_WIDTH = (size.width - PAGE_PADDING * 2 - CARD_GAP * (PREVIEW_COUNT - 
 const CARD_HEIGHT = Math.round((CARD_WIDTH * 9) / 16);
 const CARD_TOP = 336;
 
-const readAsset = (...segments: string[]) => readFile(path.join(process.cwd(), ...segments));
-
-const toPngDataUrl = async (publicPath: string) => {
-  const png = await sharp(await readAsset("public", publicPath))
-    .resize(CARD_WIDTH * 2, CARD_HEIGHT * 2, { fit: "cover", position: "top" })
-    .png()
-    .toBuffer();
-  return `data:image/png;base64,${png.toString("base64")}`;
-};
-
 export default async function OpenGraphImage() {
   const featured = DEPLOYED_PROJECTS.slice(0, PREVIEW_COUNT);
-  const [serif, sans, previews] = await Promise.all([
-    readAsset("assets", "fonts", "InstrumentSerif-Regular.ttf"),
-    readAsset("assets", "fonts", "InstrumentSans-Medium.ttf"),
-    Promise.all(featured.map(async ({ title, src }) => ({ title, src: await toPngDataUrl(src) }))),
+  const [fonts, previews] = await Promise.all([
+    loadOgFonts(),
+    Promise.all(featured.map(async ({ title, src }) => ({ title, src: await toPngDataUrl(src, CARD_WIDTH, CARD_HEIGHT) }))),
   ]);
 
   return new ImageResponse(
@@ -86,12 +73,6 @@ export default async function OpenGraphImage() {
         </div>
       </div>
     ),
-    {
-      ...size,
-      fonts: [
-        { name: "Instrument Serif", data: serif, weight: 400, style: "normal" },
-        { name: "Instrument Sans", data: sans, weight: 500, style: "normal" },
-      ],
-    },
+    { ...size, fonts },
   );
 }

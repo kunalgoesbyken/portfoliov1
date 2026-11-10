@@ -1,0 +1,5 @@
+{
+  "clients.web": "Requests go through a small Go relay instead of straight from the browser, because browsers block cross-origin calls. Cost: the hosted relay cannot reach localhost or private addresses and truncates responses over 3 MB. The desktop app or a local relay avoids both.",
+  "clients.agent": "Secrets are filled in inside Gostman and scrubbed from replies, so the agent never sees a token. Cost: a secret goes only to addresses where one of your own requests already sends it, so a new host needs a saved request first.",
+  "files": "Plain YAML, one file per request, committed to Git instead of a database or cloud workspace, so requests are reviewed beside the code. Cost: opening 5,000 requests took 14.8 s until a parallel reader pool cut it to 5.4 s."
+}

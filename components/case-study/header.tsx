@@ -3,8 +3,29 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 import { projectLinks } from "@/components/project-links";
 import type { Project } from "@/lib/projects-data";
+import type { CaseStudyMeta } from "@/lib/case-studies";
 
-export function CaseStudyHeader({ project, category, summary }: { project: Project; category: string; summary: string }) {
+const statusOf = ({ live, crates, pypi }: Project) => {
+  if (live) return "Live";
+  if (crates || pypi) return "Published package";
+  return "Open source";
+};
+
+function Facts({ facts }: { facts: [string, string][] }) {
+  return (
+    <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-3 font-custom2">
+      {facts.map(([term, detail]) => (
+        <div key={term}>
+          <dt className="text-xs uppercase tracking-[0.14em] text-neutral-500">{term}</dt>
+          <dd className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">{detail}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+export function CaseStudyHeader({ project, meta }: { project: Project; meta: CaseStudyMeta }) {
+  const { category, summary, role, timeline } = meta;
   return (
     <header>
       <Link
@@ -16,6 +37,7 @@ export function CaseStudyHeader({ project, category, summary }: { project: Proje
       <p className="mt-8 font-custom2 text-xs uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-400">{category}</p>
       <h1 className="mt-2 font-custom text-5xl md:text-6xl tracking-tight text-neutral-900 dark:text-neutral-50">{project.title}</h1>
       <p className="mt-4 max-w-2xl font-custom2 text-base md:text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">{summary}</p>
+      <Facts facts={[["Role", role], ["Timeline", timeline], ["Status", statusOf(project)]]} />
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap gap-2">
           {projectLinks(project).map((link) => (

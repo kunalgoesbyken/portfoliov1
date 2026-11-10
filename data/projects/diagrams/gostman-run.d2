@@ -24,7 +24,7 @@ run: gostman run {
   }
   sandbox: Script sandbox\nfresh per script {
     class: service
-    tooltip: "Pre-request and test scripts run in goja, a JavaScript engine written in Go, with the Postman pm and Bruno bru APIs. Every script gets a runtime no other script has touched; up to four are booted ahead and dropped after 30 s idle."
+    tooltip: "Pre-request and test scripts run in goja, a JavaScript engine written in Go, with the Postman pm and Bruno bru APIs. Every script gets a runtime no other script has touched; up to four are booted ahead of time."
   }
   plan -> engine -> sandbox
 }
