@@ -3,8 +3,8 @@ category: Framework internals
 summary: The core of Next.js, rebuilt from scratch in about 700 lines of Bun and React, covering file-system routing, server-side data loading, server rendering and hydration, to understand how a meta-framework actually works.
 stats:
   - { value: "~700", label: "lines for the whole framework core" }
-  - { value: "2.6 ms", label: "median time to first byte for a server-rendered page" }
-  - { value: "4", label: "stages: route, load, render, hydrate" }
+  - { value: "1 ms", label: "median time to first byte for a server-rendered page" }
+  - { value: "1", label: "lazily loaded chunk per page" }
   - { value: "2", label: "dependencies: React and React DOM" }
 ---
 
@@ -48,7 +48,7 @@ Four files, one per stage, so a request can be followed from the router to hydra
 1. **Route.** At startup `Bun.Glob` scans the pages folder, turns each path into a URL pattern and compiles it to a regular expression with capture groups for `[param]` segments.
 2. **Load.** For each request the server imports the page module and awaits its `getServerSideProps`. A missing route renders the 404 page; a throwing data function renders a 500 page instead of crashing the server.
 3. **Render.** `react-dom/server` renders the component to HTML. Props and the route table are embedded as JSON with `<` escaped, so serialised data can never close the script tag.
-4. **Hydrate.** The browser reads the same props, picks the matching page and calls `hydrateRoot`, so React attaches event handlers to the HTML it already has instead of re-rendering it.
+4. **Hydrate.** A build plugin generates a page map of literal `import()` calls, so `Bun.build` splits every page into its own lazily loaded chunk. The browser reads the same props, loads only the matched page and calls `hydrateRoot`, so React attaches event handlers to the HTML it already has instead of re-rendering it.
 
 <Highlights>
 <Highlight title="A router from a glob" result="Zero configuration, dynamic segments included">
@@ -60,8 +60,8 @@ Hydration errors happen when the client renders different data than the server. 
 <Highlight title="Safe serialisation" result="No XSS through embedded data">
 Data embedded in a script tag is a classic injection point. Escaping `<` in the serialised JSON closes it without a sanitiser dependency.
 </Highlight>
-<Highlight title="Fast by default" result="2.6 ms median server render for a static page">
-With no framework layers between the request and `renderToString`, a 404 renders in 1.5 ms and a static page in 2.6 ms on a laptop.
+<Highlight title="Fast by default" result="1 ms median time to first byte for a static page">
+With no framework layers between the request and `renderToString`, a static page and the 404 page both render in about a millisecond on a laptop, and the browser downloads only the code for the page it is on.
 </Highlight>
 </Highlights>
 
