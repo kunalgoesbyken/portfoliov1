@@ -1,0 +1,70 @@
+---
+category: Framework internals
+summary: The core of Next.js, rebuilt from scratch in about 700 lines of Bun and React, covering file-system routing, server-side data loading, server rendering and hydration, to understand how a meta-framework actually works.
+stats:
+  - { value: "~700", label: "lines for the whole framework core" }
+  - { value: "2.6 ms", label: "median time to first byte for a server-rendered page" }
+  - { value: "4", label: "stages: route, load, render, hydrate" }
+  - { value: "2", label: "dependencies: React and React DOM" }
+---
+
+<Section kicker="For everyone" title="What it does">
+
+Most React developers use Next.js as a black box. When a hydration error or a routing surprise appears, there is no mental model of what the framework did.
+
+Un-nexted opens the box. Drop a React file into `src/pages/` and run one command: `about.tsx` becomes `/about` and `blog/[slug].tsx` becomes a dynamic route. Pages arrive as real HTML, which is good for search engines and first paint, with their data loaded on the server through `getServerSideProps`, just like the Next.js pages router. Then the browser takes over and the page becomes interactive.
+
+It is a learning project, small enough to read top to bottom in one sitting. It deliberately leaves out caching, API routes and image optimisation, and says so. The full write-up is on the [blog](/blog/un-nexted).
+
+</Section>
+
+<Section kicker="For engineers" title="How it is built">
+
+Four files, one per stage, so a request can be followed from the router to hydration. Bun is the runtime, bundler, TypeScript compiler and package manager, which removes Babel, webpack and a separate `tsc` setup.
+
+<Diagram
+  title="Request lifecycle"
+  nodes={[
+    { id: "pages", label: "src/pages", sub: "*.tsx page files", col: 0, row: 0, kind: "store" },
+    { id: "router", label: "File router", sub: "glob to regex", col: 1, row: 0, kind: "service" },
+    { id: "browser", label: "Browser", sub: "GET /users", col: 0, row: 2, kind: "client" },
+    { id: "server", label: "Bun.serve", sub: "match, load, render", col: 2, row: 1, kind: "service" },
+    { id: "gssp", label: "getServerSideProps", sub: "per-page data", col: 3, row: 0, kind: "service" },
+    { id: "render", label: "renderToString", sub: "react-dom/server", col: 3, row: 1, kind: "service" },
+    { id: "build", label: "Bun.build", sub: "client bundle", col: 3, row: 2, kind: "service" },
+    { id: "hydrate", label: "hydrateRoot", sub: "page goes live", col: 4, row: 1, kind: "client" },
+  ]}
+  edges={[
+    { from: "pages", to: "router", label: "startup scan" },
+    { from: "browser", to: "server", label: "request" },
+    { from: "router", to: "server", label: "route" },
+    { from: "server", to: "gssp", label: "context" },
+    { from: "gssp", to: "render", label: "props" },
+    { from: "render", to: "hydrate", label: "HTML + props" },
+    { from: "build", to: "hydrate", label: "JS" },
+  ]}
+/>
+
+1. **Route.** At startup `Bun.Glob` scans the pages folder, turns each path into a URL pattern and compiles it to a regular expression with capture groups for `[param]` segments.
+2. **Load.** For each request the server imports the page module and awaits its `getServerSideProps`. A missing route renders the 404 page; a throwing data function renders a 500 page instead of crashing the server.
+3. **Render.** `react-dom/server` renders the component to HTML. Props and the route table are embedded as JSON with `<` escaped, so serialised data can never close the script tag.
+4. **Hydrate.** The browser reads the same props, picks the matching page and calls `hydrateRoot`, so React attaches event handlers to the HTML it already has instead of re-rendering it.
+
+<Highlights>
+<Highlight title="A router from a glob" result="Zero configuration, dynamic segments included">
+A directory tree becomes an ordered URL table with named params, the same contract as the Next.js pages router.
+</Highlight>
+<Highlight title="Hydration that matches by construction" result="The same props drive both renders">
+Hydration errors happen when the client renders different data than the server. Shipping the exact server props and route table in the HTML makes the first client render identical.
+</Highlight>
+<Highlight title="Safe serialisation" result="No XSS through embedded data">
+Data embedded in a script tag is a classic injection point. Escaping `<` in the serialised JSON closes it without a sanitiser dependency.
+</Highlight>
+<Highlight title="Fast by default" result="2.6 ms median server render for a static page">
+With no framework layers between the request and `renderToString`, a 404 renders in 1.5 ms and a static page in 2.6 ms on a laptop.
+</Highlight>
+</Highlights>
+
+**Stack:** Bun, React, React DOM, TypeScript.
+
+</Section>

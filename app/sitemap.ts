@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
+import { ALL_PROJECTS, projectPath } from "@/lib/projects-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = SITE_URL;
@@ -17,6 +18,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "monthly",
             priority: 0.8,
         },
+        ...ALL_PROJECTS.map(({ slug }) => ({
+            url: `${baseUrl}${projectPath(slug)}`,
+            lastModified: new Date(),
+            changeFrequency: "monthly" as const,
+            priority: 0.7,
+        })),
         {
             url: `${baseUrl}/blog`,
             lastModified: new Date(),

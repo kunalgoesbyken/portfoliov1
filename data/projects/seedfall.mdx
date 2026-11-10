@@ -1,0 +1,113 @@
+---
+category: Reliability testing
+summary: A deterministic simulation tester for Go. It runs your unmodified service in a simulated world where it controls the clock, the disk and the network, crashes it thousands of ways, and replays any failure exactly from a single number.
+stats:
+  - { value: "18", label: "bug reports across 10 open source Go projects" }
+  - { value: "33 → 2", label: "faults left after automatic shrinking" }
+  - { value: "200 / 200", label: "seeds replayed with identical traces" }
+  - { value: "87x", label: "faster than real time, 21.5 runs a second" }
+gallery:
+  - { src: /images/projects/seedfall/01-run-finds-bug.webp, caption: "A sweep of 100 seeds catches a lost acknowledged write" }
+  - { src: /images/projects/seedfall/02-shrink.webp, caption: "Shrinking one failing seed from 33 faults to the 2 that matter" }
+  - { src: /images/projects/seedfall/03-timeline.webp, caption: "The replay timeline: messages between nodes beside the failing trace" }
+  - { src: /images/projects/seedfall/04-triage-report.webp, caption: "Triage report: 24 seeds, 4 failures grouped into one finding" }
+  - { src: /images/projects/seedfall/05-raft-finding.webp, caption: "Root-cause report for the hashicorp/raft snapshot fsync bug" }
+  - { src: /images/projects/seedfall/06-bugs-found.webp, caption: "Real bugs found in open source projects" }
+---
+
+<Section kicker="For everyone" title="What it does">
+
+Software that stores data, such as databases, queues and replicated clusters, usually passes its tests and then loses data in production. The bug needs a power cut at one exact moment, or a network split at another, and an ordinary test almost never hits that moment. When production does, nobody can reproduce it.
+
+Seedfall makes those moments happen on purpose, and makes them repeatable. You write a short workload that uses your service and says what must stay true, for example "every write I was told succeeded is still there after a crash". Then you run thousands of simulated trials. Seedfall crashes nodes, cuts power halfway through a write, fails disk syncs and splits the network, differently for each seed.
+
+When something breaks you get a seed number. That seed reproduces the exact same failure on any machine, with a full trace and a timeline. Seedfall then shrinks a failure with dozens of faults down to the two or three that matter, and once you have a fix, it proves the fix by replaying the failure and sweeping fresh seeds.
+
+It has already found real bugs in widely used projects, including NATS, hashicorp/raft, nutsdb and buntdb. One of them, in hashicorp/raft, leaves a node that panics on every restart after a badly timed power loss. Nine issues have been filed upstream and buntdb has already shipped a fix.
+
+</Section>
+
+<Section kicker="For engineers" title="How it is built">
+
+Each node is compiled with the stock Go toolchain for `GOOS=wasip1` and run as its own wazero WebAssembly instance inside one host process. On wasip1 the Go runtime is single-threaded and every source of nondeterminism leaves through three WASI calls, so Seedfall implements those three itself: random bytes come from a seeded ChaCha8 stream, the clock is virtual, and blocking parks the node until its next timer or packet. No forked runtime, no source rewriting, and new Go releases keep working.
+
+<Diagram
+  title="Simulator architecture"
+  nodes={[
+    { id: "workload", label: "Workload", sub: "Go checks + config", col: 0, row: 0, kind: "client" },
+    { id: "node", label: "Your service", sub: "Go built for wasip1", col: 0, row: 2, kind: "external" },
+    { id: "wazero", label: "wazero runtime", sub: "one per node", col: 1, row: 1, kind: "service" },
+    { id: "sched", label: "Seeded scheduler", sub: "virtual clock", col: 2, row: 0, kind: "service" },
+    { id: "faults", label: "Fault injector", sub: "crash, tear, partition", col: 2, row: 2, kind: "service" },
+    { id: "porc", label: "Porcupine", sub: "linearizability", col: 3, row: 0, kind: "service" },
+    { id: "net", label: "Simulated network", sub: "latency, clogs, cuts", col: 3, row: 1, kind: "store" },
+    { id: "disk", label: "Simulated disk", sub: "page cache + fsync", col: 3, row: 2, kind: "store" },
+    { id: "out", label: "Seed + trace", sub: "replay, shrink, report", col: 4, row: 1, kind: "client" },
+  ]}
+  edges={[
+    { from: "workload", to: "wazero", label: "starts nodes" },
+    { from: "node", to: "wazero", label: "wasm" },
+    { from: "wazero", to: "sched", label: "3 WASI calls" },
+    { from: "sched", to: "faults", label: "fault plan" },
+    { from: "faults", to: "disk", label: "crash" },
+    { from: "faults", to: "net", label: "partition" },
+    { from: "sched", to: "porc", label: "op history" },
+    { from: "porc", to: "out", label: "verdict" },
+    { from: "disk", to: "out", label: "trace" },
+  ]}
+/>
+
+Exactly one node runs at a time. The scheduler picks the earliest wake-up, breaks ties with the seed and jumps virtual time forward, so ten seconds of `time.Sleep` cost nothing. wasip1 has no preemption, so modules are instrumented with a call counter that triggers the Go runtime's own cooperative preemption after about four million calls without blocking.
+
+The simulated disk has an explicit durability model: writes sit in a page cache, `Sync` makes them durable and a crash keeps only durable data. Options add torn writes, reordered 4 KiB page writeback, strict POSIX directory durability, `EIO` on fsync with Linux's post-2018 semantics, full disks, lost and misdirected writes and bit flips. The network gives UDP seeded reordering and loss, TCP ordered streams with seeded latency, and one-way partitions, all registered with Go's own poller so plain `net/http` runs unchanged.
+
+<Diagram
+  title="Find, replay, shrink, prove"
+  nodes={[
+    { id: "sweep", label: "seedfall run", sub: "seeds 1..N in parallel", col: 0, row: 1, kind: "client" },
+    { id: "fail", label: "Failing seed", sub: "seed 1, 33 faults", col: 1, row: 1, kind: "store" },
+    { id: "replay", label: "Replay", sub: "same trace, same hash", col: 2, row: 0, kind: "service" },
+    { id: "shrink", label: "Shrink", sub: "ddmin to 2 faults", col: 2, row: 2, kind: "service" },
+    { id: "plan", label: "Minimal schedule", sub: "JSON fault file", col: 3, row: 1, kind: "store" },
+    { id: "verify", label: "seedfall verify", sub: "fix holds on new seeds", col: 4, row: 1, kind: "service" },
+  ]}
+  edges={[
+    { from: "sweep", to: "fail", label: "check broken" },
+    { from: "fail", to: "replay", label: "timeline" },
+    { from: "fail", to: "shrink", label: "smaller runs" },
+    { from: "shrink", to: "plan", label: "1-minimal" },
+    { from: "plan", to: "verify", label: "pin + sweep" },
+  ]}
+/>
+
+<Highlights>
+<Highlight title="Determinism without forking Go" result="Same seed, same hash, 3 of 3 replays; run -check passes 200 of 200 seeds">
+Reproducing a concurrent, distributed Go program byte for byte usually means patching the runtime. Routing every source of nondeterminism through three WASI calls made it possible with the stock toolchain. `seedfall run -check` runs each seed twice and stops at the first host call that differs.
+</Highlight>
+<Highlight title="Shrinking that never swaps bugs" result="33 faults to 2, one minute of virtual time to 991 ms, in 191 runs">
+Delta debugging removes faults, then the workload is capped, the duration trimmed and each fault simplified. A candidate is kept only if it fails with the same class, node, property and message. Every fault type draws from its own seeded stream, so removing one barely disturbs the rest of the run.
+</Highlight>
+<Highlight title="A crash model that matches real disks" result="Found that hashicorp/raft never fsyncs its snapshot directory">
+Most storage bugs only appear under strict POSIX rules, torn writes or failing fsyncs, none of which a laptop disk shows. In raft's case, log compaction after an unsynced rename leaves an empty snapshot, and the node panics in `NewRaft` on every restart.
+</Highlight>
+<Highlight title="Proof that a pass means something" result="Every finding ships a root cause, a replay command and a verified patch">
+`seedfall mutate` swaps in a deliberately broken disk, for example fsync as a no-op, and requires your checks to notice. `seedfall verify` replays the failing schedule against a patched copy and sweeps fresh seeds.
+</Highlight>
+<Highlight title="Built for coding agents" result="Found bugs in 2 of 9 AI-written crash-safe stores that passed their own tests">
+An MCP server and four skills let an agent set up, run, shrink and prove a fix with no API key. In one experiment, three Claude models each wrote three crash-safe key-value stores; Seedfall found two that can refuse to open forever after a specific crash.
+</Highlight>
+<Highlight title="Fast enough for CI" result="200 seeds in 9.4 s on a laptop">
+Seeds run in parallel jobs and virtual time skips idle waits, so a failing seed replays 0.99 s of simulated time in 0.1 to 0.3 s of real time.
+</Highlight>
+</Highlights>
+
+| Metric | Result |
+| :--- | :--- |
+| Real bugs found | 18 root-cause reports across NATS JetStream, hashicorp/raft, nutsdb, buntdb, bitcask, diskv, bbolt and others |
+| Upstream | 9 issues filed, 1 fixed upstream (tidwall/buntdb) |
+| Controls | hashicorp/raft passes 600 seeds and etcd-io/raft 100; a deliberately broken copy of each is caught |
+| Codebase | 20,073 lines of Go in the core, 348 tests, 31 runnable example systems |
+
+**Stack:** Go, WebAssembly (wasip1), wazero, Porcupine, ChaCha8, delta debugging, PCT scheduling, Model Context Protocol, GitHub Actions.
+
+</Section>

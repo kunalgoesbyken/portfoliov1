@@ -1,0 +1,99 @@
+---
+category: Speech data infrastructure
+summary: A Rust pipeline that turns raw audio recordings into clean training data for speech models, and names the reason for every clip it throws away.
+stats:
+  - { value: "99.9%", label: "of 24,409 injected defects caught across six languages" }
+  - { value: "940x", label: "faster than real time on a laptop CPU" }
+  - { value: "14.8 ms", label: "p95 verdict latency at 1,000 live streams" }
+  - { value: "10", label: "Rust crates, 135 tests, one 1.7 MB WASM build" }
+gallery:
+  - { src: /images/projects/aerosieve/01-demo-mixed.webp, caption: "The browser demo judging a 70 second recording clip by clip, with reasons" }
+  - { src: /images/projects/aerosieve/02-demo-noisy.webp, caption: "A noisy recording: which clips fail and why" }
+  - { src: /images/projects/aerosieve/03-demo-threshold.webp, caption: "Raising the noise floor to 25 dB flips two kept clips to low_snr" }
+  - { src: /images/projects/aerosieve/04-sievebench-languages.webp, caption: "SieveBench per language: audio kept and defects caught" }
+  - { src: /images/projects/aerosieve/05-snr-accuracy.webp, caption: "Estimated noise level against injected noise for three noise types" }
+  - { src: /images/projects/aerosieve/06-speed.webp, caption: "940x real time in batch and 14.8 ms live verdicts" }
+---
+
+<Section kicker="For everyone" title="What it does">
+
+Speech models learn from whatever audio they are given. Silence, hiss, distorted peaks, phone-line artefacts and test tones all end up in the training set unless someone takes them out, and nobody can listen to thousands of hours by hand.
+
+AeroSieve does that listening. Point it at a folder of recordings and it cuts each file into speech clips of 3 to 30 seconds, measures every clip for noise, loudness, distortion and tonality, and keeps only the clips that pass.
+
+Every rejected clip gets a plain reason: `low_snr`, `clipping`, `tonal`, `too_quiet`, `too_loud` or `silence`. Teams can see what their data actually looked like and loosen a threshold when their recordings are naturally noisy, instead of trusting a black box.
+
+It is built for teams training speech recognition and voice AI, especially in languages where cleaned public data is scarce. It was tested on English, Hindi, Tamil, Bengali, Telugu and Marathi.
+
+The output is ready to train on: WebDataset shards, a manifest of every clip and a stats file. The same engine runs as a command-line tool, a Rust library, a Python package, a live WebSocket service for calls and voice agents, and in the browser, where your audio never leaves the page.
+
+</Section>
+
+<Section kicker="For engineers" title="How it is built">
+
+A Rust workspace of ten crates, each owning one stage. Measurement and judgement are kept apart: `score` computes the numbers once and `FilterPolicy` decides, so thresholds can change without re-reading any audio.
+
+<Diagram
+  title="Pipeline"
+  nodes={[
+    { id: "audio", label: "Raw recordings", sub: "wav mp3 flac ogg mp4", col: 0, row: 0, kind: "external" },
+    { id: "decode", label: "Decode", sub: "16 kHz mono, leveled", col: 1, row: 0, kind: "service" },
+    { id: "segment", label: "Segment", sub: "3-30 s speech clips", col: 2, row: 0, kind: "service" },
+    { id: "score", label: "Score + policy", sub: "SNR, level, clip, tone", col: 3, row: 0, kind: "service" },
+    { id: "shards", label: "Training shards", sub: "WebDataset tar", col: 4, row: 0, kind: "store" },
+    { id: "rejects", label: "Rejected clips", sub: "with named reason", col: 4, row: 1, kind: "store" },
+    { id: "live", label: "Streaming service", sub: "WebSocket sessions", col: 1, row: 2, kind: "client" },
+    { id: "wasm", label: "Browser demo", sub: "same code as WASM", col: 3, row: 2, kind: "client" },
+  ]}
+  edges={[
+    { from: "audio", to: "decode", label: "files" },
+    { from: "decode", to: "segment", label: "samples" },
+    { from: "segment", to: "score", label: "clips" },
+    { from: "score", to: "shards", label: "accept" },
+    { from: "score", to: "rejects", label: "reject" },
+    { from: "live", to: "segment", label: "PCM frames" },
+    { from: "wasm", to: "score", label: "inspect" },
+  ]}
+/>
+
+1. **Decode** reads any common format, converts to 16 kHz mono and levels loudness, while remembering the source's own full scale so clipping can still be measured afterwards.
+2. **Segment** runs a hysteresis state machine modelled on Silero's speech timestamps: speech starts above one threshold, continues above a lower one, and ends only after 500 ms of quiet. Long segments are cut at their deepest internal dip. Property tests check that output is ordered, non-overlapping and always 3 to 30 seconds.
+3. **Score** computes four deterministic numbers with no ML model: WADA-SNR, RMS level, clip ratio and spectral flatness over the 300 to 3400 Hz speech band.
+4. **Shard** writes accepted clips to WebDataset tar files with a manifest, in input order, so a parallel run is byte-identical to a single-threaded one.
+
+The live service is axum and tokio. Memory per session is bounded by the utterance in progress, sessions and frame sizes are capped, and a Prometheus histogram tracks decision latency.
+
+<Highlights>
+<Highlight title="A benchmark that cannot grade itself" result="24,385 of 24,409 defects caught; the right reason named for all but 2">
+SieveBench damages clean speech in 28 known ways (six noise levels, clipping, near silence, tones, hum, phone line) and runs 51,352 damaged copies through the same code as the CLI. The expected verdict comes from the damage, never from AeroSieve's thresholds, so tuning cannot make the benchmark agree with itself.
+</Highlight>
+<Highlight title="The benchmark found real bugs" result="Kept Hindi speech rose from 16.4 to 25.6 minutes (+56%)">
+Loudness leveling was hiding clipping, so distorted files passed as clean; clipping is now measured against the source's full scale. Speech was also being cut at every 100 ms word gap, which left 23 of 73 clean English recordings with no clip at all; pauses under 500 ms are now bridged.
+</Highlight>
+<Highlight title="One state machine for live and batch" result="1,000 concurrent streams on a 4-core laptop, 0 failures">
+Batch processing is the streaming segmenter fed the whole file, so live and batch verdicts cannot disagree. A property test streams random audio in random chunk sizes and checks clips and scores match exactly.
+</Highlight>
+<Highlight title="Noise measured without a clean reference" result="Within about 1.3 dB from 0 to 20 dB SNR">
+WADA-SNR estimates noise from the amplitude distribution of the clip alone. Babble reads up to 2.7 dB too clean, which is documented as a limitation instead of hidden. Flatness skips bins near Nyquist, where resampled audio is empty and speech would look tonal.
+</Highlight>
+<Highlight title="Fast by default" result="43 minutes of 48 kHz Hindi in 2.75 s, about 940x real time">
+Files are inspected in batches across every core with rayon and written back in input order. Unpaced, the server pushed 1.27 hours of audio through in 0.6 seconds.
+</Highlight>
+<Highlight title="The real pipeline in the browser" result="A 70 second file decoded and judged in 148 ms, client side">
+Decode, segment and score compile to a 1.7 MB WebAssembly module. The demo stores each clip's measurements and re-applies the policy when a slider moves, so nothing is decoded twice.
+</Highlight>
+</Highlights>
+
+| Metric | Result |
+| :--- | :--- |
+| Injected defects caught | 24,385 of 24,409 across 51,352 damaged copies of 1,834 recordings |
+| Batch speed | 43 min of audio in 2.75 s on 8 threads (8.1 s on 1 thread) |
+| Live verdict latency | 14.8 ms p95 with 1,000 concurrent streams |
+| Unpaced server throughput | 7,650x real time with 16 clients |
+| Codebase | about 8,500 lines of Rust, 10 crates, 135 tests |
+
+Speed and streaming figures were measured on a Core i5-9300H laptop (4 cores, 8 threads).
+
+**Stack:** Rust, axum, tokio, rayon, WebAssembly (wasm-bindgen), PyO3 and maturin, WebDataset, Prometheus, optional Silero VAD (ONNX), GitHub Actions.
+
+</Section>

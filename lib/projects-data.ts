@@ -8,6 +8,7 @@ export interface ProjectLinks {
 }
 
 export interface OpenSourceProject extends ProjectLinks {
+  slug: string;
   title: string;
   src: string;
   description: string;
@@ -22,6 +23,7 @@ export interface Project extends OpenSourceProject {
 
 export const DEPLOYED_PROJECTS: Project[] = [
   {
+    slug: "gostman",
     title: "Gostman",
     src: "/images/gostman-landing.jpg",
     poster: "/images/gostman-landing.jpg",
@@ -34,6 +36,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
     live: "https://gostman.com",
   },
   {
+    slug: "aerosieve",
     title: "AeroSieve",
     src: "/images/aerosieve-landing.webp",
     description:
@@ -44,6 +47,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
     crates: "https://crates.io/crates/aerosieve-cli",
   },
   {
+    slug: "seedfall",
     title: "Seedfall",
     src: "/images/seedfall-poster.webp",
     description:
@@ -53,14 +57,16 @@ export const DEPLOYED_PROJECTS: Project[] = [
     live: "https://seedfall-lemon.vercel.app",
   },
   {
+    slug: "codebase-indexer",
     title: "codebase-indexer",
     src: "/images/codebase-indexer-poster.webp",
     description:
-      "Offline semantic code search. Walks a codebase, chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and indexes for hybrid BM25 + vector search with RRF fusion.",
+      "Offline semantic code search. Chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and fuses BM25 and a hand-written persisted HNSW index with RRF. Only changed files are re-embedded, so a no-op re-index takes 95 ms.",
     tech: ["rust", "onnx"],
     github: "https://github.com/kunalgoesbyken/codebase-indexer",
   },
   {
+    slug: "un-nexted",
     title: "Un-Nexted",
     src: "/images/un-nexted-1600.webp",
     description:
@@ -72,6 +78,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
 
 export const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
   {
+    slug: "taskflow",
     title: "TaskFlow",
     src: "/images/taskflow-poster.jpg",
     description:
@@ -81,15 +88,17 @@ export const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
     live: "https://taskflow-deploy-eta.vercel.app",
   },
   {
+    slug: "mailflow-ai",
     title: "MailFlowAI",
     src: "/images/mailflow-ai-1280.webp",
     description:
-      "AI email assistant with Gmail integration and CopilotKit for natural-language control. 30-second auto-sync and AI-powered drafting.",
+      "A Gmail client with an AI assistant that finds, opens and drafts mail through typed tool calls (Vercel AI SDK and Groq), and never sends without your confirmation. Mail goes straight from Gmail to the browser, with 30-second background sync.",
     tech: ["react", "ts", "tailwind", "gmail"],
     github: "https://github.com/kunalgoesbyken/MailFlowAI",
     live: "https://ai-mail-app-pearl.vercel.app/",
   },
   {
+    slug: "pdf2docx-healer",
     title: "pdf2docx-healer",
     src: "/images/pdf2docx-healer-terminal.webp",
     description:
@@ -99,3 +108,7 @@ export const OPEN_SOURCE_PROJECTS: OpenSourceProject[] = [
     pypi: "https://pypi.org/project/pdf2docx-healer/",
   },
 ];
+
+export const ALL_PROJECTS: OpenSourceProject[] = [...DEPLOYED_PROJECTS, ...OPEN_SOURCE_PROJECTS];
+
+export const projectPath = (slug: string) => `/projects/${slug}`;

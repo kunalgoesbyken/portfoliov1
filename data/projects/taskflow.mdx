@@ -1,0 +1,78 @@
+---
+category: Team productivity
+summary: A task board for remote teams that makes handing work from one timezone to the next explicit, with live updates, bulk actions, GitHub sync and an AI shift brief.
+stats:
+  - { value: "26", label: "API route handlers, every query scoped per user" }
+  - { value: "2", label: "SQL statements for a bulk change of any size" }
+  - { value: "5", label: "timezones in the seeded demo workspace" }
+  - { value: "17.5k", label: "lines of TypeScript across 167 commits" }
+gallery:
+  - { src: /images/projects/taskflow/01-dashboard.webp, caption: "The task table with status, priority, due dates and assignees" }
+  - { src: /images/projects/taskflow/04-timezone-lanes.webp, caption: "Timezone lanes: one column per teammate with their local time" }
+  - { src: /images/projects/taskflow/02-bulk-reassign.webp, caption: "Three tasks selected and the bulk reassign menu open" }
+  - { src: /images/projects/taskflow/03-analytics.webp, caption: "Analytics: tasks per person, status mix and workload balance" }
+  - { src: /images/projects/taskflow/05-task-detail.webp, caption: "A task with its assignee, due date and activity history" }
+---
+
+<Section kicker="For everyone" title="What it does">
+
+When a team spans timezones, work gets handed over in chat threads, and nobody can tell who owns what when they wake up.
+
+TaskFlow makes the handoff a first-class action. A timezone board shows one column per teammate with their local time, so passing a task to the next shift is a drag from one column to another. Every task keeps its full history, the new owner gets a notification, and handoff templates make sure the notes the next person needs are filled in before a task can move on.
+
+Select many tasks at once to change status, priority or owner in one step. An analytics page shows who is overloaded, and the AI Shift Brief summarises everything that changed in the last day or week, so the morning catch-up takes a minute.
+
+It syncs with GitHub issues and pull requests and can be self-hosted with Docker. Visitors can click "Try the demo" to open a populated workspace without signing up.
+
+</Section>
+
+<Section kicker="For engineers" title="How it is built">
+
+A Next.js 15 App Router app. Server components load data through Prisma; client components use TanStack Query against 26 route handlers. Supabase provides auth, Postgres and realtime change events.
+
+<Diagram
+  title="System architecture"
+  nodes={[
+    { id: "browser", label: "Browser", sub: "React 19 + TanStack", col: 0, row: 1, kind: "client" },
+    { id: "mw", label: "Middleware", sub: "session + route guard", col: 1, row: 0, kind: "service" },
+    { id: "api", label: "Route handlers", sub: "26 endpoints", col: 1, row: 1, kind: "service" },
+    { id: "auth", label: "Supabase Auth", sub: "email + GitHub", col: 2, row: 0, kind: "external" },
+    { id: "prisma", label: "Prisma", sub: "scoped queries", col: 2, row: 1, kind: "service" },
+    { id: "db", label: "Postgres", sub: "7 tables", col: 3, row: 1, kind: "store" },
+    { id: "rt", label: "Realtime", sub: "change signals", col: 2, row: 2, kind: "external" },
+    { id: "gh", label: "GitHub", sub: "signed webhook", col: 0, row: 2, kind: "external" },
+    { id: "ai", label: "Gemini", sub: "Shift Brief stream", col: 3, row: 0, kind: "ai" },
+  ]}
+  edges={[
+    { from: "browser", to: "mw" },
+    { from: "mw", to: "auth", label: "refresh" },
+    { from: "browser", to: "api", label: "fetch" },
+    { from: "api", to: "prisma", label: "per-user" },
+    { from: "prisma", to: "db", label: "pooled SQL" },
+    { from: "db", to: "rt", label: "row changes" },
+    { from: "rt", to: "browser", label: "invalidate" },
+    { from: "gh", to: "api", label: "HMAC verified" },
+    { from: "api", to: "ai", label: "task context" },
+  ]}
+/>
+
+<Highlights>
+<Highlight title="Realtime without a second data path" result="Live updates always render the same joined shape as the API">
+Supabase Realtime payloads carry no joined rows, so applying them directly leaves tasks without an assignee or creator. Each event is treated as a signal that invalidates the TanStack Query cache and triggers a refetch, so there is one data path instead of two.
+</Highlight>
+<Highlight title="All-or-nothing bulk operations" result="A 50-task change is 2 statements, not 100">
+The bulk endpoint first checks that the caller can access every selected id; one foreign id rejects the whole request. The change is a single `updateMany` plus one `createMany` for the audit trail.
+</Highlight>
+<Highlight title="Verified webhooks and encrypted tokens" result="Secrets validated at startup, never stored in plain text">
+GitHub webhooks are checked by recomputing the HMAC with a timing-safe comparison. Stored GitHub tokens are encrypted with AES-256-GCM, and a typed environment schema refuses to boot with a weak key.
+</Highlight>
+<Highlight title="A self-seeding demo" result="One click from the sign-in page to a populated workspace">
+The demo endpoint creates its user and seeds five teammates in five timezones on first use. Seed rows use fixed ids with skip-duplicates, so concurrent first visitors cannot create copies, and the demo password is derived from a server secret rather than committed.
+</Highlight>
+</Highlights>
+
+Handoff templates store per-status required fields and allowed transitions as JSON, and the Shift Brief streams a Gemini response as server-sent events built from the user's recently updated tasks.
+
+**Stack:** Next.js 15, React 19, TypeScript, Supabase (Auth, Realtime, Postgres), Prisma, TanStack Query, dnd-kit, Recharts, Tailwind CSS, Radix UI, Google Gemini, Zod, Docker, Vercel.
+
+</Section>

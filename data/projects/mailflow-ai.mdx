@@ -1,0 +1,75 @@
+---
+category: AI product
+summary: A Gmail client in the browser with an AI assistant that finds, opens and drafts email from plain-language requests, and never sends anything without your confirmation.
+stats:
+  - { value: "640 → 3", label: "inbox requests in 11 s after fixing a sync loop" }
+  - { value: "4", label: "typed AI tools, none of which can send mail" }
+  - { value: "30 s", label: "background inbox sync" }
+  - { value: "0", label: "mail servers: Gmail is called from the browser" }
+gallery:
+  - { src: /images/projects/mailflow-ai/01-inbox.webp, caption: "The inbox with unread mail and the assistant panel open" }
+  - { src: /images/projects/mailflow-ai/02-email-open.webp, caption: "An open email with reply, forward, archive and delete" }
+  - { src: /images/projects/mailflow-ai/03-assistant-reply-draft.webp, caption: "The assistant writes a reply into the composer for review" }
+  - { src: /images/projects/mailflow-ai/04-assistant-compose.webp, caption: "The assistant fills in recipient, subject and body for a new email" }
+---
+
+<Section kicker="For everyone" title="What it does">
+
+Triaging a busy inbox and writing routine replies eats hours. Most AI mail tools either want your whole mailbox on their servers or act on your behalf without asking.
+
+MailFlowAI keeps you in control. Sign in with Google and you get a fast inbox with search, filters, stars, archiving and keyboard shortcuts. Next to it sits an assistant you can talk to: "find the invoice from last week", "open the email from Priya", "draft a reply to this".
+
+The assistant opens the right email or fills the composer with a draft marked as written by the assistant. You edit it, press Send and confirm. It has no way to send mail by itself.
+
+Your mail goes straight from Gmail to your browser. The server only sees your chat message and a short summary of the ten most recent emails. The inbox refreshes itself every 30 seconds.
+
+</Section>
+
+<Section kicker="For engineers" title="How it is built">
+
+A Next.js 15 and React 19 app with no mail backend. OAuth, token storage and every Gmail call run in the browser, and the only server code is one streaming chat route.
+
+<Diagram
+  title="System architecture"
+  nodes={[
+    { id: "ui", label: "React 19 UI", sub: "Next.js 15", col: 0, row: 1, kind: "client" },
+    { id: "store", label: "Zustand store", sub: "mail, filters, draft", col: 1, row: 0, kind: "store" },
+    { id: "gmail", label: "Gmail service", sub: "ky + MIME parsing", col: 1, row: 2, kind: "service" },
+    { id: "google", label: "Gmail API", sub: "Google OAuth 2.0", col: 2, row: 2, kind: "external" },
+    { id: "chat", label: "/api/chat", sub: "Vercel AI SDK", col: 2, row: 0, kind: "service" },
+    { id: "llm", label: "Groq model", sub: "gpt-oss-120b", col: 3, row: 0, kind: "ai" },
+    { id: "tools", label: "Tool calls", sub: "open, nav, compose", col: 3, row: 1, kind: "ai" },
+  ]}
+  edges={[
+    { from: "ui", to: "store", label: "state" },
+    { from: "ui", to: "gmail", label: "list, send" },
+    { from: "gmail", to: "google", label: "Bearer token" },
+    { from: "store", to: "chat", label: "prompt + context" },
+    { from: "chat", to: "llm", label: "streamText" },
+    { from: "llm", to: "tools", label: "stream" },
+    { from: "tools", to: "ui", label: "fill draft" },
+  ]}
+/>
+
+Each chat request carries the user's text and a compact context: the current view, the selected email, active filters and the ten most recent emails as 100-character snippets. The route streams a response from Groq with four tools declared as Zod schemas: `openEmail`, `navigateView`, `composeEmail` and `replyToEmail`. The server only acknowledges tool calls; the client applies them to the store when the stream finishes, so every AI action is a visible change in the interface.
+
+<Highlights>
+<Highlight title="A runaway sync loop, found and fixed" result="640 inbox requests in 11 seconds down to 3">
+The effect that starts the 30-second sync depended on a fetch function rebuilt whenever the email list changed, so every successful fetch triggered another. With real Gmail that burns quota and risks rate limits. Holding the fetchers in a ref and depending only on sign-in state and the current view fixed it in 13 lines.
+</Highlight>
+<Highlight title="Tool calls are the only way the AI acts" result="One send path, one confirmation, for human and AI drafts">
+The model has four narrowly typed tools and no send capability. Drafts go through the same composer and confirmation dialog as hand-written mail, and tool parts are typed end to end, so the dispatcher is a type-checked switch.
+</Highlight>
+<Highlight title="Small, bounded context" result="The model sees snippets, never the mailbox">
+Instead of shipping the inbox, the client sends counts, filters and short snippets, and the system prompt restricts the model to email ids present in that context.
+</Highlight>
+<Highlight title="Resilient Gmail fetching" result="One broken message never empties the inbox">
+Messages are fetched in parallel with `Promise.allSettled`, MIME parts are parsed into a typed model, and HTML bodies are sanitised with DOMPurify before rendering.
+</Highlight>
+</Highlights>
+
+The screenshots use a sample inbox, since Gmail sign-in cannot be automated.
+
+**Stack:** Next.js 15, React 19, TypeScript, Tailwind CSS 4, Radix UI, Zustand, Vercel AI SDK, Groq, Zod, Gmail REST API, Google OAuth 2.0, DOMPurify, Vercel.
+
+</Section>

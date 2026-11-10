@@ -392,3 +392,43 @@ body {
   .ai-gh:hover .ai-g, .ai-x:hover .ai-g, .ai-li:hover .ai-draw, .ai-li:hover .ai-pulse,
   .ai-file:hover .ai-fold, .ai-file:hover .ai-lines { animation: none; }
 }
+
+.sketch {
+  --sk-ink: var(--color-neutral-800);
+  --sk-muted: var(--color-neutral-500);
+  --sk-halo: var(--color-neutral-50);
+  --sk-client: #74c0fc;
+  --sk-service: #ffd43b;
+  --sk-ai: #b197fc;
+  --sk-store: #69db7c;
+  --sk-external: #ced4da;
+}
+
+.dark .sketch {
+  --sk-ink: var(--color-neutral-200);
+  --sk-muted: var(--color-neutral-400);
+  --sk-halo: var(--color-neutral-950);
+  --sk-client: #1c7ed6;
+  --sk-service: #e67700;
+  --sk-ai: #7048e8;
+  --sk-store: #2f9e44;
+  --sk-external: #495057;
+}
+
+.sk-ink { stroke: var(--sk-ink); stroke-width: 1.4px; stroke-linecap: round; }
+.sk-fill { stroke-width: 1.1px; opacity: 0.8; }
+.dark .sk-fill { opacity: 0.5; }
+.sk-label { fill: var(--sk-ink); font-size: 17px; font-weight: 700; stroke: var(--sk-halo); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke; }
+.sk-sub { fill: var(--sk-muted); font-size: 13px; stroke: var(--sk-halo); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke; }
+.sk-edge { fill: var(--sk-muted); font-size: 13px; stroke: var(--sk-halo); stroke-width: 5px; stroke-linejoin: round; paint-order: stroke; }
+.sk-swatch { width: 0.75rem; height: 0.75rem; border-radius: 2px; background: var(--sk-swatch); }
+.sk-client { stroke: var(--sk-client); --sk-swatch: var(--sk-client); }
+.sk-service { stroke: var(--sk-service); --sk-swatch: var(--sk-service); }
+.sk-ai { stroke: var(--sk-ai); --sk-swatch: var(--sk-ai); }
+.sk-store { stroke: var(--sk-store); --sk-swatch: var(--sk-store); }
+.sk-external { stroke: var(--sk-external); --sk-swatch: var(--sk-external); }
+
+.prose :not(pre)>code::before,
+.prose :not(pre)>code::after {
+  content: none;
+}

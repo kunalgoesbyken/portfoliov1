@@ -2,22 +2,17 @@
 
 import { useState, useEffect, useRef, useCallback, type MouseEvent, type ReactNode, type Ref } from "react";
 import Image from "next/image";
-import { Globe, Play, Package } from "lucide-react";
-import { SiPypi } from "react-icons/si";
-import GithubIcon from "@/components/ui/github-icon";
-import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, type OpenSourceProject, type Project, type ProjectLinks } from "@/lib/projects-data";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Maximize2, Play } from "lucide-react";
+import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, projectPath, type OpenSourceProject, type Project } from "@/lib/projects-data";
 import type { TechKey } from "@/lib/tech-icons";
+import type { MediaItem } from "@/lib/media";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
+import { projectLinks, type ProjectLink } from "@/components/project-links";
 import dynamic from "next/dynamic";
-import type { MediaItem } from "@/components/ui/lightbox";
 
 const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
-
-interface ProjectLink {
-  href: string;
-  label: string;
-  icon: ReactNode;
-}
 
 const TITLE_ACTION_CLASS =
   "title-link truncate cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
@@ -29,13 +24,6 @@ const DESKTOP_LINK_CLASS = "icon-btn-ghost";
 
 const MOBILE_LINK_CLASS =
   "frame-dashed inline-flex size-9 items-center justify-center text-neutral-700 dark:text-neutral-300 transition-colors hover:border-neutral-500 dark:hover:border-neutral-400";
-
-const projectLinks = ({ live, crates, pypi, github }: ProjectLinks): ProjectLink[] => [
-  ...(live ? [{ href: live, label: "Live site", icon: <Globe size={16} /> }] : []),
-  ...(crates ? [{ href: crates, label: "crates.io package", icon: <Package size={16} /> }] : []),
-  ...(pypi ? [{ href: pypi, label: "PyPI package", icon: <SiPypi size={16} /> }] : []),
-  { href: github, label: "GitHub repository", icon: <GithubIcon size={16} /> },
-];
 
 const useProjectVisibility = () => {
   const [isInView, setIsInView] = useState(false);
@@ -199,14 +187,6 @@ const Projects = ({ full = false }: { full?: boolean }) => {
     setActiveMedia(media);
   };
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveMedia(null);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-
   const visibleDeployed = (showAll || full) ? DEPLOYED_PROJECTS : DEPLOYED_PROJECTS.slice(0, 2);
   const showOpenSource = showAll || full;
   const remaining = DEPLOYED_PROJECTS.length + OPEN_SOURCE_PROJECTS.length - 2;
@@ -261,7 +241,13 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         </div>
       )}
 
-      {hasLightbox && <Lightbox media={activeMedia} onClose={() => setActiveMedia(null)} />}
+      {hasLightbox && (
+        <Lightbox
+          items={activeMedia ? [activeMedia] : []}
+          index={activeMedia ? 0 : null}
+          onIndexChange={(index) => index === null && setActiveMedia(null)}
+        />
+      )}
     </div>
   );
 };
@@ -275,6 +261,7 @@ function ProjectCard({
   idx: number;
   openMedia: (media: MediaItem) => void;
 }) {
+  const router = useRouter();
   const { isInView, observerRef } = useProjectVisibility();
   const { videoRef, isReady, handleCanPlay, play, pause } = useVideoPlayback();
   const [isHovered, setIsHovered] = useState(false);
@@ -290,17 +277,17 @@ function ProjectCard({
   const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
   const shouldMountVideo = !isTouchDevice && !!project.thumbVideo && isInView;
 
-  const openProjectMedia = () =>
-    openMedia(
-      project.thumbVideo
-        ? { type: "video", src: project.video || project.thumbVideo }
-        : { type: "image", src: project.src },
-    );
+  const demo = project.video ?? project.thumbVideo;
+  const hasVideo = !!demo;
+  const preview: MediaItem = demo
+    ? { type: "video", src: demo, poster: project.poster ?? project.src, caption: project.title }
+    : { type: "image", src: project.src, caption: project.title };
+  const openProjectMedia = () => openMedia(preview);
 
   return (
     <CardShell
       ref={observerRef}
-      onActivate={openProjectMedia}
+      onActivate={() => router.push(projectPath(project.slug))}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -333,19 +320,23 @@ function ProjectCard({
           />
         )}
 
-        {project.thumbVideo && (
-          <span className="md:hidden absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-black/65 text-white text-[10px] font-custom2 px-2 py-0.5">
-            <Play size={9} fill="currentColor" aria-hidden="true" /> Demo
-          </span>
-        )}
+        <button
+          type="button"
+          onClick={openProjectMedia}
+          aria-label={`${hasVideo ? "Play demo of" : "Expand screenshot of"} ${project.title}`}
+          className={`absolute bottom-1.5 left-1.5 md:bottom-auto md:left-auto md:top-2.5 md:right-2.5 inline-flex items-center gap-1 md:gap-1.5 rounded-full bg-black/65 text-white text-[10px] md:text-xs font-custom2 px-2 py-0.5 md:px-2.5 md:py-1 cursor-zoom-in transition-opacity md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 ${hasVideo ? "" : "max-md:hidden"}`}
+        >
+          {hasVideo ? <Play size={10} fill="currentColor" aria-hidden="true" /> : <Maximize2 size={11} aria-hidden="true" />}
+          {hasVideo ? "Demo" : "Expand"}
+        </button>
       </div>
 
       <CardContent
         name={project.title}
         title={
-          <button type="button" onClick={openProjectMedia} className={TITLE_ACTION_CLASS}>
+          <Link href={projectPath(project.slug)} className={TITLE_ACTION_CLASS}>
             {project.title}
-          </button>
+          </Link>
         }
         description={project.description}
         tech={project.tech}
@@ -356,15 +347,16 @@ function ProjectCard({
 }
 
 function OpenSourceCard({ project }: { project: OpenSourceProject }) {
+  const router = useRouter();
   return (
-    <CardShell onActivate={() => window.open(project.github, "_blank")}>
+    <CardShell onActivate={() => router.push(projectPath(project.slug))}>
       <div className="flex flex-col-reverse h-full md:flex-row md:gap-8 md:items-start">
         <CardContent
           name={project.title}
           title={
-            <a href={project.github} target="_blank" rel="noopener noreferrer" className={TITLE_ACTION_CLASS}>
+            <Link href={projectPath(project.slug)} className={TITLE_ACTION_CLASS}>
               {project.title}
-            </a>
+            </Link>
           }
           description={project.description}
           tech={project.tech}

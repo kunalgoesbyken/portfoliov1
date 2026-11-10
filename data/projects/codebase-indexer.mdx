@@ -1,0 +1,87 @@
+---
+category: Search and retrieval
+summary: Offline code search in Rust that finds code by meaning as well as by keyword, runs entirely on your own machine, and re-processes only the files you changed.
+stats:
+  - { value: "95 ms", label: "re-index when nothing changed" }
+  - { value: "2", label: "rankers fused: BM25 and vectors (RRF)" }
+  - { value: "5.1 MB", label: "index for 18.5k lines of Go" }
+  - { value: "0", label: "bytes of code sent off the machine" }
+gallery:
+  - { src: /images/projects/codebase-indexer/01-search.webp, caption: "A real session: a no-op re-index, then a search by meaning" }
+---
+
+<Section kicker="For everyone" title="What it does">
+
+Searching code with grep only works when you already know the exact word the author used. Asking "where do goroutines get preempted?" finds nothing if the function is called `changePoint`.
+
+codebase-indexer lets you search a codebase by what the code does. Run `index` once, then ask a question in plain words and get the five best matches with file, line range and the code itself. Exact identifiers still work too, because every search combines keyword matching with meaning matching.
+
+It is built for developers working on private code who cannot send it to a hosted service. The embedding model runs locally on the CPU, so nothing leaves the machine. After the first run it keeps itself up to date cheaply: unchanged files are skipped, edited files are re-read, deleted files disappear from results.
+
+It understands Rust, Go, Python, TypeScript, Java, C and C++, plus Markdown and config files.
+
+</Section>
+
+<Section kicker="For engineers" title="How it is built">
+
+About 1,200 lines of Rust with no database or vector service behind it. The vector store, the HNSW graph and the change tracking are all hand-written.
+
+<Diagram
+  title="Indexing and query pipeline"
+  nodes={[
+    { id: "walker", label: "Walker", sub: "gitignore-aware", col: 0, row: 0, kind: "service" },
+    { id: "delta", label: "Delta detector", sub: "SHA-256 + mtime", col: 1, row: 0, kind: "service" },
+    { id: "chunker", label: "Chunker", sub: "tree-sitter ASTs", col: 2, row: 0, kind: "service" },
+    { id: "embedder", label: "Embedder", sub: "nomic INT8 ONNX", col: 3, row: 0, kind: "ai" },
+    { id: "store", label: "Vector store", sub: "append log + HNSW", col: 4, row: 0, kind: "store" },
+    { id: "query", label: "query", sub: "plain-language search", col: 3, row: 1, kind: "client" },
+    { id: "bm25", label: "BM25 index", sub: "Tantivy", col: 2, row: 2, kind: "store" },
+    { id: "rrf", label: "RRF fusion", sub: "k=60, top 5", col: 4, row: 2, kind: "service" },
+  ]}
+  edges={[
+    { from: "walker", to: "delta", label: "files" },
+    { from: "delta", to: "chunker", label: "changed" },
+    { from: "chunker", to: "embedder", label: "chunks" },
+    { from: "chunker", to: "bm25", label: "chunks" },
+    { from: "embedder", to: "store", label: "768-d" },
+    { from: "query", to: "embedder", label: "embed" },
+    { from: "query", to: "bm25", label: "keywords" },
+    { from: "store", to: "rrf", label: "top 20 by vector" },
+    { from: "bm25", to: "rrf", label: "top 20 by keyword" },
+  ]}
+/>
+
+1. **Walk and diff.** The walker respects `.gitignore`. Every file's SHA-256 and modification time are compared with the cache, so only new or changed files continue, and vanished files are tombstoned out of both indexes.
+2. **Chunk.** tree-sitter parses each file and emits whole declarations: functions, impls, structs, classes. Anything over 3,000 characters is split along its child nodes and greedily re-merged, so every byte lands in exactly one chunk and no function is cut in half.
+3. **Embed.** nomic-embed-text v1.5 runs as an INT8 ONNX model. Chunks are sorted by length and batched to limit padding, padded to a power of two, mean-pooled and normalised into 768-dimension vectors, with the model's documented task prefixes.
+4. **Store.** Vectors go into an append-only log. Updates write a tombstone plus new records, compaction runs only when dead records outnumber live ones, and a torn tail from a crash is repaired on load.
+5. **Search.** A query embeds once, takes the top 20 from the HNSW graph and the top 20 from BM25, and merges them with Reciprocal Rank Fusion.
+
+<Highlights>
+<Highlight title="Incremental indexing that survives edits and deletes" result="No-op re-index in 95 ms; a one-file edit re-embeds only that file">
+Embedding is the expensive step, so a content hash decides what reaches it. The log-structured store absorbs changes with tombstones instead of rewriting, which also makes it crash-tolerant.
+</Highlight>
+<Highlight title="A persisted HNSW graph that cannot go stale" result="A stale or corrupt graph falls back to an exact scan, never wrong results">
+The graph (M=16, efConstruction=200, diversity heuristic for neighbour pruning) is saved next to the log along with the log length it was built from, and checked for consistency on load. Below 1,000 records an exact cosine scan is used, since it is both fast and exact.
+</Highlight>
+<Highlight title="Hybrid retrieval without score calibration" result="Exact identifiers and loose descriptions both find the right code">
+Keyword scores and cosine similarity live on incompatible scales. Fusing by rank instead of score means they never need calibrating. Asking "preempt goroutine at yield point" over Seedfall's engine returned the preemption config, its handler and the instrumentation helper.
+</Highlight>
+<Highlight title="Chunks that follow the syntax tree" result="Search results are whole, readable functions">
+Fixed-size windows split functions and duplicate context. Declaration-level chunks with a recursive split and greedy re-merge keep every result a complete unit of code, capped at a depth of 32 to bound pathological files.
+</Highlight>
+</Highlights>
+
+| Measured on Seedfall's engine package | Result |
+| :--- | :--- |
+| Source indexed | 87 files, 18,538 lines of Go, 1,232 chunks |
+| Index on disk | 5.1 MB (vectors 4.4 MB, BM25 0.55 MB, HNSW 188 KB) |
+| Re-index with no changes | 95 ms |
+| Re-index after editing one file | 37 chunks re-embedded instead of 1,232 |
+| Query, including process start and model load | 0.9 to 1.8 s |
+
+Measured on a CPU-only Windows laptop with the release build.
+
+**Stack:** Rust, tree-sitter, ONNX Runtime (ort), nomic-embed-text v1.5 INT8, tokenizers, Tantivy, custom HNSW, bincode, SHA-256.
+
+</Section>

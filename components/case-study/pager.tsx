@@ -1,0 +1,36 @@
+import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ALL_PROJECTS, projectPath, type OpenSourceProject } from "@/lib/projects-data";
+
+const neighbours = (slug: string) => {
+  const index = ALL_PROJECTS.findIndex((p) => p.slug === slug);
+  const at = (offset: number) => ALL_PROJECTS[(index + offset + ALL_PROJECTS.length) % ALL_PROJECTS.length];
+  return [at(-1), at(1)];
+};
+
+function PagerLink({ project, direction }: { project: OpenSourceProject; direction: "previous" | "next" }) {
+  const isNext = direction === "next";
+  return (
+    <Link
+      href={projectPath(project.slug)}
+      className={`group frame-dashed flex flex-col gap-1 p-4 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors ${isNext ? "items-end text-right" : ""}`}
+    >
+      <span className="inline-flex items-center gap-1.5 font-custom2 text-xs uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-400">
+        {!isNext && <ArrowLeft size={12} aria-hidden="true" />}
+        {isNext ? "Next project" : "Previous project"}
+        {isNext && <ArrowRight size={12} aria-hidden="true" />}
+      </span>
+      <span className="title-link font-custom text-xl md:text-2xl text-neutral-900 dark:text-neutral-50">{project.title}</span>
+    </Link>
+  );
+}
+
+export function ProjectPager({ slug }: { slug: string }) {
+  const [previous, next] = neighbours(slug);
+  return (
+    <nav aria-label="More projects" className="mt-16 grid grid-cols-2 gap-3">
+      {previous && <PagerLink project={previous} direction="previous" />}
+      {next && <PagerLink project={next} direction="next" />}
+    </nav>
+  );
+}

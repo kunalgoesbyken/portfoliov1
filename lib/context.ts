@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/site";
+import { ALL_PROJECTS, projectPath } from "@/lib/projects-data";
 
 // Portfolio context for the AI chatbot
 export const PORTFOLIO_CONTEXT = `You are an AI assistant for Kunal Roy Choudhury's portfolio website. Your job is to help visitors quickly learn about Kunal: his work, skills, projects, and how to reach him.
@@ -50,10 +51,10 @@ Scalable APIs and data retrieval frameworks.
 # Projects
 
 ## MailFlowAI
-AI email assistant with Gmail integration and CopilotKit for natural-language control.
-- Gmail integration with 30-second auto-sync
-- CopilotKit AI assistant for natural-language control and drafting
-- Built with React 19 and Tailwind CSS v4
+Gmail client with an AI assistant that finds, opens and drafts email from plain-language requests.
+- Assistant acts only through four typed tool calls (Vercel AI SDK, Groq gpt-oss-120b) and cannot send mail; drafts go through the same confirm dialog as hand-written mail
+- Gmail is called straight from the browser, with 30-second background sync
+- Built with Next.js 15, React 19, Zustand and Tailwind CSS v4
 - GitHub: https://github.com/kunalgoesbyken/MailFlowAI
 - Live: https://ai-mail-app-pearl.vercel.app/
 
@@ -100,6 +101,8 @@ Async team coordination hub for tracking work handoffs across timezones.
 Next.js core features reimplemented from scratch to show how the meta-framework actually works.
 - SSR, hydration, and file-system routing from first principles
 - GitHub: https://github.com/kunalgoesbyken/Un-nexted
+
+Every project has a detailed case study page: ${ALL_PROJECTS.map(({ title, slug }) => `${title} ${SITE_URL}${projectPath(slug)}`).join(", ")}.
 
 # Technical Skills
 - Languages: Go, Rust, Python, Java, TypeScript, SQL
