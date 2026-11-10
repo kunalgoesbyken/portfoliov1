@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { DiagramPanel } from "@/components/case-study/diagram-panel";
 import { DiagramLegend } from "@/components/case-study/diagram-legend";
+import { DiagramSteps } from "@/components/case-study/diagram-steps";
 import {
   applyFocus,
   kindsOf,
@@ -20,6 +21,7 @@ interface DiagramExplorerProps {
   lightSvg: string;
   darkSvg: string;
   rationale: DiagramRationale;
+  stepCount: number;
 }
 
 const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: string; darkSvg: string }) {
@@ -31,17 +33,19 @@ const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: str
   );
 });
 
-export function DiagramExplorer({ title, lightSvg, darkSvg, rationale }: DiagramExplorerProps) {
+export function DiagramExplorer({ title, lightSvg, darkSvg, rationale, stepCount }: DiagramExplorerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<DiagramGraph | null>(null);
   const [hovered, setHovered] = useState<DiagramNode | null>(null);
   const [selection, setSelection] = useState<DiagramSelection | null>(null);
+  const [graph, setGraph] = useState<DiagramGraph | null>(null);
   const [legend, setLegend] = useState<ReturnType<typeof kindsOf>>({ kinds: [], hasRationale: false });
   const selectedKey = selection?.node.key ?? null;
 
   useEffect(() => {
     if (!rootRef.current) return;
     graphRef.current = readGraph(rootRef.current, rationale);
+    setGraph(graphRef.current);
     setLegend(kindsOf(graphRef.current));
   }, [rationale]);
 
@@ -76,7 +80,7 @@ export function DiagramExplorer({ title, lightSvg, darkSvg, rationale }: Diagram
             `${hovered.label}: click for details`
           ) : (
             <>
-              <span className="md:hidden">Tap a box for details, swipe to pan</span>
+              <span className="md:hidden">Tap a step for details</span>
               <span className="max-md:hidden">Hover to trace connections, click a box for details</span>
             </>
           )}
@@ -88,10 +92,11 @@ export function DiagramExplorer({ title, lightSvg, darkSvg, rationale }: Diagram
         onKeyDown={onKeyDown}
         onPointerOver={onPointerOver}
         onPointerLeave={() => setHovered(null)}
-        className="diagram-explorer scrollbar-subtle overflow-x-auto p-4"
+        className="diagram-explorer scrollbar-subtle overflow-x-auto p-4 max-md:hidden"
       >
         <SvgLayers lightSvg={lightSvg} darkSvg={darkSvg} />
       </div>
+      {graph ? <DiagramSteps graph={graph} /> : <div className="md:hidden" style={{ minHeight: `${stepCount * 5.25}rem` }} aria-hidden="true" />}
       <DiagramLegend kinds={legend.kinds} hasRationale={legend.hasRationale} />
       <DiagramPanel
         title={title}

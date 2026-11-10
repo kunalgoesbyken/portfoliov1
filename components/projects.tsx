@@ -18,7 +18,7 @@ const MEDIA_FRAME_CLASS =
 const DESKTOP_LINK_CLASS = "icon-btn-ghost";
 
 const MOBILE_LINK_CLASS =
-  "frame-dashed inline-flex size-9 items-center justify-center text-neutral-700 dark:text-neutral-300 transition-colors hover:border-neutral-500 dark:hover:border-neutral-400";
+  "frame-dashed inline-flex size-11 items-center justify-center text-neutral-700 dark:text-neutral-300 transition-colors hover:border-neutral-500 dark:hover:border-neutral-400";
 
 function CardShell({ onActivate, children }: { onActivate: () => void; children: ReactNode }) {
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -112,7 +112,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
         I love crafting production-grade software that solves real problems.
       </p>
 
-      <div className="grid grid-cols-2 gap-3 md:gap-x-8 md:gap-y-10 py-5 md:py-7">
+      <div className="grid grid-cols-2 gap-3 md:gap-x-8 md:gap-y-10 py-5 md:py-7 max-md:[&>:last-child:nth-child(odd)]:col-span-2">
         {visibleDeployed.map((project, idx) => (
           <ProjectCard
             key={project.title}
@@ -128,7 +128,7 @@ const Projects = ({ full = false }: { full?: boolean }) => {
             <span className="link--elara">More Projects</span>
           </h2>
           <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
-          <div className="grid grid-cols-2 gap-3 my-4 md:my-2 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-neutral-200 md:dark:divide-neutral-800 md:[&>*]:py-5">
+          <div className="grid grid-cols-2 max-md:[&>:last-child:nth-child(odd)]:col-span-2 gap-3 my-4 md:my-2 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-neutral-200 md:dark:divide-neutral-800 md:[&>*]:py-5">
             {OPEN_SOURCE_PROJECTS.map((project) => (
               <OpenSourceCard key={project.title} project={project} />
             ))}

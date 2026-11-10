@@ -11,9 +11,9 @@ const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({
 const SCROLL_EPSILON = 4;
 
 const ARROW_CLASS =
-  "inline-flex size-8 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors enabled:cursor-pointer enabled:hover:border-neutral-500 enabled:hover:text-neutral-900 dark:enabled:hover:border-neutral-400 dark:enabled:hover:text-neutral-100 disabled:opacity-30";
+  "inline-flex size-8 max-md:size-11 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors enabled:cursor-pointer enabled:hover:border-neutral-500 enabled:hover:text-neutral-900 dark:enabled:hover:border-neutral-400 dark:enabled:hover:text-neutral-100 disabled:opacity-30";
 
-const SLIDE_SIZES = "(max-width: 768px) 85vw, 640px";
+const SLIDE_SIZES = "(max-width: 768px) 92vw, 640px";
 
 const neighbourOffset = (track: HTMLElement, direction: 1 | -1) => {
   const offsets = Array.from(track.children, (child) => (child as HTMLElement).offsetLeft - track.offsetLeft);
@@ -47,12 +47,12 @@ function useTrackEdges() {
 
 function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpen: () => void }) {
   return (
-    <figure className="m-0 w-[85%] shrink-0 snap-start md:w-[640px]">
+    <figure className="m-0 w-[92%] shrink-0 snap-start md:w-[640px]">
       <button
         type="button"
         onClick={onOpen}
         aria-label={`View full screen: ${shot.caption}`}
-        className="flex aspect-[16/10] w-full cursor-zoom-in items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 p-3 md:p-5"
+        className="flex aspect-[16/10] max-md:aspect-auto w-full cursor-zoom-in items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 p-2 md:p-5"
       >
         <Image
           src={shot.src}
@@ -62,7 +62,7 @@ function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpe
           sizes={SLIDE_SIZES}
           quality={80}
           priority={index === 0}
-          className="block h-auto max-h-full w-auto max-w-full rounded-md shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+          className="block h-auto max-h-full w-auto max-w-full max-md:w-full rounded-md shadow-sm ring-1 ring-black/5 dark:ring-white/10"
         />
       </button>
       <figcaption className="mt-2 font-custom2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">{shot.caption}</figcaption>

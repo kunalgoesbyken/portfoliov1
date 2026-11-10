@@ -132,7 +132,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
           className={`
             fixed bottom-6 right-6 z-50
             w-[calc(100%-2rem)] sm:w-96 md:w-[28rem]
-            max-h-[calc(100vh-3rem)]
+            max-h-[calc(100dvh-3rem)]
             bg-white dark:bg-neutral-900
             rounded-2xl shadow-2xl
             border border-neutral-200 dark:border-neutral-800

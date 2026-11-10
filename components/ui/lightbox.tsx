@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, type TouchEvent } from "react";
 import Image from "next/image";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
@@ -14,7 +14,7 @@ interface LightboxProps {
 }
 
 const ROUND_BUTTON_CLASS =
-  "inline-flex items-center justify-center size-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer";
+  "inline-flex items-center justify-center size-11 md:size-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer";
 
 const wrap = (index: number, length: number) => (index + length) % length;
 
@@ -31,13 +31,41 @@ function useLightboxKeys(index: number | null, length: number, onIndexChange: Li
   }, [index, length, onIndexChange]);
 }
 
+const SWIPE_DISTANCE = 50;
+
+function useScrollLock(locked: boolean) {
+  useEffect(() => {
+    if (!locked) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [locked]);
+}
+
 export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
   useLightboxKeys(index, items.length, onIndexChange);
+  useScrollLock(index !== null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const media = index === null ? null : items[index];
   const position = (index ?? 0) + 1;
   const hasMany = items.length > 1;
   const close = () => onIndexChange(null);
   const step = (delta: number) => index !== null && onIndexChange(wrap(index + delta, items.length));
+  const onTouchStart = (e: TouchEvent) => {
+    const touch = e.touches[0];
+    touchStart.current = e.touches.length === 1 && touch ? { x: touch.clientX, y: touch.clientY } : null;
+  };
+  const onTouchEnd = (e: TouchEvent) => {
+    const start = touchStart.current;
+    const touch = e.changedTouches[0];
+    touchStart.current = null;
+    if (!start || !touch || !hasMany) return;
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) > SWIPE_DISTANCE && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+  };
 
   return (
     <AnimatePresence>
@@ -48,6 +76,8 @@ export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
           onClick={close}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
           role="dialog"
           aria-modal="true"
           aria-label={media.caption}
@@ -65,7 +95,7 @@ export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
               height={0}
               sizes="(max-width: 768px) 100vw, 90vw"
               quality={85}
-              className="h-auto max-h-[80vh] w-auto max-w-full rounded-md"
+              className="h-auto max-h-[80dvh] w-auto max-w-full rounded-md"
             />
             <figcaption className="font-custom2 text-sm text-neutral-300">
               {media.caption}

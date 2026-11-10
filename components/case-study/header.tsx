@@ -30,7 +30,7 @@ export function CaseStudyHeader({ project, meta }: { project: Project; meta: Cas
     <header>
       <Link
         href="/projects"
-        className="inline-flex items-center gap-1.5 font-custom2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+        className="inline-flex items-center gap-1.5 max-md:py-3 font-custom2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
       >
         <ArrowLeft size={14} aria-hidden="true" /> All projects
       </Link>
@@ -39,14 +39,14 @@ export function CaseStudyHeader({ project, meta }: { project: Project; meta: Cas
       <p className="mt-4 max-w-2xl font-custom2 text-base md:text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">{summary}</p>
       <Facts facts={[["Role", role], ["Timeline", timeline], ["Status", statusOf(project)]]} />
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
+        <div className="flex flex-wrap gap-x-6 gap-y-0 md:gap-y-2">
           {projectLinks(project).map((link) => (
             <a
               key={link.href}
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 font-custom2 text-sm text-neutral-800 dark:text-neutral-200 underline decoration-neutral-300 dark:decoration-neutral-700 underline-offset-4 hover:decoration-current transition-colors"
+              className="inline-flex items-center gap-2 max-md:py-3 font-custom2 text-sm text-neutral-800 dark:text-neutral-200 underline decoration-neutral-300 dark:decoration-neutral-700 underline-offset-4 hover:decoration-current transition-colors"
             >
               {link.icon}
               {link.label}

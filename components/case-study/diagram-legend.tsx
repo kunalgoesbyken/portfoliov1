@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 interface LegendEntry {
-  label: string;
+  label: ReactNode;
   swatch: ReactNode;
 }
 
@@ -15,7 +15,25 @@ const LEGEND: Record<string, LegendEntry> = {
   external: { label: "Outside my code", swatch: box(1, "3 2") },
 };
 
-const DECISION: LegendEntry = { label: "Design decision, click for why", swatch: box(1) };
+const DECISION: LegendEntry = {
+  label: (
+    <>
+      Design decision, <span className="md:hidden">tap</span>
+      <span className="max-md:hidden">click</span> for why
+    </>
+  ),
+  swatch: box(1),
+};
+
+export function KindSwatch({ kind, className }: { kind: string; className: string }) {
+  const entry = LEGEND[kind];
+  if (!entry) return null;
+  return (
+    <svg width="22" height="14" viewBox="0 0 22 14" fill="none" strokeWidth="1.5" aria-hidden="true" className={`shrink-0 ${className}`}>
+      {entry.swatch}
+    </svg>
+  );
+}
 
 function LegendItem({ entry, className }: { entry: LegendEntry; className: string }) {
   return (
@@ -29,11 +47,11 @@ function LegendItem({ entry, className }: { entry: LegendEntry; className: strin
 }
 
 export function DiagramLegend({ kinds, hasRationale }: { kinds: string[]; hasRationale: boolean }) {
-  const entries = kinds.flatMap((kind) => LEGEND[kind] ?? []);
+  const entries = kinds.flatMap((kind) => (LEGEND[kind] ? [{ kind, entry: LEGEND[kind] }] : []));
   return (
     <ul aria-label="Legend" className="flex min-h-9 flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-neutral-200 dark:border-neutral-800 px-4 py-2.5 font-custom2 text-xs text-neutral-500">
-      {entries.map((entry) => (
-        <LegendItem key={entry.label} entry={entry} className="stroke-neutral-500" />
+      {entries.map(({ kind, entry }) => (
+        <LegendItem key={kind} entry={entry} className="stroke-neutral-500" />
       ))}
       {hasRationale && <LegendItem entry={DECISION} className="stroke-amber-700 dark:stroke-amber-400" />}
     </ul>

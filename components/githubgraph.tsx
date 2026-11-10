@@ -69,7 +69,7 @@ const OrganizationChips = ({ organizations }: { organizations: Organization[] })
               href={org.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="frame-dashed inline-flex items-center gap-2 h-8 px-2.5 text-xs font-medium font-custom2 text-neutral-700 dark:text-neutral-300 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors"
+              className="hit-44 frame-dashed inline-flex items-center gap-2 h-8 px-2.5 text-xs font-medium font-custom2 text-neutral-700 dark:text-neutral-300 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors"
             >
               <Image src={org.avatarUrl} alt="" width={18} height={18} className="rounded-sm" />
               @{org.login}
@@ -163,7 +163,7 @@ const GithubGraph = ({ data }: GithubGraphProps) => {
                       href={pr.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 min-w-0 hover:no-underline"
+                      className="flex-1 min-w-0 hover:no-underline max-md:py-1"
                     >
                       <h3 className="title-link text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
                         {pr.title}

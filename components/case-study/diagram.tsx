@@ -17,5 +17,6 @@ const readRationale = async (name: string): Promise<DiagramRationale> => {
 
 export async function Diagram({ name, title }: { name: string; title: string }) {
   const [lightSvg, darkSvg, rationale] = await Promise.all([readSvg(name, "light"), readSvg(name, "dark"), readRationale(name)]);
-  return <DiagramExplorer title={title} lightSvg={lightSvg} darkSvg={darkSvg} rationale={rationale} />;
+  const stepCount = lightSvg.match(/<title>/g)?.length ?? 0;
+  return <DiagramExplorer title={title} lightSvg={lightSvg} darkSvg={darkSvg} rationale={rationale} stepCount={stepCount} />;
 }

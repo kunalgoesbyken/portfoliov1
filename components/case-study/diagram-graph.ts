@@ -1,6 +1,8 @@
 export interface DiagramNode {
   key: string;
   label: string;
+  sub: string;
+  zone: string;
   detail: string;
   kind: string;
   why: string;
@@ -19,6 +21,7 @@ interface DiagramEdge {
 export interface DiagramGraph {
   nodes: Map<string, DiagramNode>;
   edges: DiagramEdge[];
+  zones: Map<string, string>;
 }
 
 export interface DiagramLink {
@@ -58,6 +61,13 @@ const textOf = (group: SVGGElement) => {
   return (text?.querySelector("tspan") ?? text)?.textContent?.trim() ?? "";
 };
 
+const subOf = (group: SVGGElement) =>
+  [...(group.querySelector("text")?.querySelectorAll("tspan") ?? [])]
+    .slice(1)
+    .map((tspan) => tspan.textContent?.trim() ?? "")
+    .filter(Boolean)
+    .join(" ");
+
 const addNode = (graph: DiagramGraph, group: SVGGElement, key: string, title: SVGTitleElement, rationale: DiagramRationale) => {
   const existing = graph.nodes.get(key);
   if (existing) {
@@ -67,6 +77,8 @@ const addNode = (graph: DiagramGraph, group: SVGGElement, key: string, title: SV
   graph.nodes.set(key, {
     key,
     label: textOf(group) || key,
+    sub: subOf(group),
+    zone: key.includes(".") ? key.slice(0, key.indexOf(".")) : "",
     detail: title.textContent?.trim() ?? "",
     kind: group.classList[1] ?? "",
     why: rationale[key] ?? "",
@@ -93,7 +105,7 @@ const markNode = (node: DiagramNode) =>
   });
 
 export const readGraph = (root: HTMLElement, rationale: DiagramRationale): DiagramGraph => {
-  const graph: DiagramGraph = { nodes: new Map(), edges: [] };
+  const graph: DiagramGraph = { nodes: new Map(), edges: [], zones: new Map() };
   root.querySelectorAll<SVGGElement>("svg g[class]").forEach((group) => {
     const key = decodeKey(group);
     if (!key) return;
@@ -101,6 +113,7 @@ export const readGraph = (root: HTMLElement, rationale: DiagramRationale): Diagr
     const ends = parseEdgeKey(key);
     if (title) addNode(graph, group, key, title, rationale);
     else if (ends) addEdge(graph, group, ends);
+    else if (group.classList[1] === "zone") graph.zones.set(key, textOf(group));
   });
   root.querySelectorAll("svg title").forEach((title) => title.remove());
   graph.nodes.forEach(markNode);
@@ -126,6 +139,19 @@ export const selectionOf = (graph: DiagramGraph, key: string): DiagramSelection 
     inputs: linksOf(graph, graph.edges.filter((edge) => edge.to === key), "from"),
     outputs: linksOf(graph, graph.edges.filter((edge) => edge.from === key), "to"),
   };
+};
+
+export const orderedNodes = (graph: DiagramGraph): DiagramNode[] => {
+  const remaining = [...graph.nodes.values()];
+  const ordered: DiagramNode[] = [];
+  while (remaining.length) {
+    const waiting = new Set(remaining.map((node) => node.key));
+    const ready = remaining.findIndex(
+      (node) => !graph.edges.some((edge) => edge.to === node.key && edge.from !== node.key && waiting.has(edge.from)),
+    );
+    ordered.push(...remaining.splice(Math.max(ready, 0), 1));
+  }
+  return ordered;
 };
 
 const relatedTo = (graph: DiagramGraph, key: string) => {

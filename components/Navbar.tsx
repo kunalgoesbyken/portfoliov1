@@ -63,7 +63,7 @@ const Navbar = () => {
             alt="Kunal Roy Choudhury"
           />
           {pathname !== "/" && (
-            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300 underline-offset-4 decoration-1 decoration-neutral-400 dark:decoration-neutral-500 transition-colors group-hover/home:text-neutral-900 dark:group-hover/home:text-neutral-50 group-hover/home:underline group-focus-visible/home:underline">
+            <span className="max-[359px]:hidden text-sm font-medium text-neutral-600 dark:text-neutral-300 underline-offset-4 decoration-1 decoration-neutral-400 dark:decoration-neutral-500 transition-colors group-hover/home:text-neutral-900 dark:group-hover/home:text-neutral-50 group-hover/home:underline group-focus-visible/home:underline">
               Kunal
             </span>
           )}
@@ -98,9 +98,9 @@ const Navbar = () => {
           <div className="h-5 w-px bg-neutral-300/40 dark:bg-neutral-700/50 mx-1 max-md:mx-0.5" />
 
           {/* Theme Toggle */}
-          <div className="relative px-1 py-1 max-md:p-2">
+          <div className="relative px-1 py-1 max-md:p-0">
             <div className="transition-transform duration-200 ease-out hover:scale-[1.08]">
-              <ThemeToggleButton variant="circle" start="top-right" />
+              <ThemeToggleButton variant="circle" start="top-right" className="max-md:size-11" />
             </div>
           </div>
 
