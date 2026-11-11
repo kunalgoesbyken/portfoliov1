@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Heading } from "@/components/ui/heading";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 import { projectLinks } from "@/components/project-links";
@@ -35,8 +36,10 @@ export function CaseStudyHeader({ project, meta }: { project: Project; meta: Cas
         <ArrowLeft size={14} aria-hidden="true" /> All projects
       </Link>
       <p className="mt-8 eyebrow">{category}</p>
-      <h1 className="mt-2 font-custom text-5xl md:text-6xl tracking-tight text-fg">{project.title}</h1>
-      <p className="mt-4 max-w-2xl font-custom2 text-base md:text-lg leading-relaxed text-fg-body">{summary}</p>
+      <Heading as="h1" size="display" className="mt-2">
+        {project.title}
+      </Heading>
+      <p className="mt-4 max-w-prose font-custom2 text-base md:text-lg leading-relaxed text-fg-body">{summary}</p>
       <Facts facts={[["Role", role], ["Timeline", timeline], ["Status", statusOf(project)]]} />
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap gap-x-6 gap-y-0 md:gap-y-2">

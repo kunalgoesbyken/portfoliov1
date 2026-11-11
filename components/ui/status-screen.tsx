@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Heading } from "@/components/ui/heading";
 
 export function StatusScreen({
   title,
@@ -11,7 +12,7 @@ export function StatusScreen({
 }) {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-      <h1 className="font-custom text-fg font-bold">{title}</h1>
+      <Heading as="h1">{title}</Heading>
       <p className="font-custom2 text-fg-muted mt-3 max-w-md text-sm">
         {message}
       </p>

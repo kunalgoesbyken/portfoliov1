@@ -5,6 +5,7 @@ import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import PageShell from "@/components/ui/page-shell";
+import { Heading } from "@/components/ui/heading";
 import { getMDXComponents } from "@/mdx-components";
 import { getAllBlogs, getSingleBlog, type Blog } from "@/util/mdx_clean";
 import { formatDate } from "@/lib/utils";
@@ -42,17 +43,19 @@ export default async function SingleBlogPage({ params }: PageProps) {
   if (data.externalUrl) redirect(data.externalUrl);
 
   return (
-    <PageShell className="font-custom2 tracking-tight">
-      <h1 className="font-custom text-4xl font-bold text-fg md:text-5xl">{data.title ?? slug}</h1>
+    <PageShell>
+      <Heading as="h1" size="xl">
+        {data.title ?? slug}
+      </Heading>
 
       {data.date && (
-        <time dateTime={data.date} className="mt-2 block text-right text-sm text-fg-muted">
+        <time dateTime={data.date} className="mt-3 block font-custom2 text-sm text-fg-subtle">
           {formatDate(data.date)}
         </time>
       )}
 
       {data.image && (
-        <div className="mx-auto my-6 max-w-3xl">
+        <div className="my-8">
           <Image
             src={data.image.replace(/^\/public/, "")}
             alt={data.title ?? ""}
@@ -60,12 +63,12 @@ export default async function SingleBlogPage({ params }: PageProps) {
             height={600}
             {...LCP_IMAGE_PROPS}
             sizes="(max-width: 768px) 100vw, 768px"
-            className="h-auto w-full rounded-xl object-cover shadow-xl"
+            className="h-auto w-full rounded-lg border border-line object-cover"
           />
         </div>
       )}
 
-      <div className="prose mx-auto font-custom2 tracking-normal">
+      <div className="prose max-w-none font-custom2">
         <MDXRemote source={content} components={getMDXComponents({})} options={MDX_OPTIONS} />
       </div>
     </PageShell>

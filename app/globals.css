@@ -26,6 +26,8 @@
 
   --accent: var(--color-amber-700);
   --danger: var(--color-red-600);
+  --success: var(--color-green-600);
+  --merged: var(--color-violet-600);
   --selection: var(--color-neutral-300);
 
   --pattern-fg: var(--color-neutral-200);
@@ -64,6 +66,8 @@
 
   --accent: var(--color-amber-400);
   --danger: var(--color-red-400);
+  --success: var(--color-green-400);
+  --merged: var(--color-violet-400);
   --selection: #58553e;
 
   --pattern-fg: var(--color-neutral-700);
@@ -78,6 +82,8 @@
 @theme inline {
   --font-custom: var(--font-serif), serif;
   --font-custom2: var(--font-sans), sans-serif;
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1rem;
 
   --color-fg: var(--fg);
   --color-fg-body: var(--fg-body);
@@ -96,6 +102,8 @@
   --color-on-inverse: var(--on-inverse);
   --color-accent: var(--accent);
   --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-merged: var(--merged);
   --color-pattern: var(--pattern-fg);
 }
 
@@ -122,15 +130,11 @@ body {
   }
 
   .eyebrow {
-    @apply font-custom2 text-xs tracking-[0.14em] text-fg-subtle uppercase;
-  }
-
-  .callout {
-    @apply frame-dashed inline-block bg-surface-alt px-4 py-[7px] font-custom2 text-sm text-fg-body;
+    @apply font-custom2 text-xs font-medium text-fg-subtle;
   }
 
   .kbd {
-    @apply inline-flex items-center gap-1 rounded border border-line bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-fg-muted;
+    @apply inline-flex items-center gap-1 rounded border border-line bg-muted px-1.5 py-0.5 font-mono text-2xs font-medium text-fg-muted;
   }
 
   .title-link {
@@ -166,22 +170,6 @@ body {
   }
 }
 
-.link--elara {
-  position: relative;
-  overflow: hidden;
-}
-.link--elara::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 5px;
-  width: 93%;
-  height: 1px;
-  background: currentColor;
-  transform-origin: 50% 100%;
-  clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%, 100% 100%, 100% 0%);
-}
-
 @media (max-width: 767px) {
   .hit-44 {
     position: relative;
@@ -211,6 +199,9 @@ body {
 .prose :where(li):not(:where(.not-prose, .not-prose *)) {
   @apply text-fg-body leading-relaxed;
 }
+.prose :where(p, ul, ol):not(:where(.not-prose, .not-prose *)) {
+  @apply max-w-prose;
+}
 .prose :where(ul):not(:where(.not-prose, .not-prose *)),
 .prose :where(ol):not(:where(.not-prose, .not-prose *)) {
   @apply my-4 space-y-2;
@@ -221,16 +212,16 @@ body {
 .prose :where(h4):not(:where(.not-prose, .not-prose *)),
 .prose :where(h5):not(:where(.not-prose, .not-prose *)),
 .prose :where(h6):not(:where(.not-prose, .not-prose *)) {
-  @apply font-custom tracking-tight text-fg;
+  @apply font-custom font-normal tracking-tight text-balance text-fg;
 }
 .prose :where(strong):not(:where(.not-prose, .not-prose *)) {
   @apply font-semibold text-fg;
 }
 .prose :where(h2):not(:where(.not-prose, .not-prose *)) {
-  @apply mt-12 mb-4 text-2xl font-bold md:text-3xl;
+  @apply mt-12 mb-4 text-2xl md:text-3xl;
 }
 .prose :where(h3):not(:where(.not-prose, .not-prose *)) {
-  @apply mt-8 mb-3 text-xl font-semibold md:text-2xl;
+  @apply mt-8 mb-3 text-xl md:text-2xl;
 }
 .prose :where(a):not(:where(.not-prose, .not-prose *)) {
   @apply text-accent underline decoration-accent/30 underline-offset-2 transition-colors duration-200 hover:decoration-accent;
@@ -250,8 +241,8 @@ body {
 .prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *)) {
   @apply rounded border border-line bg-muted px-1.5 py-0.5 text-fg;
 }
-.prose :where(:not(pre) > code::before):not(:where(.not-prose, .not-prose *)),
-.prose :where(:not(pre) > code::after):not(:where(.not-prose, .not-prose *)) {
+.prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::before,
+.prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::after {
   content: none;
 }
 .prose :where([data-line]):not(:where(.not-prose, .not-prose *)) {

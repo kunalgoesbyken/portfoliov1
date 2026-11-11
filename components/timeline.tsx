@@ -3,8 +3,6 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { TechKey } from "@/lib/tech-icons";
 import { ExpandableItem } from "@/components/timeline-item";
-import { Heading } from "@/components/ui/heading";
-import Separator from "@/components/separator";
 
 interface ExperienceItem {
   company: string;
@@ -21,7 +19,7 @@ interface ExperienceItem {
 
 const CompanyLogo = ({ experience }: { experience: ExperienceItem }) => {
   const { company, logo, logoDark, logoWidth = 48, logoHeight = 48, href } = experience;
-  const className = "size-12 max-md:size-10 rounded-lg object-contain";
+  const className = "size-12 max-md:size-10 rounded-lg border border-line bg-surface-raised p-1.5 object-contain";
 
   const images = (
     <>
@@ -107,11 +105,8 @@ Tuned SQL pagination until retrieval felt instant.`,
   ];
 
   return (
-    <div className="max-w-4xl mx-auto mb-0">
-      <Heading className="py-2">Experiences</Heading>
-      <Separator fullWidth className="my-0.5" />
-
-      <div className="flex flex-col divide-y divide-dashed divide-line my-2">
+    <div className="mb-6">
+      <div className="flex flex-col divide-y divide-dashed divide-line">
         {experiences.map((exp) => (
           <ExpandableItem
             key={exp.company}
@@ -125,7 +120,7 @@ Tuned SQL pagination until retrieval felt instant.`,
 
                 <div className="flex flex-col md:flex-row md:justify-between flex-1 gap-2 md:gap-4 max-md:gap-0.5 max-md:pr-9 min-w-0">
                   <div className="flex flex-col gap-1">
-                    <h3 className="text-lg max-md:text-base font-bold text-fg font-custom tracking-wide">
+                    <h3 className="font-custom text-xl text-fg">
                       {exp.company}
                     </h3>
                     <p className="text-sm font-medium text-fg-muted font-custom2">
@@ -134,7 +129,7 @@ Tuned SQL pagination until retrieval felt instant.`,
                   </div>
 
                   <div className="flex items-center justify-between md:justify-end gap-4 mt-1 md:mt-0 max-md:mt-0">
-                    <span className="text-sm max-md:text-[13px] text-fg-subtle font-custom2 whitespace-nowrap">
+                    <span className="font-custom2 text-sm whitespace-nowrap text-fg-subtle">
                       {exp.date}
                     </span>
                     <div className="max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 text-fg-faint group-hover/row:text-fg transition-[color,rotate] duration-200 group-aria-expanded/row:rotate-180">

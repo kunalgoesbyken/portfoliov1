@@ -131,7 +131,7 @@ export function ContactForm() {
         label="Full name"
         type="text"
         autoComplete="name"
-        placeholder="Tyler Durden"
+        placeholder="Your name"
         error={errors.name}
       />
       <Field
@@ -139,7 +139,7 @@ export function ContactForm() {
         label="Email address"
         type="email"
         autoComplete="email"
-        placeholder="tyler@projectmayhem.com"
+        placeholder="you@company.com"
         error={errors.email}
       />
       <Field
@@ -147,7 +147,7 @@ export function ContactForm() {
         label="Message"
         multiline
         rows={5}
-        placeholder="You're crazy good, never change."
+        placeholder="What would you like to talk about?"
         error={errors.message}
         className="resize-none"
       />

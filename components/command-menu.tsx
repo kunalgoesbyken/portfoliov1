@@ -50,32 +50,32 @@ const COMMAND_GROUPS: { heading: string; commands: CommandDef[] }[] = [
   {
     heading: "Navigation",
     commands: [
-      { label: "Go to Home", key: "h", icon: LayoutDashboard, run: ({ go }) => go("/") },
-      { label: "Go to Projects", key: "p", icon: Code, run: ({ go }) => go("/projects") },
-      { label: "Go to Writing", key: "w", icon: FileText, run: ({ go }) => go("/blog") },
+      { label: "Go to home", key: "h", icon: LayoutDashboard, run: ({ go }) => go("/") },
+      { label: "Go to projects", key: "p", icon: Code, run: ({ go }) => go("/projects") },
+      { label: "Go to blog", key: "b", icon: FileText, run: ({ go }) => go("/blog") },
     ],
   },
   {
     heading: "Links",
     commands: [
-      { label: "X Profile", key: "x", icon: TwitterXIcon, run: ({ open }) => open(SOCIAL_LINKS.x) },
-      { label: "LinkedIn Profile", key: "l", icon: LinkedinIcon, run: ({ open }) => open(SOCIAL_LINKS.linkedin) },
-      { label: "GitHub Profile", key: "g", icon: GithubIcon, run: ({ open }) => open(SOCIAL_LINKS.github) },
-      { label: "Email", key: "e", icon: MailFilledIcon, run: ({ go }) => go("/contact") },
+      { label: "X profile", key: "x", icon: TwitterXIcon, run: ({ open }) => open(SOCIAL_LINKS.x) },
+      { label: "LinkedIn profile", key: "l", icon: LinkedinIcon, run: ({ open }) => open(SOCIAL_LINKS.linkedin) },
+      { label: "GitHub profile", key: "g", icon: GithubIcon, run: ({ open }) => open(SOCIAL_LINKS.github) },
+      { label: "Contact", key: "e", icon: MailFilledIcon, run: ({ go }) => go("/contact") },
     ],
   },
   {
     heading: "General",
     commands: [
-      { label: "Copy Link", key: "c", icon: Copy, run: () => navigator.clipboard.writeText(window.location.href) },
+      { label: "Copy link", key: "c", icon: Copy, run: () => navigator.clipboard.writeText(window.location.href) },
     ],
   },
   {
     heading: "Theme",
     commands: [
-      { label: "Light Mode", key: "t", icon: Sun, run: ({ setTheme }) => setTheme("light") },
-      { label: "Dark Mode", key: "d", icon: Moon, run: ({ setTheme }) => setTheme("dark") },
-      { label: "System", key: "s", icon: Laptop, run: ({ setTheme }) => setTheme("system") },
+      { label: "Light mode", key: "t", icon: Sun, run: ({ setTheme }) => setTheme("light") },
+      { label: "Dark mode", key: "d", icon: Moon, run: ({ setTheme }) => setTheme("dark") },
+      { label: "System theme", key: "s", icon: Laptop, run: ({ setTheme }) => setTheme("system") },
     ],
   },
 ];
@@ -122,7 +122,7 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
         </div>
       </div>
 
-      <CommandInput placeholder="Search for actions..." className="border-none font-custom2 focus:ring-0" />
+      <CommandInput placeholder="Search actions…" className="border-none font-custom2 focus:ring-0" />
 
       <CommandList className="p-2 font-custom2">
         <CommandEmpty>No results found.</CommandEmpty>
@@ -142,7 +142,7 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
         ))}
       </CommandList>
 
-      <div className="flex items-center justify-between border-t border-line bg-surface/50 px-4 py-3 text-[10px] text-fg-subtle">
+      <div className="flex items-center justify-between border-t border-line bg-surface/50 px-4 py-3 text-2xs text-fg-subtle">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <ArrowUp className="size-3" />

@@ -6,9 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, projectPath, type Project } from "@/lib/projects-data";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
-import { Heading } from "@/components/ui/heading";
+import { Section } from "@/components/ui/section";
 import { ShowMore } from "@/components/ui/show-more";
-import Separator from "@/components/separator";
 import { projectLinks, type ProjectLink } from "@/components/project-links";
 import { cn } from "@/lib/utils";
 import { IMAGE_QUALITY, LCP_IMAGE_PROPS } from "@/lib/image";
@@ -64,17 +63,17 @@ function CardBody({ project }: { project: Project }) {
   return (
     <div className="flex min-w-0 flex-grow flex-col max-md:p-3">
       <div className="mb-1 flex items-center justify-between gap-3 md:mb-2">
-        <h2 className="flex min-w-0 font-custom text-base font-semibold text-fg md:text-lg">
+        <h3 className="flex min-w-0 font-custom text-xl text-fg">
           <Link href={projectPath(project.slug)} className="title-link truncate outline-none max-md:-my-2.5 max-md:py-2.5">
             {project.title}
           </Link>
-        </h2>
+        </h3>
         <LinkIcons name={project.title} links={links} variant="desktop" />
       </div>
-      <p className="mb-3 max-w-[68ch] font-custom2 text-xs leading-relaxed text-fg-muted max-md:line-clamp-3 md:mb-4 md:text-sm md:tracking-wide">
+      <p className="mb-3 max-w-prose font-custom2 text-xs leading-relaxed text-fg-muted max-md:line-clamp-3 md:mb-4 md:text-sm">
         {project.description}
       </p>
-      <p className="mt-auto mb-2 font-custom2 text-xs font-medium text-fg-subtle max-md:hidden">Tech Stack</p>
+      <p className="mt-auto mb-2 font-custom2 text-xs font-medium text-fg-subtle max-md:hidden">Tech stack</p>
       <div className="max-md:mt-auto">
         <TechIconTooltip tech={project.tech} scope={project.title} />
       </div>
@@ -123,27 +122,21 @@ export default function Projects({ full = false }: { full?: boolean }) {
   const hiddenCount = DEPLOYED_PROJECTS.length + OPEN_SOURCE_PROJECTS.length - PREVIEW_COUNT;
 
   return (
-    <div className="mt-6 md:mt-8">
-      <p className="callout mt-3 max-md:hidden">I love crafting production-grade software that solves real problems.</p>
-
-      <div className={cn(MOBILE_GRID, "py-5 md:gap-x-8 md:gap-y-10 md:py-7")}>
+    <div>
+      <div className={cn(MOBILE_GRID, "pb-6 md:gap-x-8 md:gap-y-10 md:pb-8")}>
         {deployed.map((project, idx) => (
           <ProjectCard key={project.slug} project={project} layout="featured" priority={idx === 0} />
         ))}
       </div>
 
       {expanded && (
-        <div className="mt-2">
-          <Heading size="md" className="py-2">
-            More Projects
-          </Heading>
-          <Separator fullWidth className="my-0.5" />
-          <div className={cn(MOBILE_GRID, "my-4 md:my-2 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-line md:[&>*]:py-5")}>
+        <Section title="More projects" as="h3" size="md">
+          <div className={cn(MOBILE_GRID, "mb-4 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-line md:[&>*]:py-5 md:[&>:first-child]:pt-0")}>
             {OPEN_SOURCE_PROJECTS.map((project) => (
               <ProjectCard key={project.slug} project={project} layout="row" />
             ))}
           </div>
-        </div>
+        </Section>
       )}
 
       {!full && (

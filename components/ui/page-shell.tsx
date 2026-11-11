@@ -14,7 +14,7 @@ export default function PageShell({
     <div className="overflow-x-clip">
       <Container
         className={cn(
-          "min-h-screen px-6 pt-20 sm:px-10 md:p-20 md:pb-10",
+          "min-h-screen px-6 pt-20 [--bleed:0.75rem] sm:px-10 sm:[--bleed:1.75rem] md:p-20 md:pb-10 md:[--bleed:3.5rem]",
           className,
         )}
       >

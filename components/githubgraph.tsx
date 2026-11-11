@@ -4,9 +4,8 @@ import { useState, cloneElement } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import type { Activity, BlockElement } from "react-activity-calendar";
-import Separator from "@/components/separator";
 import MountOnVisible from "@/components/ui/mount-on-visible";
-import { Heading } from "@/components/ui/heading";
+import { Section } from "@/components/ui/section";
 import { ShowMore } from "@/components/ui/show-more";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { GithubData, Organization, PRState } from "@/lib/github";
@@ -41,9 +40,9 @@ type PRFilter = keyof typeof PR_FILTERS;
 const PR_FILTER_OPTIONS = (Object.keys(PR_FILTERS) as PRFilter[]).map((value) => ({ value, label: PR_FILTERS[value].label }));
 
 const PR_STATE_DOT: Record<PRState, string> = {
-  MERGED: "from-purple-400 to-pink-400",
-  OPEN: "from-green-400 to-emerald-400",
-  CLOSED: "from-red-400 to-rose-400",
+  MERGED: "bg-merged",
+  OPEN: "bg-success",
+  CLOSED: "bg-danger",
 };
 
 const withTooltip = (block: BlockElement, activity: Activity) =>
@@ -64,7 +63,7 @@ const OrganizationChips = ({ organizations }: { organizations: Organization[] })
 
   return (
     <div className="mt-6">
-      <p className="mb-2 font-custom2 text-xs text-fg-muted">Contributed to</p>
+      <p className="mb-2 eyebrow">Contributed to</p>
       <ul className="flex flex-wrap gap-2">
         {visible.map((org) => (
           <li key={org.login}>
@@ -118,24 +117,22 @@ const PullRequests = ({ prs }: { prs: GithubData["prs"] }) => {
   const visible = showAll ? filtered : filtered.slice(0, PR_PREVIEW_COUNT);
 
   return (
-    <div className="mt-4">
-      <div className="mb-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Heading as="h3" size="md">
-          Pull Requests
-        </Heading>
-        <SegmentedControl label="Filter pull requests by status" options={PR_FILTER_OPTIONS} value={filterType} onChange={setFilterType} />
-      </div>
-      <p className="mb-4 font-custom2 text-xs text-fg-muted">{activeFilter.description}</p>
-      <Separator fullWidth />
-
+    <Section
+      as="h3"
+      size="md"
+      title="Pull requests"
+      description={activeFilter.description}
+      action={<SegmentedControl label="Filter pull requests by status" options={PR_FILTER_OPTIONS} value={filterType} onChange={setFilterType} />}
+      className="mt-10"
+    >
       {filtered.length === 0 ? (
-        <p className="mt-4 font-custom2 text-sm text-fg-muted">No pull requests found</p>
+        <p className="font-custom2 text-sm text-fg-muted">No pull requests found</p>
       ) : (
         <>
-          <ul className="mt-3 divide-y divide-dashed divide-line">
+          <ul className="divide-y divide-dashed divide-line [&>:first-child]:pt-0">
             {visible.map((pr) => (
               <li key={pr.id} className="group flex items-start gap-3 py-3">
-                <span aria-hidden="true" className={`mt-2 size-1 shrink-0 rounded-full bg-gradient-to-r ${PR_STATE_DOT[pr.state]}`} />
+                <span aria-hidden="true" className={`mt-2 size-1.5 shrink-0 rounded-full ${PR_STATE_DOT[pr.state]}`} />
                 <a href={pr.url} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 max-md:py-1">
                   <span className="title-link block truncate text-sm font-medium text-fg">{pr.title}</span>
                   <span className="mt-0.5 block font-custom2 text-xs text-fg-subtle">{pr.repository.nameWithOwner}</span>
@@ -151,21 +148,16 @@ const PullRequests = ({ prs }: { prs: GithubData["prs"] }) => {
           />
         </>
       )}
-    </div>
+    </Section>
   );
 };
 
 const GithubGraph = ({ data }: GithubGraphProps) => (
-  <section>
-    <Separator fullWidth />
-    <Heading className="py-2">Proof Of Work</Heading>
-    <Separator className="my-0.5" />
-    <p className="callout mt-3 mb-6">building real tools, solving real problems, and leaving a trail of commits to prove it.</p>
-
+  <>
     {data.contributions.length > 0 && <ContributionCalendar contributions={data.contributions} />}
     <OrganizationChips organizations={data.organizations} />
     <PullRequests prs={data.prs} />
-  </section>
+  </>
 );
 
 export default GithubGraph;

@@ -42,11 +42,9 @@ export const SOCIALS = {
   },
 } satisfies Record<string, Social>;
 
-export const PROFILE_SOCIALS: Social[] = [
-  SOCIALS.github,
-  SOCIALS.x,
-  SOCIALS.linkedin,
-];
+export const ALL_SOCIALS: Social[] = Object.values(SOCIALS);
+
+export const PROFILE_SOCIALS: Social[] = [SOCIALS.github, SOCIALS.linkedin, SOCIALS.x];
 
 const externalProps = { target: "_blank", rel: "noopener noreferrer" } as const;
 

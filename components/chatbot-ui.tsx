@@ -226,7 +226,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
           <div className="border-line bg-muted flex flex-none items-center justify-between border-b px-4 py-3">
             <div className="flex items-center gap-2">
               <Avatar />
-              <h2 className="font-custom text-fg text-sm font-semibold">
+              <h2 className="text-fg text-sm font-semibold">
                 Ask about Kunal
               </h2>
             </div>
@@ -264,7 +264,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                   <div className="flex h-full flex-col items-center justify-center space-y-3 text-center">
                     <Avatar size="lg" />
                     <div>
-                      <p className="font-custom text-fg text-sm font-medium">
+                      <p className="text-fg text-sm font-medium">
                         Hey, I&apos;m Kunal&apos;s AI assistant
                       </p>
                       <p className="font-custom2 text-fg-subtle mt-1 max-w-[200px] text-xs">
@@ -307,9 +307,9 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                         role="status"
                         aria-label="Thinking"
                       >
-                        <span className="bg-fg-faint size-2 animate-bounce rounded-full [animation-delay:-0.3s]" />
-                        <span className="bg-fg-faint size-2 animate-bounce rounded-full [animation-delay:-0.15s]" />
-                        <span className="bg-fg-faint size-2 animate-bounce rounded-full" />
+                        <span className="bg-fg-faint size-2 animate-pulse rounded-full motion-reduce:animate-none [animation-delay:-0.3s]" />
+                        <span className="bg-fg-faint size-2 animate-pulse rounded-full motion-reduce:animate-none [animation-delay:-0.15s]" />
+                        <span className="bg-fg-faint size-2 animate-pulse rounded-full motion-reduce:animate-none" />
                       </span>
                     )}
                   </MessageRow>
@@ -328,7 +328,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask anything..."
+                    placeholder="Ask anything…"
                     aria-label="Message"
                     disabled={isLoading}
                     className="bg-muted font-custom2 text-fg placeholder:text-fg-subtle focus:ring-line-strong flex-1 rounded-xl border-0 px-4 py-2.5 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
@@ -342,7 +342,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                     <Send className="size-4" />
                   </button>
                 </div>
-                <p className="font-custom2 text-fg-subtle mt-2 text-center text-[10px]">
+                <p className="font-custom2 text-fg-subtle mt-2 text-center text-2xs">
                   Press <kbd className="kbd">⌘</kbd> +{" "}
                   <kbd className="kbd">I</kbd> to toggle
                 </p>

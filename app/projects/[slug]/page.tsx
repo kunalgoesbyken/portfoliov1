@@ -39,7 +39,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
       <CaseStudyHeader project={project} meta={meta} />
       <StatStrip stats={meta.stats} />
       <Gallery items={meta.gallery} />
-      <article className="prose max-w-none font-custom2 tracking-normal">
+      <article className="prose max-w-none font-custom2">
         <MDXRemote
           source={content}
           components={CASE_STUDY_COMPONENTS}

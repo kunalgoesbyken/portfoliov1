@@ -1,7 +1,7 @@
 import PageShell from "@/components/ui/page-shell";
 import { Heading } from "@/components/ui/heading";
+import { Section } from "@/components/ui/section";
 import Socials from "@/components/socials";
-import Separator from "@/components/separator";
 import Projects from "@/components/projects";
 import Timeline from "@/components/timeline";
 import GithubGraph from "@/components/githubgraph";
@@ -9,8 +9,6 @@ import LazySkills from "@/components/lazy-skills";
 import GetInTouch from "@/components/get-in-touch";
 import { getGithubData } from "@/lib/github";
 import { SITE_NAME, SITE_TAGLINES } from "@/lib/site";
-
-const DICE = ["⚀", "⚁", "⚂"];
 
 export default async function Home() {
   const githubData = await getGithubData();
@@ -22,33 +20,31 @@ export default async function Home() {
         <Socials />
       </div>
 
-      <div className="mt-1 font-custom2 max-md:mt-3 max-md:space-y-1.5 max-md:text-[15px] max-md:leading-snug">
-        {SITE_TAGLINES.map((line, i) => (
-          <p key={line}>
-            <span aria-hidden="true" className="font-semibold text-fg">{DICE[i]} </span>
-            <span className="text-fg-body">{line}</span>
-          </p>
+      <ul className="mt-3 mb-10 space-y-1 font-custom2 text-base text-fg-body">
+        {SITE_TAGLINES.map((line) => (
+          <li key={line}>{line}</li>
         ))}
-      </div>
+      </ul>
 
-      <Separator fullWidth className="my-3" />
-      <div className="mt-5 border-t border-dashed border-line-strong md:hidden" />
+      <Section title="Projects">
+        <Projects />
+      </Section>
 
-      <Projects />
+      <Section title="Experience" className="defer-render">
+        <Timeline />
+      </Section>
 
-      <Separator />
+      <Section title="Proof of work" className="defer-render">
+        <GithubGraph data={githubData} />
+      </Section>
 
-      <div className="defer-render"><Timeline /></div>
+      <Section title="Skills" className="defer-render">
+        <LazySkills />
+      </Section>
 
-      <div className="defer-render"><GithubGraph data={githubData} /></div>
-
-      <Separator className="mt-12" />
-
-      <div className="defer-render"><LazySkills /></div>
-
-      <Separator className="mt-4" />
-
-      <div className="defer-render"><GetInTouch /></div>
+      <Section title="Get in touch" description="I'm currently open to meaningful work." className="defer-render">
+        <GetInTouch />
+      </Section>
     </PageShell>
   );
 }

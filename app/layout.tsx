@@ -16,7 +16,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 const instrumentSans = Instrument_Sans({
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
   display: "swap",
   variable: "--font-sans",

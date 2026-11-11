@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SiMedium } from "react-icons/si";
 import PageShell from "@/components/ui/page-shell";
-import { Heading, Lede } from "@/components/ui/heading";
-import Separator from "@/components/separator";
+import { Heading } from "@/components/ui/heading";
+import { Section } from "@/components/ui/section";
 import { getAllBlogs } from "@/util/mdx_clean";
 import { formatDate } from "@/lib/utils";
 
@@ -18,14 +18,12 @@ export default async function BlogIndex() {
 
   return (
     <PageShell>
-      <Heading as="h1">All blogs</Heading>
-      <Lede className="mt-1 mb-3 max-w-xl leading-relaxed">
-        I am a software engineer with a passion for building scalable and efficient systems. I spend my days crafting
-        backend infrastructure while tinkering with ideas after hours.
-      </Lede>
-      <Separator />
+      <Heading as="h1" className="mb-10">
+        Blog
+      </Heading>
 
-      <div className="mt-3 flex flex-col divide-y divide-dashed divide-line">
+      <Section>
+        <div className="flex flex-col divide-y divide-dashed divide-line [&>:first-child]:pt-0">
         {posts.map((p) => (
           <Link
             key={p.slug}
@@ -35,11 +33,11 @@ export default async function BlogIndex() {
           >
             <div className="min-w-0 flex-1">
               <div className="mb-1.5 flex items-center gap-3">
-                <h2 className="title-link font-custom text-lg font-bold text-fg md:text-xl">{p.title ?? p.slug}</h2>
+                <h2 className="title-link font-custom text-xl text-fg md:text-2xl">{p.title ?? p.slug}</h2>
                 {p.externalUrl && <SiMedium aria-label="On Medium" className="size-4 shrink-0 text-fg-faint" />}
               </div>
               {p.description && (
-                <p className="line-clamp-2 max-w-2xl font-custom2 text-sm leading-relaxed text-fg-muted">{p.description}</p>
+                <p className="line-clamp-2 max-w-prose font-custom2 text-sm leading-relaxed text-fg-muted">{p.description}</p>
               )}
             </div>
 
@@ -49,7 +47,8 @@ export default async function BlogIndex() {
             </div>
           </Link>
         ))}
-      </div>
+        </div>
+      </Section>
     </PageShell>
   );
 }

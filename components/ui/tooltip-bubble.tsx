@@ -17,7 +17,7 @@ export function TooltipBubble({
         top ? "bottom-full mb-2" : "top-full mt-0.5",
       )}
     >
-      <span className="border-line-strong bg-muted font-custom2 text-fg relative block rounded-md border px-2 py-1 text-[10px] font-medium whitespace-nowrap shadow-lg">
+      <span className="border-line-strong bg-muted font-custom2 text-fg relative block rounded-md border px-2 py-1 text-2xs font-medium whitespace-nowrap shadow-lg">
         {children}
         <span
           aria-hidden="true"
