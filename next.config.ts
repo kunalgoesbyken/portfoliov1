@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     qualities: IMAGE_QUALITIES,
   },
+  async redirects() {
+    return [{ source: "/contact", destination: "/", permanent: true }];
+  },
   experimental: {
     inlineCss: false,
     optimizePackageImports: [

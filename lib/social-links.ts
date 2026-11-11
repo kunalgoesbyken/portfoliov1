@@ -8,4 +8,5 @@ export const SOCIAL_LINKS = {
   x: "https://x.com/kunalgoesbyken",
   email: `mailto:${CONTACT_EMAIL}`,
   resume: "/resume.pdf",
+  booking: "https://cal.com/kunal-tewc6n",
 } as const;

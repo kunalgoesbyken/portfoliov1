@@ -13,13 +13,13 @@ import { SITE_SHORT_NAME } from "@/lib/site";
 const NAV_ITEMS = [
   { title: "Projects", href: "/projects" },
   { title: "Blog", href: "/blog" },
-  { title: "Contact", href: "/contact" },
 ];
 
 const SCROLL_THRESHOLD = 20;
 
 const isActive = (pathname: string | null, href: string) =>
-  !!pathname && (pathname === href || (href !== "/" && pathname.startsWith(href)));
+  !!pathname &&
+  (pathname === href || (href !== "/" && pathname.startsWith(href)));
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -29,34 +29,40 @@ export default function Navbar() {
     <Container>
       <nav
         aria-label="Main navigation"
+        data-chaos
         className={cn(
-          "fixed top-0 right-0 left-0 z-50 mx-auto flex max-w-4xl origin-top items-center justify-between gap-4 rounded-[2.5rem] bg-surface/80 px-4 py-3 font-custom text-fg backdrop-blur-lg transition-[translate,scale] duration-300 ease-out motion-reduce:transition-none md:gap-8 md:px-6",
-          "max-md:rounded-none max-md:border-b max-md:border-line max-md:bg-surface/90 max-md:px-3 max-md:py-1.5 max-md:pt-[max(0.375rem,env(safe-area-inset-top))]",
-          scrolled && "md:-translate-y-1 md:scale-y-95 motion-reduce:!translate-y-0 motion-reduce:!scale-y-100",
+          "bg-surface/80 font-custom text-fg fixed top-0 right-0 left-0 z-50 mx-auto flex max-w-4xl origin-top items-center justify-between gap-4 rounded-[2.5rem] px-4 py-3 backdrop-blur-lg transition-[translate,scale] duration-300 ease-out motion-reduce:transition-none md:gap-8 md:px-6",
+          "max-md:border-line max-md:bg-surface/90 max-md:rounded-none max-md:border-b max-md:px-3 max-md:py-1.5 max-md:pt-[max(0.375rem,env(safe-area-inset-top))]",
+          scrolled &&
+            "motion-reduce:!translate-y-0 motion-reduce:!scale-y-100 md:-translate-y-1 md:scale-y-95",
         )}
       >
         <div
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute inset-0 -z-10 rounded-[2.5rem] shadow-[var(--shadow-input)] transition-opacity duration-300 ease-out max-md:hidden motion-reduce:hidden",
+            "pointer-events-none absolute inset-0 -z-10 rounded-[2.5rem] shadow-[var(--shadow-input)] transition-opacity duration-300 ease-out motion-reduce:hidden max-md:hidden",
             scrolled ? "opacity-100" : "opacity-0",
           )}
         />
 
-        <Link href="/" aria-label={pathname === "/" ? "Home" : `${SITE_SHORT_NAME}, home`} className="group/home flex items-center gap-2.5 outline-none max-md:p-1">
-          <Image
-            className="size-9 rounded-full ring-1 ring-line transition-[scale,box-shadow] duration-200 ease-out group-hover/home:scale-105 group-hover/home:ring-2 group-hover/home:ring-fg-faint group-focus-visible/home:ring-2 group-focus-visible/home:ring-fg-faint motion-reduce:transition-none md:size-10"
-            src="/images/kunal-sm.jpg"
-            width={100}
-            height={100}
-            alt=""
-          />
-          {pathname !== "/" && (
-            <span className="title-link text-base text-fg-muted transition-colors md:text-lg group-hover/home:text-fg group-hover/home:underline group-focus-visible/home:underline max-[359px]:hidden">
+        {pathname !== "/" && (
+          <Link
+            href="/"
+            aria-label={`${SITE_SHORT_NAME}, home`}
+            className="group/home flex items-center gap-2.5 outline-none max-md:p-1"
+          >
+            <Image
+              className="ring-line group-hover/home:ring-fg-faint group-focus-visible/home:ring-fg-faint size-9 rounded-full ring-1 transition-[scale,box-shadow] duration-200 ease-out group-hover/home:scale-105 group-hover/home:ring-2 group-focus-visible/home:ring-2 motion-reduce:transition-none md:size-10"
+              src="/images/kunal-sm.jpg"
+              width={100}
+              height={100}
+              alt=""
+            />
+            <span className="title-link text-fg-muted group-hover/home:text-fg text-base transition-colors group-hover/home:underline group-focus-visible/home:underline max-[359px]:hidden md:text-lg">
               {SITE_SHORT_NAME}
             </span>
-          )}
-        </Link>
+          </Link>
+        )}
 
         <div className="relative ml-auto flex items-center justify-end gap-2 max-md:gap-0">
           {NAV_ITEMS.map((item) => {
@@ -67,7 +73,7 @@ export default function Navbar() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "group/nav relative px-3 py-1.5 text-base transition-colors md:text-lg max-md:min-w-11 max-md:px-2.5 max-md:py-3 max-md:text-center",
+                  "group/nav relative px-3 py-1.5 text-base transition-colors max-md:min-w-11 max-md:px-2.5 max-md:py-3 max-md:text-center md:text-lg",
                   active ? "text-fg" : "text-fg-muted hover:text-fg",
                 )}
               >
@@ -76,14 +82,19 @@ export default function Navbar() {
                   aria-hidden="true"
                   className={cn(
                     "absolute right-3 -bottom-1 left-3 h-px transition-opacity duration-200 motion-reduce:transition-none max-md:right-2.5 max-md:bottom-1.5 max-md:left-2.5",
-                    active ? "bg-fg" : "bg-fg-faint opacity-0 group-hover/nav:opacity-100",
+                    active
+                      ? "bg-fg"
+                      : "bg-fg-faint opacity-0 group-hover/nav:opacity-100",
                   )}
                 />
               </Link>
             );
           })}
 
-          <div aria-hidden="true" className="mx-1 h-5 w-px bg-line-strong/50 max-md:mx-0.5" />
+          <div
+            aria-hidden="true"
+            className="bg-line-strong/50 mx-1 h-5 w-px max-md:mx-0.5"
+          />
 
           <div className="relative p-1 max-md:p-0">
             <ThemeToggle className="max-md:size-11" />

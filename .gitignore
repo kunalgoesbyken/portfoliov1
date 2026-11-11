@@ -43,3 +43,5 @@ next-env.d.ts
 # Claude
 CLAUDE.md
 
+
+.playwright-mcp/

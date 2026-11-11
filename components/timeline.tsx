@@ -3,11 +3,13 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { TechKey } from "@/lib/tech-icons";
 import { ExpandableItem } from "@/components/timeline-item";
+import { SITE_LOCATION } from "@/lib/site";
 
 interface ExperienceItem {
   company: string;
   designation: string;
   date: string;
+  location: string;
   description: string;
   logo: string;
   logoDark?: string;
@@ -57,6 +59,7 @@ export const Timeline = () => {
       company: "FinStocks AI",
       designation: "Lead Software Engineer",
       date: "March 2026 - Present",
+      location: SITE_LOCATION,
       description: `I was the first hire. Now I lead a team of 3, and we built the thing that turns "buy when RSI dips under 30" into a strategy you can actually backtest.
 The LLM never touches the math. It just fills out a typed spec (185 indicators, 148 patterns) and a compiler takes it from there. Same spec, same result, every time.
 Backtests chew through the whole stock universe in one pass with Numba-JIT kernels, and only read the Parquet columns a strategy actually needs.
@@ -73,6 +76,7 @@ Market-data queries went from 13.6s to 48-135ms, and another one from 5.9s to 78
       company: "Indian Kanoon",
       designation: "Software Developer",
       date: "April 2025 - Feb 2026",
+      location: SITE_LOCATION,
       description: `Built <a href="https://indiankanoon.org/prism/" target="_blank" rel="noopener noreferrer" class="underline hover:text-fg-muted transition-colors">Prism</a> from scratch. It's AI that reads case law and legal documents at scale.
 Got it handling 5,000+ concurrent users.`,
       logo: "/images/logos/kanoon-light.png",
@@ -84,6 +88,7 @@ Got it handling 5,000+ concurrent users.`,
       company: "Chargebee",
       designation: "Software Engineer Intern",
       date: "Sept 2024 - April 2025",
+      location: SITE_LOCATION,
       description: `Led a big data migration and a round of database tuning.
 Moved 2 million records and cut query time by 45%.
 Built a validation layer that caught bad data before it reached 500k subscriptions.`,
@@ -95,6 +100,7 @@ Built a validation layer that caught bad data before it reached 500k subscriptio
       company: "AiDash",
       designation: "Software Engineer Intern",
       date: "Jan 2024 - Sept 2024",
+      location: SITE_LOCATION,
       description: `Designed APIs and data retrieval frameworks built to scale.
 Broke a monolith into microservices.
 Tuned SQL pagination until retrieval felt instant.`,
@@ -129,9 +135,14 @@ Tuned SQL pagination until retrieval felt instant.`,
                   </div>
 
                   <div className="flex items-center justify-between md:justify-end gap-4 mt-1 md:mt-0 max-md:mt-0">
-                    <span className="font-custom2 text-sm whitespace-nowrap text-fg-subtle">
-                      {exp.date}
-                    </span>
+                    <div className="flex flex-col gap-0.5 md:items-end md:gap-1">
+                      <span className="font-custom2 text-sm whitespace-nowrap text-fg-subtle">
+                        {exp.date}
+                      </span>
+                      <span className="font-custom2 text-xs whitespace-nowrap text-fg-subtle">
+                        {exp.location}
+                      </span>
+                    </div>
                     <div className="max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 text-fg-faint group-hover/row:text-fg transition-[color,rotate] duration-200 group-aria-expanded/row:rotate-180">
                       <ChevronDown size={16} />
                     </div>
