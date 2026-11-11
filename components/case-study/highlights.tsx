@@ -9,7 +9,7 @@ export function Highlight({ title, result, children }: { title: string; result?:
   return (
     <article className="grid gap-x-8 gap-y-2 py-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
       <div>
-        <h3 className="font-custom text-xl leading-snug text-fg">{title}</h3>
+        <h3 className="font-custom text-xl leading-snug font-bold text-fg">{title}</h3>
         {result && <p className="mt-2 font-custom2 text-base md:text-sm font-medium md:font-normal leading-snug text-accent">{result}</p>}
       </div>
       <HighlightBody>{children}</HighlightBody>

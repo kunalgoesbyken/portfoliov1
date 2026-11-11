@@ -63,7 +63,7 @@ function CardBody({ project }: { project: Project }) {
   return (
     <div className="flex min-w-0 flex-grow flex-col max-md:p-3">
       <div className="mb-1 flex items-center justify-between gap-3 md:mb-2">
-        <h3 className="flex min-w-0 font-custom text-base font-semibold text-fg md:text-lg">
+        <h3 className="flex min-w-0 font-custom text-base font-bold text-fg md:text-lg">
           <Link href={projectPath(project.slug)} className="title-link truncate outline-none max-md:-my-2.5 max-md:py-2.5">
             {project.title}
           </Link>

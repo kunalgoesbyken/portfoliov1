@@ -221,7 +221,7 @@ body {
   @apply mt-12 mb-4 text-2xl font-bold md:text-3xl;
 }
 .prose :where(h3):not(:where(.not-prose, .not-prose *)) {
-  @apply mt-8 mb-3 text-xl font-semibold md:text-2xl;
+  @apply mt-8 mb-3 text-xl font-bold md:text-2xl;
 }
 .prose :where(a):not(:where(.not-prose, .not-prose *)) {
   @apply text-accent underline decoration-accent/30 underline-offset-2 transition-colors duration-200 hover:decoration-accent;

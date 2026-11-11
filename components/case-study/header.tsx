@@ -36,7 +36,7 @@ export function CaseStudyHeader({ project, meta }: { project: Project; meta: Cas
         <ArrowLeft size={14} aria-hidden="true" /> All projects
       </Link>
       <p className="mt-8 eyebrow">{category}</p>
-      <Heading as="h1" size="display" className="mt-2 font-normal">
+      <Heading as="h1" size="display" className="mt-2">
         {project.title}
       </Heading>
       <p className="mt-4 max-w-prose font-custom2 text-base md:text-lg leading-relaxed text-fg-body">{summary}</p>

@@ -20,7 +20,7 @@ function PagerLink({ project, direction }: { project: Project; direction: "previ
         {isNext ? "Next project" : "Previous project"}
         {isNext && <ArrowRight size={12} aria-hidden="true" />}
       </span>
-      <span className="title-link font-custom text-xl md:text-2xl text-fg">{project.title}</span>
+      <span className="title-link font-custom text-xl font-bold text-fg md:text-2xl">{project.title}</span>
     </Link>
   );
 }

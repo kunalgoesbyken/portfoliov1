@@ -52,7 +52,7 @@ export default function Navbar() {
             alt=""
           />
           {pathname !== "/" && (
-            <span className="title-link text-sm font-medium text-fg-muted transition-colors group-hover/home:text-fg group-hover/home:underline group-focus-visible/home:underline max-[359px]:hidden">
+            <span className="title-link text-base text-fg-muted transition-colors md:text-lg group-hover/home:text-fg group-hover/home:underline group-focus-visible/home:underline max-[359px]:hidden">
               {SITE_SHORT_NAME}
             </span>
           )}
@@ -67,7 +67,7 @@ export default function Navbar() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "group/nav relative px-3 py-1.5 text-sm font-medium transition-colors max-md:min-w-11 max-md:px-2.5 max-md:py-3 max-md:text-center",
+                  "group/nav relative px-3 py-1.5 text-base transition-colors md:text-lg max-md:min-w-11 max-md:px-2.5 max-md:py-3 max-md:text-center",
                   active ? "text-fg" : "text-fg-muted hover:text-fg",
                 )}
               >

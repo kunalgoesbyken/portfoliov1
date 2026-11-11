@@ -81,15 +81,28 @@ export default function Chatbot() {
     };
   }, [revealButton]);
 
-  const handleOpenChat = () => {
+  const handleOpenChat = useCallback(() => {
     setHasOpened(true);
     setIsOpen(true);
     setShowTooltip(false);
-  };
+  }, []);
 
-  const handleCloseChat = () => {
+  const handleCloseChat = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "i") {
+        e.preventDefault();
+        if (isOpen) handleCloseChat();
+        else handleOpenChat();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, handleOpenChat, handleCloseChat]);
 
   return (
     <MotionScope>

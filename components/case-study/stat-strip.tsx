@@ -7,7 +7,7 @@ export function StatStrip({ stats }: { stats: Stat[] }) {
       {stats.map((stat) => (
         <div key={stat.label} className="flex flex-col gap-1.5 border-l border-line pl-4 pr-3">
           <dt className="order-2 font-custom2 text-xs leading-snug text-fg-subtle">{stat.label}</dt>
-          <dd className="order-1 font-custom text-3xl md:text-4xl tracking-tight text-fg">{stat.value}</dd>
+          <dd className="order-1 font-custom text-3xl font-bold tracking-tight text-fg md:text-4xl">{stat.value}</dd>
         </div>
       ))}
     </dl>
