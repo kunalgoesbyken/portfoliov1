@@ -5,51 +5,44 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, projectPath, type Project } from "@/lib/projects-data";
-import type { TechKey } from "@/lib/tech-icons";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
+import { Heading } from "@/components/ui/heading";
+import { ShowMore } from "@/components/ui/show-more";
+import Separator from "@/components/separator";
 import { projectLinks, type ProjectLink } from "@/components/project-links";
+import { cn } from "@/lib/utils";
+import { IMAGE_QUALITY, LCP_IMAGE_PROPS } from "@/lib/image";
 
-const TITLE_ACTION_CLASS =
-  "title-link truncate max-md:py-2.5 max-md:-my-2.5 cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] text-inherit outline-none";
+const PREVIEW_COUNT = 2;
+
+const MOBILE_GRID = "grid grid-cols-2 gap-3 max-md:[&>:last-child:nth-child(odd)]:col-span-2";
 
 const MEDIA_FRAME_CLASS =
-  "relative w-full aspect-video overflow-hidden shrink-0 md:rounded-lg md:border md:border-neutral-200 md:dark:border-neutral-800 md:transition-[translate,border-color] md:duration-200 md:group-hover:-translate-y-0.5 md:group-hover:border-neutral-400 md:dark:group-hover:border-neutral-600 motion-reduce:transition-none";
+  "relative aspect-video w-full shrink-0 overflow-hidden motion-reduce:transition-none md:rounded-lg md:border md:border-line md:transition-[translate,border-color] md:duration-200 md:group-hover:-translate-y-0.5 md:group-hover:border-line-hover";
 
-const DESKTOP_LINK_CLASS = "icon-btn-ghost";
+const LINK_CLASS = {
+  desktop: "icon-btn-ghost",
+  mobile: "frame-dashed inline-flex size-11 items-center justify-center text-fg-body transition-colors hover:border-line-hover",
+};
 
-const MOBILE_LINK_CLASS =
-  "frame-dashed inline-flex size-11 items-center justify-center text-neutral-700 dark:text-neutral-300 transition-colors hover:border-neutral-500 dark:hover:border-neutral-400";
-
-function CardShell({ onActivate, children }: { onActivate: () => void; children: ReactNode }) {
+function CardShell({ href, children }: { href: string; children: ReactNode }) {
+  const router = useRouter();
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("a, button")) return;
     if (window.getSelection()?.toString()) return;
-    onActivate();
+    router.push(href);
   };
 
   return (
-    <div
-      onClick={handleClick}
-      className="group flex flex-col h-full min-w-0 cursor-pointer max-md:overflow-hidden max-md:frame-dashed"
-    >
+    <div onClick={handleClick} className="group flex h-full min-w-0 cursor-pointer flex-col max-md:overflow-hidden max-md:frame-dashed">
       {children}
     </div>
   );
 }
 
-function LinkIcons({
-  name,
-  links,
-  className,
-  linkClassName,
-}: {
-  name: string;
-  links: ProjectLink[];
-  className: string;
-  linkClassName: string;
-}) {
+function LinkIcons({ name, links, variant }: { name: string; links: ProjectLink[]; variant: keyof typeof LINK_CLASS }) {
   return (
-    <div className={className}>
+    <div className={variant === "desktop" ? "hidden gap-3 md:flex" : "flex gap-2 pt-3 md:hidden"}>
       {links.map((link) => (
         <a
           key={link.href}
@@ -57,7 +50,7 @@ function LinkIcons({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${link.label} for ${name}`}
-          className={linkClassName}
+          className={LINK_CLASS[variant]}
         >
           {link.icon}
         </a>
@@ -66,166 +59,102 @@ function LinkIcons({
   );
 }
 
-function CardContent({
-  name,
-  title,
-  description,
-  tech,
-  links,
-}: {
-  name: string;
-  title: ReactNode;
-  description: string;
-  tech: TechKey[];
-  links: ProjectLink[];
-}) {
+function CardBody({ project }: { project: Project }) {
+  const links = projectLinks(project);
   return (
-    <div className="flex flex-col flex-grow min-w-0 max-md:p-3">
-      <div className="flex items-center justify-between gap-3 mb-1 md:mb-2">
-        <h2 className="flex min-w-0 text-base md:text-lg font-custom font-semibold text-neutral-900 dark:text-neutral-50">
-          {title}
+    <div className="flex min-w-0 flex-grow flex-col max-md:p-3">
+      <div className="mb-1 flex items-center justify-between gap-3 md:mb-2">
+        <h2 className="flex min-w-0 font-custom text-base font-semibold text-fg md:text-lg">
+          <Link href={projectPath(project.slug)} className="title-link truncate outline-none max-md:-my-2.5 max-md:py-2.5">
+            {project.title}
+          </Link>
         </h2>
-        <LinkIcons name={name} links={links} className="hidden md:flex gap-3" linkClassName={DESKTOP_LINK_CLASS} />
+        <LinkIcons name={project.title} links={links} variant="desktop" />
       </div>
-      <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 mb-3 md:mb-4 max-w-[68ch] leading-relaxed md:tracking-wide font-custom2 max-md:line-clamp-3">
-        {description}
+      <p className="mb-3 max-w-[68ch] font-custom2 text-xs leading-relaxed text-fg-muted max-md:line-clamp-3 md:mb-4 md:text-sm md:tracking-wide">
+        {project.description}
       </p>
-      <p className="max-md:hidden text-xs text-neutral-500 font-medium mb-2 font-custom2 mt-auto">Tech Stack</p>
+      <p className="mt-auto mb-2 font-custom2 text-xs font-medium text-fg-subtle max-md:hidden">Tech Stack</p>
       <div className="max-md:mt-auto">
-        <TechIconTooltip tech={tech} scope={name} />
+        <TechIconTooltip tech={project.tech} scope={project.title} />
       </div>
-      <LinkIcons name={name} links={links} className="md:hidden flex gap-2 pt-3" linkClassName={MOBILE_LINK_CLASS} />
+      <LinkIcons name={project.title} links={links} variant="mobile" />
     </div>
   );
 }
 
-const Projects = ({ full = false }: { full?: boolean }) => {
-  const [showAll, setShowAll] = useState(false);
+function ProjectCard({ project, layout, priority = false }: { project: Project; layout: "featured" | "row"; priority?: boolean }) {
+  const featured = layout === "featured";
+  const media = (
+    <div className={cn(MEDIA_FRAME_CLASS, featured ? "md:mb-4" : "md:w-52")}>
+      <Image
+        src={project.src}
+        alt={project.title}
+        fill
+        sizes={featured ? "(max-width: 768px) 50vw, 448px" : "(max-width: 768px) 50vw, 208px"}
+        quality={featured ? IMAGE_QUALITY.card : IMAGE_QUALITY.thumb}
+        {...(priority ? LCP_IMAGE_PROPS : {})}
+        className={featured ? "object-cover object-top" : "object-cover"}
+      />
+    </div>
+  );
 
-  const visibleDeployed = (showAll || full) ? DEPLOYED_PROJECTS : DEPLOYED_PROJECTS.slice(0, 2);
-  const showOpenSource = showAll || full;
-  const remaining = DEPLOYED_PROJECTS.length + OPEN_SOURCE_PROJECTS.length - 2;
+  return (
+    <CardShell href={projectPath(project.slug)}>
+      {featured ? (
+        <>
+          {media}
+          <CardBody project={project} />
+        </>
+      ) : (
+        <div className="flex h-full flex-col-reverse md:flex-row md:items-start md:gap-8">
+          <CardBody project={project} />
+          {media}
+        </div>
+      )}
+    </CardShell>
+  );
+}
+
+export default function Projects({ full = false }: { full?: boolean }) {
+  const [showAll, setShowAll] = useState(false);
+  const expanded = showAll || full;
+  const deployed = expanded ? DEPLOYED_PROJECTS : DEPLOYED_PROJECTS.slice(0, PREVIEW_COUNT);
+  const hiddenCount = DEPLOYED_PROJECTS.length + OPEN_SOURCE_PROJECTS.length - PREVIEW_COUNT;
 
   return (
     <div className="mt-6 md:mt-8">
-      <p className="max-md:hidden font-custom2 text-neutral-700 dark:text-neutral-300 mt-3 px-4 py-[7px] text-sm inline-block bg-neutral-100 dark:bg-neutral-900 frame-dashed">
-        I love crafting production-grade software that solves real problems.
-      </p>
+      <p className="callout mt-3 max-md:hidden">I love crafting production-grade software that solves real problems.</p>
 
-      <div className="grid grid-cols-2 gap-3 md:gap-x-8 md:gap-y-10 py-5 md:py-7 max-md:[&>:last-child:nth-child(odd)]:col-span-2">
-        {visibleDeployed.map((project, idx) => (
-          <ProjectCard
-            key={project.title}
-            project={project}
-            idx={idx}
-          />
+      <div className={cn(MOBILE_GRID, "py-5 md:gap-x-8 md:gap-y-10 md:py-7")}>
+        {deployed.map((project, idx) => (
+          <ProjectCard key={project.slug} project={project} layout="featured" priority={idx === 0} />
         ))}
       </div>
 
-      {showOpenSource && (
+      {expanded && (
         <div className="mt-2">
-          <h2 className="text-neutral-900 dark:text-neutral-50 font-custom font-bold text-2xl tracking-tight py-2">
-            <span className="link--elara">More Projects</span>
-          </h2>
-          <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
-          <div className="grid grid-cols-2 max-md:[&>:last-child:nth-child(odd)]:col-span-2 gap-3 my-4 md:my-2 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-neutral-200 md:dark:divide-neutral-800 md:[&>*]:py-5">
+          <Heading size="md" className="py-2">
+            More Projects
+          </Heading>
+          <Separator fullWidth className="my-0.5" />
+          <div className={cn(MOBILE_GRID, "my-4 md:my-2 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-line md:[&>*]:py-5")}>
             {OPEN_SOURCE_PROJECTS.map((project) => (
-              <OpenSourceCard key={project.title} project={project} />
+              <ProjectCard key={project.slug} project={project} layout="row" />
             ))}
           </div>
         </div>
       )}
 
-      {!showAll && !full && remaining > 0 && (
-        <div className="flex justify-center pt-4 pb-6 max-md:pt-0 max-md:pb-2">
-          <button onClick={() => setShowAll(true)} className="text-toggle">
-            Show {remaining} more project{remaining > 1 ? "s" : ""}
-          </button>
-        </div>
+      {!full && (
+        <ShowMore
+          expanded={showAll}
+          hiddenCount={hiddenCount}
+          noun="project"
+          onToggle={() => setShowAll((value) => !value)}
+          className={showAll ? "pt-2 pb-6" : undefined}
+        />
       )}
-
-      {showAll && !full && remaining > 0 && (
-        <div className="flex justify-center pt-2 pb-6">
-          <button
-            onClick={() => setShowAll(false)}
-            className="text-toggle"
-          >
-            ↑ Show less
-          </button>
-        </div>
-      )}
-
     </div>
   );
-};
-
-function ProjectCard({
-  project,
-  idx,
-}: {
-  project: Project;
-  idx: number;
-}) {
-  const router = useRouter();
-
-  return (
-    <CardShell onActivate={() => router.push(projectPath(project.slug))}>
-      <div className={`${MEDIA_FRAME_CLASS} md:mb-4`}>
-        <Image
-          src={project.src}
-          alt={project.title}
-          fill
-          sizes="(max-width: 768px) 50vw, 448px"
-          quality={70}
-          priority={idx === 0}
-          className="object-cover object-top"
-        />
-      </div>
-
-      <CardContent
-        name={project.title}
-        title={
-          <Link href={projectPath(project.slug)} className={TITLE_ACTION_CLASS}>
-            {project.title}
-          </Link>
-        }
-        description={project.description}
-        tech={project.tech}
-        links={projectLinks(project)}
-      />
-    </CardShell>
-  );
 }
-
-function OpenSourceCard({ project }: { project: Project }) {
-  const router = useRouter();
-  return (
-    <CardShell onActivate={() => router.push(projectPath(project.slug))}>
-      <div className="flex flex-col-reverse h-full md:flex-row md:gap-8 md:items-start">
-        <CardContent
-          name={project.title}
-          title={
-            <Link href={projectPath(project.slug)} className={TITLE_ACTION_CLASS}>
-              {project.title}
-            </Link>
-          }
-          description={project.description}
-          tech={project.tech}
-          links={projectLinks(project)}
-        />
-        <div className={`${MEDIA_FRAME_CLASS} md:w-52`}>
-          <Image
-            src={project.src}
-            alt={project.title}
-            fill
-            sizes="(max-width: 768px) 50vw, 208px"
-            quality={60}
-            className="object-cover"
-          />
-        </div>
-      </div>
-    </CardShell>
-  );
-}
-
-export default Projects;

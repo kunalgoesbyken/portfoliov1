@@ -6,8 +6,7 @@ import { Instrument_Serif, Instrument_Sans } from "next/font/google";
 import DeferredAnalytics from "@/components/deferred-analytics";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LazyChatbot, LazyFractalTree } from "@/components/lazy-widgets";
-import MotionProvider from "@/components/lazy-motion-provider";
-import { SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_SHORT_NAME, SITE_URL } from "@/lib/site";
 
 const instrumentSerif = Instrument_Serif({
   weight: ["400"],
@@ -25,11 +24,11 @@ const instrumentSans = Instrument_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Kunal Roy Choudhury",
+  title: { default: SITE_NAME, template: `%s | ${SITE_SHORT_NAME}` },
   description:
     "Backend systems engineer building scalable systems, AI tools, and production-grade web apps.",
   openGraph: {
-    title: "Kunal Roy Choudhury",
+    title: SITE_NAME,
     description: "Backend systems architect. Rust and Go services at scale, and AI tools shipped to production.",
     url: SITE_URL,
     siteName: "Kunal's Portfolio",
@@ -38,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kunal Roy Choudhury",
+    title: SITE_NAME,
     description: "Backend systems architect. Rust and Go services at scale, and AI tools shipped to production.",
     creator: "@kunalgoesbyken",
   },
@@ -46,6 +45,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({
@@ -55,21 +58,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-      </head>{/* 🛠 Important for dark mode */}
       <body
         suppressHydrationWarning
-        className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased bg-neutral-50 dark:bg-neutral-950 [--pattern-fg:var(--color-neutral-200)] dark:[--pattern-fg:var(--color-neutral-700)]`}
+        className={`${instrumentSerif.variable} ${instrumentSans.variable} bg-surface text-fg antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <MotionProvider>
           <DeferredAnalytics />
           <LazyFractalTree />
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <Footer />
           <LazyChatbot />
-          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

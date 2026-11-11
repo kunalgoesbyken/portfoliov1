@@ -5,13 +5,14 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Screenshot } from "@/lib/case-studies";
+import { IMAGE_QUALITY, LCP_IMAGE_PROPS } from "@/lib/image";
 
 const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
 
 const SCROLL_EPSILON = 4;
 
 const ARROW_CLASS =
-  "inline-flex size-8 max-md:size-11 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors enabled:cursor-pointer enabled:hover:border-neutral-500 enabled:hover:text-neutral-900 dark:enabled:hover:border-neutral-400 dark:enabled:hover:text-neutral-100 disabled:opacity-30";
+  "inline-flex size-8 max-md:size-11 items-center justify-center rounded-full border border-line-strong text-fg-body transition-colors enabled:cursor-pointer enabled:hover:border-line-hover enabled:hover:text-fg disabled:opacity-30";
 
 const SLIDE_SIZES = "(max-width: 768px) 92vw, 640px";
 
@@ -52,7 +53,7 @@ function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpe
         type="button"
         onClick={onOpen}
         aria-label={`View full screen: ${shot.caption}`}
-        className="flex aspect-[16/10] max-md:aspect-auto w-full cursor-zoom-in items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 p-2 md:p-5"
+        className="flex aspect-[16/10] max-md:aspect-auto w-full cursor-zoom-in items-center justify-center rounded-lg border border-line bg-surface-alt p-2 md:p-5"
       >
         <Image
           src={shot.src}
@@ -60,12 +61,12 @@ function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpe
           width={shot.width}
           height={shot.height}
           sizes={SLIDE_SIZES}
-          quality={80}
-          priority={index === 0}
+          quality={IMAGE_QUALITY.card}
+          {...(index === 0 ? LCP_IMAGE_PROPS : {})}
           className="block h-auto max-h-full w-auto max-w-full max-md:w-full rounded-md shadow-sm ring-1 ring-black/5 dark:ring-white/10"
         />
       </button>
-      <figcaption className="mt-2 font-custom2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">{shot.caption}</figcaption>
+      <figcaption className="mt-2 font-custom2 text-sm leading-snug text-fg-muted">{shot.caption}</figcaption>
     </figure>
   );
 }
@@ -84,8 +85,8 @@ export function Gallery({ items }: { items: Screenshot[] }) {
   return (
     <section aria-label="Screenshots" className="mt-10">
       <div className="mb-3 flex items-center justify-between">
-        <p className="font-custom2 text-xs uppercase tracking-[0.14em] text-neutral-600 dark:text-neutral-400">
-          Screenshots <span className="text-neutral-400 dark:text-neutral-500">{items.length}</span>
+        <p className="eyebrow text-fg-muted">
+          Screenshots <span className="text-fg-faint">{items.length}</span>
         </p>
         {items.length > 1 && (
           <div className="flex gap-2">

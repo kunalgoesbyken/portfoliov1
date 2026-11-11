@@ -15,12 +15,12 @@ function PagerLink({ project, direction }: { project: Project; direction: "previ
       href={projectPath(project.slug)}
       className={`group flex flex-col gap-1 py-2 ${isNext ? "items-end text-right" : ""}`}
     >
-      <span className="inline-flex items-center gap-1.5 font-custom2 text-xs uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-400">
+      <span className="inline-flex items-center gap-1.5 eyebrow">
         {!isNext && <ArrowLeft size={12} aria-hidden="true" />}
         {isNext ? "Next project" : "Previous project"}
         {isNext && <ArrowRight size={12} aria-hidden="true" />}
       </span>
-      <span className="title-link font-custom text-xl md:text-2xl text-neutral-900 dark:text-neutral-50">{project.title}</span>
+      <span className="title-link font-custom text-xl md:text-2xl text-fg">{project.title}</span>
     </Link>
   );
 }
@@ -28,7 +28,7 @@ function PagerLink({ project, direction }: { project: Project; direction: "previ
 export function ProjectPager({ slug }: { slug: string }) {
   const [previous, next] = neighbours(slug);
   return (
-    <nav aria-label="More projects" className="mt-14 grid grid-cols-2 gap-6 border-t border-neutral-200 dark:border-neutral-800 pt-6">
+    <nav aria-label="More projects" className="mt-14 grid grid-cols-2 gap-6 border-t border-line pt-6">
       {previous && <PagerLink project={previous} direction="previous" />}
       {next && <PagerLink project={next} direction="next" />}
     </nav>

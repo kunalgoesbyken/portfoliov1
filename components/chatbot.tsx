@@ -5,19 +5,20 @@ import { MessageSquare } from "lucide-react";
 import * as m from "motion/react-m";
 import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
+import MotionScope from "@/components/motion-scope";
+import { Spinner } from "@/components/ui/spinner";
 
 const ChatbotUI = dynamic(() => import("./chatbot-ui"), {
   ssr: false,
   loading: () => (
-    <div className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-neutral-900 dark:bg-neutral-50 flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-neutral-50 dark:border-neutral-900 border-t-transparent rounded-full animate-spin" />
+    <div className="bg-inverse text-on-inverse fixed right-6 bottom-6 z-50 flex size-14 items-center justify-center rounded-full">
+      <Spinner className="size-6" />
     </div>
   ),
 });
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  // The chat UI chunk (react-markdown etc.) is only requested on first open.
   const [hasOpened, setHasOpened] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -83,7 +84,6 @@ export default function Chatbot() {
   const handleOpenChat = () => {
     setHasOpened(true);
     setIsOpen(true);
-    // Hide tooltip when user interacts
     setShowTooltip(false);
   };
 
@@ -92,8 +92,7 @@ export default function Chatbot() {
   };
 
   return (
-    <>
-      {/* Chat Button - only visible after scroll or delay */}
+    <MotionScope>
       <AnimatePresence>
         {showButton && !isOpen && (
           <m.div
@@ -101,9 +100,8 @@ export default function Chatbot() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-6 right-6 z-40"
+            className="fixed right-6 bottom-6 z-40"
           >
-            {/* One-time tooltip */}
             <AnimatePresence>
               {showTooltip && (
                 <m.div
@@ -111,12 +109,14 @@ export default function Chatbot() {
                   animate={{ opacity: 1, y: 0, x: 0 }}
                   exit={{ opacity: 0, y: 10, x: 50 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap"
+                  className="absolute top-1/2 right-full mr-3 -translate-y-1/2 whitespace-nowrap"
                 >
-                  <div className="relative bg-neutral-900 dark:bg-neutral-100 text-neutral-50 dark:text-neutral-900 px-4 py-2 rounded-lg text-sm font-custom2 shadow-lg">
+                  <div className="bg-inverse font-custom2 text-on-inverse relative rounded-lg px-4 py-2 text-sm shadow-lg">
                     Ask me anything
-                    {/* Tooltip arrow */}
-                    <div className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-full w-0 h-0 border-t-8 border-t-transparent border-l-8 border-l-neutral-900 dark:border-l-neutral-100 border-b-8 border-b-transparent" />
+                    <span
+                      aria-hidden="true"
+                      className="bg-inverse absolute top-1/2 right-0 size-3 translate-x-1/2 -translate-y-1/2 rotate-45"
+                    />
                   </div>
                 </m.div>
               )}
@@ -124,25 +124,16 @@ export default function Chatbot() {
 
             <m.button
               onClick={handleOpenChat}
-              className="
-                flex items-center justify-center
-                w-14 h-14 rounded-full
-                bg-neutral-900 dark:bg-neutral-50
-                text-neutral-50 dark:text-neutral-900
-                shadow-lg hover:shadow-xl
-                transition-all duration-300
-                hover:scale-110 active:scale-95
-              "
+              className="bg-inverse text-on-inverse flex size-14 items-center justify-center rounded-full shadow-lg transition-[scale,box-shadow] duration-300 hover:scale-110 hover:shadow-xl active:scale-95"
               aria-label="Open chat"
             >
-              <MessageSquare className="w-6 h-6" />
+              <MessageSquare className="h-6 w-6" />
             </m.button>
           </m.div>
         )}
       </AnimatePresence>
 
-      {/* Chat UI - lazy loaded on first interaction */}
       {hasOpened && <ChatbotUI isOpen={isOpen} onClose={handleCloseChat} />}
-    </>
+    </MotionScope>
   );
 }

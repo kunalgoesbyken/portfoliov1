@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { useMediaQuery } from "@/lib/hooks";
 
 const STROKE_COLORS = { dark: "#a3a3a33a", light: "#33333333" };
 
@@ -13,46 +14,14 @@ export default function FractalTree() {
     const colorRef = useRef(strokeFor(resolvedTheme));
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [shouldAnimate, setShouldAnimate] = useState(true);
-    const [isLargeScreen, setIsLargeScreen] = useState(false);
-    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+    const isLargeScreen = useMediaQuery("(min-width: 768px)");
+    const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
     const [isVisible, setIsVisible] = useState(true);
-
-    // Track if component is mounted on large screens only (md breakpoint: 768px)
-    useEffect(() => {
-        const checkScreenSize = () => {
-            const isLarge = window.innerWidth >= 768;
-            setIsLargeScreen(isLarge);
-        };
-
-        checkScreenSize();
-        const mediaQuery = window.matchMedia("(min-width: 768px)");
-
-        const handleChange = (e: MediaQueryListEvent) => {
-            setIsLargeScreen(e.matches);
-        };
-
-        mediaQuery.addEventListener("change", handleChange);
-        return () => mediaQuery.removeEventListener("change", handleChange);
-    }, []);
-
-    // Check for reduced motion preference
-    useEffect(() => {
-        const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-        setPrefersReducedMotion(mediaQuery.matches);
-
-        const handleChange = (e: MediaQueryListEvent) => {
-            setPrefersReducedMotion(e.matches);
-        };
-
-        mediaQuery.addEventListener("change", handleChange);
-        return () => mediaQuery.removeEventListener("change", handleChange);
-    }, []);
 
     useEffect(() => {
         colorRef.current = strokeFor(resolvedTheme);
     }, [resolvedTheme]);
 
-    // Pause animation when canvas is off-screen
     useEffect(() => {
         const canvasEl = el.current;
         if (!canvasEl) return;
@@ -91,14 +60,12 @@ export default function FractalTree() {
         const canvas = el.current;
         if (!canvas || size.width === 0 || size.height === 0) return;
 
-        // Don't render if on small screen
         if (!isLargeScreen) return;
 
         const ctx = canvas.getContext("2d")!;
 
-        // High DPI handling
         const dpr = window.devicePixelRatio || 1;
-        // @ts-ignore
+        // @ts-expect-error -- legacy vendor-prefixed backing store ratios are not in the DOM typings
         const bsr = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
         const dpi = dpr / bsr;
 
@@ -140,30 +107,25 @@ export default function FractalTree() {
             const rad1 = rad + random() * r15;
             const rad2 = rad - random() * r15;
 
-            // out of bounds
             if (nx < -100 || nx > size.width + 100 || ny < -100 || ny > size.height + 100)
                 return;
 
             const rate = counter.value <= MIN_BRANCH ? 0.8 : 0.5;
 
-            // left branch
             if (random() < rate)
                 steps.push(() => step(nx, ny, rad1, counter));
 
-            // right branch
             if (random() < rate)
                 steps.push(() => step(nx, ny, rad2, counter));
         };
 
         const randomMiddle = () => random() * 0.6 + 0.2;
 
-        // For reduced motion, render static version only
         const drawStatic = () => {
             ctx.clearRect(0, 0, size.width, size.height);
             ctx.lineWidth = 1;
             ctx.strokeStyle = colorRef.current;
 
-            // Draw a few static fractal branches
             const drawStaticBranch = (x: number, y: number, rad: number, depth: number = 0) => {
                 if (depth > 8) return;
 
@@ -198,7 +160,6 @@ export default function FractalTree() {
             }
         };
 
-        // If reduced motion is preferred, just draw static once and return
         if (prefersReducedMotion) {
             drawStatic();
             return;
@@ -222,13 +183,10 @@ export default function FractalTree() {
             }
         };
 
-        // Freeze the drawing after a while: an endless full-screen canvas loop
-        // with a CSS mask keeps the main thread and compositor busy forever.
         const stopAt = performance.now() + 10000;
 
         const frame = () => {
             if (performance.now() > stopAt) return;
-            // Stop animation if shouldAnimate is false, prefers reduced motion, or not visible
             if (!shouldAnimate || prefersReducedMotion || !isVisible) {
                 return;
             }
@@ -243,13 +201,11 @@ export default function FractalTree() {
             lastTime = performance.now();
 
             if (!prevSteps.length) {
-                // If no active branches, spawn a new root with some probability to keep it alive
                 if (Math.random() < 0.05) {
                     randomRoot();
                 }
             }
 
-            // Adopt the current theme color for new segments (no rebuild needed)
             ctx.strokeStyle = colorRef.current;
             prevSteps.forEach((i) => {
                 if (random() < 0.5)
@@ -268,7 +224,6 @@ export default function FractalTree() {
             prevSteps = [];
             steps = [];
 
-            // Initial roots
             if (size.width < 500) {
                 steps.push(() => step(randomMiddle() * size.width, -5, r90));
                 steps.push(() => step(randomMiddle() * size.width, size.height + 5, -r90));
@@ -285,7 +240,6 @@ export default function FractalTree() {
 
         start();
 
-        // Handle visibility change to stop/start animation
         const handleVisibilityChange = () => {
             if (document.hidden) {
                 setShouldAnimate(false);
@@ -306,7 +260,6 @@ export default function FractalTree() {
         };
     }, [size, shouldAnimate, prefersReducedMotion, isLargeScreen, isVisible]);
 
-    // Don't render anything on small screens
     if (!isLargeScreen) {
         return null;
     }

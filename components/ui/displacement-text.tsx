@@ -9,9 +9,6 @@ type DisplacementTextProps = {
   text?: string;
   fontSize?: number;
   font?: string;
-  color?: string;
-  lightColor?: string;
-  darkColor?: string;
   className?: string;
 };
 
@@ -85,15 +82,7 @@ const fragmentShader = `
   }
 `;
 
-const DisplacementText = ({
-  text = " Kunal",
-  fontSize = 200,
-  font = "custom2",
-  color,
-  lightColor = "#000000",
-  darkColor = "#ffffff",
-  className,
-}: DisplacementTextProps) => {
+const DisplacementText = ({ text = " Kunal", fontSize = 200, font = "custom2", className }: DisplacementTextProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -129,21 +118,14 @@ const DisplacementText = ({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height, false);
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
     container.appendChild(renderer.domElement);
 
     const geometry = new THREE.PlaneGeometry(15, 15, 100, 100);
-    const getActiveColor = () => {
-      if (color) {
-        return color;
-      }
-      return document.documentElement.classList.contains("dark")
-        ? darkColor
-        : lightColor;
-    };
+    const getActiveColor = () => getComputedStyle(container).color;
 
     let currentColor = getActiveColor();
     let textTexture = createTextTexture(text, fontSize, font, currentColor);
@@ -175,6 +157,15 @@ const DisplacementText = ({
     hitPlane.name = "hit";
     scene.add(hitPlane);
 
+    let animationId = 0;
+    const requestRender = () => {
+      if (animationId) return;
+      animationId = window.requestAnimationFrame(() => {
+        animationId = 0;
+        renderer.render(scene, camera);
+      });
+    };
+
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
 
@@ -192,6 +183,7 @@ const DisplacementText = ({
       (shaderMaterial.uniforms.uDisplacement?.value as THREE.Vector3)?.copy(
         intersection.point
       );
+      requestRender();
     };
 
     container.addEventListener("pointermove", onPointerMove);
@@ -208,17 +200,12 @@ const DisplacementText = ({
       camera.bottom = -cameraDistance;
       camera.updateProjectionMatrix();
       renderer.setSize(nextRect.width, nextRect.height, false);
+      requestRender();
     };
 
     window.addEventListener("resize", handleResize);
 
-    let animationId = 0;
-    const renderScene = () => {
-      animationId = window.requestAnimationFrame(renderScene);
-      renderer.render(scene, camera);
-    };
-
-    renderScene();
+    requestRender();
 
     const replaceTexture = (nextColor: string) => {
       const nextTexture = createTextTexture(text, fontSize, font, nextColor);
@@ -227,46 +214,20 @@ const DisplacementText = ({
       textTexture.dispose();
       textTexture = nextTexture;
       currentColor = nextColor;
+      requestRender();
     };
 
-    let observer: MutationObserver | undefined;
-    let mediaQueryCleanup: (() => void) | undefined;
-
-    if (!color) {
-      const handleThemeChange = () => {
-        const nextColor = getActiveColor();
-        if (nextColor === currentColor) {
-          return;
-        }
-        replaceTexture(nextColor);
-      };
-
-      observer = new MutationObserver(handleThemeChange);
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ["class"],
-      });
-
-      if (window.matchMedia) {
-        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-        const mediaHandler = () => handleThemeChange();
-
-        if (typeof mediaQuery.addEventListener === "function") {
-          mediaQuery.addEventListener("change", mediaHandler);
-          mediaQueryCleanup = () => mediaQuery.removeEventListener("change", mediaHandler);
-        } else if (typeof mediaQuery.addListener === "function") {
-          mediaQuery.addListener(mediaHandler);
-          mediaQueryCleanup = () => mediaQuery.removeListener(mediaHandler);
-        }
-      }
-    }
+    const observer = new MutationObserver(() => {
+      const nextColor = getActiveColor();
+      if (nextColor !== currentColor) replaceTexture(nextColor);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
     return () => {
       window.removeEventListener("resize", handleResize);
       container.removeEventListener("pointermove", onPointerMove);
       window.cancelAnimationFrame(animationId);
-      observer?.disconnect();
-      mediaQueryCleanup?.();
+      observer.disconnect();
 
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
@@ -279,10 +240,10 @@ const DisplacementText = ({
       hitPlaneMaterial.dispose();
       shaderMaterial.dispose();
     };
-  }, [text, fontSize, font, color, lightColor, darkColor]);
+  }, [text, fontSize, font]);
 
   return (
-    <div ref={containerRef} className={cn("relative h-200 w-full", className)} aria-hidden="true" />
+    <div ref={containerRef} className={cn("relative h-200 w-full text-fg", className)} aria-hidden="true" />
   );
 };
 

@@ -1,16 +1,18 @@
-"use client"
+"use client";
 
 import { useState, cloneElement } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { ActivityCalendar, type Activity, type BlockElement } from "react-activity-calendar";
+import type { Activity, BlockElement } from "react-activity-calendar";
 import Separator from "@/components/separator";
+import MountOnVisible from "@/components/ui/mount-on-visible";
+import { Heading } from "@/components/ui/heading";
+import { ShowMore } from "@/components/ui/show-more";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { GithubData, Organization, PRState } from "@/lib/github";
 
-const Tooltip = dynamic(() => import("react-tooltip").then(mod => ({ default: mod.Tooltip })), {
-  ssr: false
-});
+const ActivityCalendar = dynamic(() => import("react-activity-calendar").then((mod) => ({ default: mod.ActivityCalendar })), { ssr: false });
+const Tooltip = dynamic(() => import("react-tooltip").then((mod) => ({ default: mod.Tooltip })), { ssr: false });
 
 interface GithubGraphProps {
   data: GithubData;
@@ -18,6 +20,7 @@ interface GithubGraphProps {
 
 const CONTRIBUTION_COLORS = ["var(--contrib-0)", "var(--contrib-1)", "var(--contrib-2)", "var(--contrib-3)", "var(--contrib-4)"];
 const CALENDAR_THEME = { light: CONTRIBUTION_COLORS, dark: CONTRIBUTION_COLORS };
+const CALENDAR_HEIGHT = 140;
 const CALENDAR_LABELS = { totalCount: "{{count}} contributions in the last year" };
 
 interface PRFilterConfig {
@@ -61,15 +64,15 @@ const OrganizationChips = ({ organizations }: { organizations: Organization[] })
 
   return (
     <div className="mt-6">
-      <p className="text-xs text-neutral-600 dark:text-neutral-400 font-custom2 mb-2">Contributed to</p>
-      <ul className="flex flex-wrap gap-2 list-none m-0 p-0">
+      <p className="mb-2 font-custom2 text-xs text-fg-muted">Contributed to</p>
+      <ul className="flex flex-wrap gap-2">
         {visible.map((org) => (
           <li key={org.login}>
             <a
               href={org.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="hit-44 frame-dashed inline-flex items-center gap-2 h-8 px-2.5 text-xs font-medium font-custom2 text-neutral-700 dark:text-neutral-300 hover:border-neutral-500 dark:hover:border-neutral-400 transition-colors"
+              className="hit-44 frame-dashed inline-flex h-8 items-center gap-2 px-2.5 font-custom2 text-xs font-medium text-fg-body transition-colors hover:border-line-hover"
             >
               <Image src={org.avatarUrl} alt="" width={18} height={18} className="rounded-sm" />
               @{org.login}
@@ -77,122 +80,92 @@ const OrganizationChips = ({ organizations }: { organizations: Organization[] })
           </li>
         ))}
       </ul>
-      {hiddenCount > 0 && (
-        <div className="flex justify-center mt-4">
-          <button onClick={() => setExpanded(!expanded)} className="text-toggle">
-            {expanded ? "↑ Show less" : `Show ${hiddenCount} more`}
-          </button>
-        </div>
-      )}
+      <ShowMore expanded={expanded} hiddenCount={hiddenCount} onToggle={() => setExpanded((value) => !value)} className="mt-4" />
     </div>
   );
 };
 
-const GithubGraph = ({ data }: GithubGraphProps) => {
+const PR_PREVIEW_COUNT = 2;
+
+const ContributionCalendar = ({ contributions }: { contributions: Activity[] }) => (
+  <MountOnVisible minHeight={CALENDAR_HEIGHT}>
+    <div className="contribution-calendar flex w-full justify-center text-fg" style={{ minHeight: CALENDAR_HEIGHT }}>
+      <ActivityCalendar
+        data={contributions}
+        theme={CALENDAR_THEME}
+        colorScheme="light"
+        labels={CALENDAR_LABELS}
+        blockSize={10}
+        blockMargin={3}
+        fontSize={12}
+        renderBlock={withTooltip}
+      />
+      <Tooltip
+        id="github-tooltip"
+        noArrow
+        opacity={1}
+        className="!rounded-lg border border-line !bg-surface-raised !px-3 !py-2 !text-xs !text-fg shadow-md"
+      />
+    </div>
+  </MountOnVisible>
+);
+
+const PullRequests = ({ prs }: { prs: GithubData["prs"] }) => {
   const [showAll, setShowAll] = useState(false);
   const [filterType, setFilterType] = useState<PRFilter>("all");
-
-  const initialCount = 2;
-
   const activeFilter: PRFilterConfig = PR_FILTERS[filterType];
-  const prs = activeFilter.state ? data.prs.filter((pr) => pr.state === activeFilter.state) : data.prs;
+  const filtered = activeFilter.state ? prs.filter((pr) => pr.state === activeFilter.state) : prs;
+  const visible = showAll ? filtered : filtered.slice(0, PR_PREVIEW_COUNT);
 
   return (
-    <div>
+    <div className="mt-4">
+      <div className="mb-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Heading as="h3" size="md">
+          Pull Requests
+        </Heading>
+        <SegmentedControl label="Filter pull requests by status" options={PR_FILTER_OPTIONS} value={filterType} onChange={setFilterType} />
+      </div>
+      <p className="mb-4 font-custom2 text-xs text-fg-muted">{activeFilter.description}</p>
       <Separator fullWidth />
 
-
-      <h1 className="text-neutral-900 dark:text-neutral-50 font-custom font-bold  text-3xl tracking-tight  py-2"><span className="link--elara">Proof Of Work</span></h1>
-      <Separator className="my-0.5" />
-      <p className=" font-custom2 text-neutral-700 dark:text-neutral-300 mt-3 px-4 py-[7px]
-           text-sm inline-block
-          bg-neutral-100 dark:bg-neutral-900 frame-dashed mb-6"> building real tools, solving real problems, and leaving a trail of commits to prove it.</p>
-
-
-
-
-      {data.contributions.length > 0 && (
-        <div className="contribution-calendar flex w-full justify-center text-neutral-900 dark:text-neutral-200">
-          <ActivityCalendar
-            data={data.contributions}
-            theme={CALENDAR_THEME}
-            colorScheme="light"
-            labels={CALENDAR_LABELS}
-            blockSize={10}
-            blockMargin={3}
-            fontSize={12}
-            renderBlock={withTooltip}
+      {filtered.length === 0 ? (
+        <p className="mt-4 font-custom2 text-sm text-fg-muted">No pull requests found</p>
+      ) : (
+        <>
+          <ul className="mt-3 divide-y divide-dashed divide-line">
+            {visible.map((pr) => (
+              <li key={pr.id} className="group flex items-start gap-3 py-3">
+                <span aria-hidden="true" className={`mt-2 size-1 shrink-0 rounded-full bg-gradient-to-r ${PR_STATE_DOT[pr.state]}`} />
+                <a href={pr.url} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 max-md:py-1">
+                  <span className="title-link block truncate text-sm font-medium text-fg">{pr.title}</span>
+                  <span className="mt-0.5 block font-custom2 text-xs text-fg-subtle">{pr.repository.nameWithOwner}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <ShowMore
+            expanded={showAll}
+            hiddenCount={filtered.length - PR_PREVIEW_COUNT}
+            onToggle={() => setShowAll((value) => !value)}
+            className="mt-6"
           />
-          <Tooltip
-            id="github-tooltip"
-            noArrow
-            opacity={1}
-            className="!rounded-lg !px-3 !py-2 !text-xs !bg-white !text-neutral-900 dark:!bg-neutral-900 dark:!text-neutral-200 border border-neutral-200 dark:border-neutral-700 shadow-md"
-          />
-        </div>
+        </>
       )}
-
-      <OrganizationChips organizations={data.organizations} />
-
-      <div className="mt-4">
-          <div className="mb-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-neutral-900 dark:text-neutral-50 font-custom font-bold text-2xl tracking-tight">
-              <span className="link--elara">Pull Requests</span>
-            </h2>
-            <SegmentedControl
-              label="Filter pull requests by status"
-              options={PR_FILTER_OPTIONS}
-              value={filterType}
-              onChange={setFilterType}
-            />
-          </div>
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 font-custom2 mb-4">
-            {activeFilter.description}
-          </p>
-          <Separator fullWidth />
-
-          {prs.length > 0 ? (
-            <div>
-              <div className="mt-3 divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800">
-                {prs.slice(0, showAll ? prs.length : initialCount).map((pr) => (
-                  <div key={pr.id} className="group flex items-start gap-3 py-3">
-                    <div className="shrink-0 mt-0.5">
-                      <div className={`w-1 h-1 rounded-full bg-gradient-to-r ${PR_STATE_DOT[pr.state]}`} />
-                    </div>
-                    <a
-                      href={pr.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 min-w-0 hover:no-underline max-md:py-1"
-                    >
-                      <h3 className="title-link text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
-                        {pr.title}
-                      </h3>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5 font-custom2">
-                        {pr.repository.nameWithOwner}
-                      </p>
-                    </a>
-                  </div>
-                ))}
-              </div>
-              {prs.length > initialCount && (
-                <div className="flex justify-center mt-6">
-                  <button
-                    onClick={() => setShowAll(!showAll)}
-                    className="text-toggle"
-                  >
-                    {showAll ? "↑ Show less" : `Show ${prs.length - initialCount} more`}
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-secondary font-custom2 text-sm mt-4">No pull requests found</div>
-          )}
-        </div>
     </div>
-
   );
 };
+
+const GithubGraph = ({ data }: GithubGraphProps) => (
+  <section>
+    <Separator fullWidth />
+    <Heading className="py-2">Proof Of Work</Heading>
+    <Separator className="my-0.5" />
+    <p className="callout mt-3 mb-6">building real tools, solving real problems, and leaving a trail of commits to prove it.</p>
+
+    {data.contributions.length > 0 && <ContributionCalendar contributions={data.contributions} />}
+    <OrganizationChips organizations={data.organizations} />
+    <PullRequests prs={data.prs} />
+  </section>
+);
 
 export default GithubGraph;

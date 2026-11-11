@@ -17,11 +17,46 @@ import {
 } from "@/components/case-study/diagram-graph";
 
 interface DiagramExplorerProps {
+  name: string;
   title: string;
-  lightSvg: string;
-  darkSvg: string;
   rationale: DiagramRationale;
+  aspectRatio?: string;
   stepCount: number;
+}
+
+interface SvgPair {
+  light: string;
+  dark: string;
+}
+
+const fetchSvg = (name: string, theme: keyof SvgPair) =>
+  fetch(`/diagrams/${name}.${theme}.svg`).then((res) => (res.ok ? res.text() : Promise.reject(new Error(res.statusText))));
+
+function useLazySvgs(name: string, rootRef: React.RefObject<HTMLElement | null>) {
+  const [svgs, setSvgs] = useState<SvgPair | null>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    let cancelled = false;
+    const load = () =>
+      Promise.all([fetchSvg(name, "light"), fetchSvg(name, "dark")])
+        .then(([light, dark]) => !cancelled && setSvgs({ light, dark }))
+        .catch(() => {});
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        io.disconnect();
+        load();
+      },
+      { rootMargin: "800px" },
+    );
+    io.observe(root);
+    return () => {
+      cancelled = true;
+      io.disconnect();
+    };
+  }, [name, rootRef]);
+  return svgs;
 }
 
 const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: string; darkSvg: string }) {
@@ -33,8 +68,10 @@ const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: str
   );
 });
 
-export function DiagramExplorer({ title, lightSvg, darkSvg, rationale, stepCount }: DiagramExplorerProps) {
+export function DiagramExplorer({ name, title, rationale, aspectRatio, stepCount }: DiagramExplorerProps) {
+  const figureRef = useRef<HTMLElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const svgs = useLazySvgs(name, figureRef);
   const graphRef = useRef<DiagramGraph | null>(null);
   const [hovered, setHovered] = useState<DiagramNode | null>(null);
   const [selection, setSelection] = useState<DiagramSelection | null>(null);
@@ -43,11 +80,11 @@ export function DiagramExplorer({ title, lightSvg, darkSvg, rationale, stepCount
   const selectedKey = selection?.node.key ?? null;
 
   useEffect(() => {
-    if (!rootRef.current) return;
+    if (!rootRef.current || !svgs) return;
     graphRef.current = readGraph(rootRef.current, rationale);
     setGraph(graphRef.current);
     setLegend(kindsOf(graphRef.current));
-  }, [rationale]);
+  }, [rationale, svgs]);
 
   useEffect(() => {
     if (graphRef.current) applyFocus(graphRef.current, hovered?.key ?? selectedKey, selectedKey);
@@ -72,10 +109,10 @@ export function DiagramExplorer({ title, lightSvg, darkSvg, rationale, stepCount
   const isInsideDiagram = (target: EventTarget | null) => target instanceof Node && !!rootRef.current?.contains(target);
 
   return (
-    <figure className="not-prose my-8 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 md:-mx-8">
+    <figure ref={figureRef} className="not-prose my-8 rounded-lg border border-line bg-surface-raised md:-mx-8">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 pt-3 font-custom2 text-xs">
-        <span className="uppercase tracking-[0.14em] text-neutral-600 dark:text-neutral-400">{title}</span>
-        <span className="text-neutral-500" aria-live="polite">
+        <span className="eyebrow text-fg-muted">{title}</span>
+        <span className="text-fg-subtle" aria-live="polite">
           {hovered ? (
             `${hovered.label}: click for details`
           ) : (
@@ -94,9 +131,17 @@ export function DiagramExplorer({ title, lightSvg, darkSvg, rationale, stepCount
         onPointerLeave={() => setHovered(null)}
         className="diagram-explorer scrollbar-subtle overflow-x-auto p-4 max-md:hidden"
       >
-        <SvgLayers lightSvg={lightSvg} darkSvg={darkSvg} />
+        {svgs ? (
+          <SvgLayers lightSvg={svgs.light} darkSvg={svgs.dark} />
+        ) : (
+          <div aria-hidden="true" className="mx-auto w-full min-w-[760px]" style={{ aspectRatio }} />
+        )}
       </div>
-      {graph ? <DiagramSteps graph={graph} /> : <div className="md:hidden" style={{ minHeight: `${stepCount * 5.25}rem` }} aria-hidden="true" />}
+      {graph ? (
+        <DiagramSteps graph={graph} />
+      ) : (
+        <div className="md:hidden" style={{ minHeight: `${stepCount * 5.25}rem` }} aria-hidden="true" />
+      )}
       <DiagramLegend kinds={legend.kinds} hasRationale={legend.hasRationale} />
       <DiagramPanel
         title={title}

@@ -11,8 +11,8 @@ export interface ProjectLink {
 }
 
 export const projectLinks = ({ live, crates, pypi, github }: ProjectLinks): ProjectLink[] => [
-  ...(live ? [{ href: live, label: "Live site", icon: <Globe size={16} /> }] : []),
-  ...(crates ? [{ href: crates, label: "crates.io", icon: <Package size={16} /> }] : []),
-  ...(pypi ? [{ href: pypi, label: "PyPI", icon: <SiPypi size={16} /> }] : []),
+  ...(live ? [{ href: live, label: "Live site", icon: <Globe size={16} aria-hidden="true" /> }] : []),
+  ...(crates ? [{ href: crates, label: "crates.io", icon: <Package size={16} aria-hidden="true" /> }] : []),
+  ...(pypi ? [{ href: pypi, label: "PyPI", icon: <SiPypi size={16} aria-hidden="true" /> }] : []),
   { href: github, label: "GitHub", icon: <GithubIcon size={16} /> },
 ];

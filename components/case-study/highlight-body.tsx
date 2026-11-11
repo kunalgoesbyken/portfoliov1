@@ -21,7 +21,7 @@ export function HighlightBody({ children }: { children: ReactNode }) {
     <div>
       <div
         ref={bodyRef}
-        className={`font-custom2 text-[0.95rem] leading-relaxed text-neutral-700 dark:text-neutral-300 [&_code]:font-mono [&_code]:text-[0.8rem] ${open ? "" : "max-md:line-clamp-3"}`}
+        className={`font-custom2 text-[0.95rem] leading-relaxed text-fg-body [&_code]:font-mono [&_code]:text-[0.8rem] ${open ? "" : "max-md:line-clamp-3"}`}
       >
         {children}
       </div>

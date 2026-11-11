@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import matter from "gray-matter";
-import config from "@/lib/config";
+import { DATA_DIR } from "@/lib/config";
 
 export type BlogMeta = {
   title?: string;
@@ -18,67 +18,46 @@ export type Blog = {
   data: BlogMeta;
 };
 
+const MDX_EXTENSION = /\.mdx$/i;
+
 const CACHE = new Map<string, Blog>();
 
-function normalizeSlug(slug: string) {
-  return slug.replace(/\.mdx?$/i, "");
-}
+const normalizeSlug = (slug: string) => slug.replace(MDX_EXTENSION, "");
 
-function isValidSlug(slug: string): boolean {
-  const normalized = normalizeSlug(slug);
-  return !normalized.includes("..") && !normalized.includes("/") && !normalized.includes("\\");
-}
+const isValidSlug = (slug: string) => path.basename(slug) === slug && !slug.includes("..");
+
+const toIsoDate = (date: unknown) => (date instanceof Date ? date.toISOString().slice(0, 10) : (date as string | undefined));
+
+const parseBlog = (raw: string, slug: string): Blog => {
+  const { content, data } = matter(raw);
+  const meta = data as BlogMeta;
+  return { content, data: { ...meta, slug: meta.slug ?? slug, date: toIsoDate(meta.date) } };
+};
 
 export const getSingleBlog = async (slug: string): Promise<Blog> => {
   const key = normalizeSlug(slug);
-  if (!isValidSlug(slug)) {
-    throw new Error("Invalid slug");
-  }
-  if (process.env.NODE_ENV !== 'development' && CACHE.has(key)) return CACHE.get(key)!;
+  if (!isValidSlug(key)) throw new Error("Invalid slug");
 
-  const filePath = path.join(config.DATA_DIR, `${key}.mdx`);
-  const raw = await fs.readFile(filePath, "utf-8");
-  const parsed = matter(raw);
-  const data = parsed.data as BlogMeta;
-  data.slug = data.slug ?? key;
-  // Convert date to string if it's a Date object
-  if (data.date && typeof data.date === 'object' && 'toISOString' in data.date) {
-    data.date = (data.date as Date).toISOString().split('T')[0];
-  }
+  const cached = process.env.NODE_ENV !== "development" && CACHE.get(key);
+  if (cached) return cached;
 
-  const result: Blog = { content: parsed.content, data };
-  CACHE.set(key, result);
-  return result;
+  const blog = parseBlog(await fs.readFile(path.join(DATA_DIR, `${key}.mdx`), "utf-8"), key);
+  CACHE.set(key, blog);
+  return blog;
+};
+
+const byDateDesc = (a: BlogMeta, b: BlogMeta) => {
+  if (!a.date || !b.date) return Number(!a.date) - Number(!b.date);
+  return b.date.localeCompare(a.date);
 };
 
 export const getAllBlogs = async (): Promise<BlogMeta[]> => {
-  const files = await fs.readdir(config.DATA_DIR);
-  const mdxFiles = files.filter((f) => f.toLowerCase().endsWith(".mdx"));
-
-  const blogs: BlogMeta[] = [];
-  for (const file of mdxFiles) {
-    try {
-      const raw = await fs.readFile(path.join(config.DATA_DIR, file), "utf-8");
-      const parsed = matter(raw);
-      const meta = parsed.data as BlogMeta;
-      meta.slug = meta.slug ?? normalizeSlug(file);
-      // Convert date to string if it's a Date object
-      if (meta.date && typeof meta.date === 'object' && 'toISOString' in meta.date) {
-        meta.date = (meta.date as Date).toISOString().split('T')[0];
-      }
-      blogs.push(meta);
-    } catch (err) {
-      console.warn("Failed to read blog", file, err);
-    }
-  }
-
-  blogs.sort((a, b) => {
-    if (!a.date && !b.date) return 0;
-    if (!a.date) return 1;
-    if (!b.date) return -1;
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
-
-  return blogs;
+  const files = (await fs.readdir(DATA_DIR)).filter((file) => MDX_EXTENSION.test(file));
+  const results = await Promise.allSettled(files.map((file) => getSingleBlog(file)));
+  results
+    .filter((result): result is PromiseRejectedResult => result.status === "rejected")
+    .forEach(({ reason }) => console.warn("Failed to read blog", reason));
+  return results
+    .flatMap((result) => (result.status === "fulfilled" ? [result.value.data] : []))
+    .sort(byDateDesc);
 };
-

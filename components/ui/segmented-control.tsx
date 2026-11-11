@@ -11,8 +11,8 @@ interface SegmentedControlProps<T extends string> {
 }
 
 const OPTION_CLASS = "hit-44 px-3 py-1.5 text-xs font-medium transition-colors duration-200";
-const ACTIVE_CLASS = "bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50";
-const IDLE_CLASS = "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100";
+const ACTIVE_CLASS = "bg-surface-alt text-fg";
+const IDLE_CLASS = "text-fg-muted hover:text-fg";
 
 export function SegmentedControl<T extends string>({ label, options, value, onChange }: SegmentedControlProps<T>) {
   return (

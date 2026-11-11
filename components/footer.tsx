@@ -1,52 +1,17 @@
-import Link from 'next/link'
-import GithubIcon from "@/components/ui/github-icon";
-import LinkedinIcon from "@/components/ui/linkedin-icon";
-import TwitterXIcon from "@/components/ui/twitter-x-icon";
-import Container from './containers'
-import { SOCIAL_LINKS } from '@/lib/social-links';
+import Container from "@/components/containers";
+import { PROFILE_SOCIALS, SocialLinks } from "@/components/social-icons";
 
-const Footer = () => {
-  const socialLinks = [
-    {
-      name: 'GitHub',
-      url: SOCIAL_LINKS.github,
-      icon: GithubIcon
-    },
-    {
-      name: 'X',
-      url: SOCIAL_LINKS.x,
-      icon: TwitterXIcon
-    },
-    {
-      name: 'LinkedIn',
-      url: SOCIAL_LINKS.linkedin,
-      icon: LinkedinIcon
-    },
-  ]
-
+export default function Footer() {
   return (
-    <footer className="w-full bg-neutral-50 dark:bg-neutral-950">
-      <Container className="flex items-center justify-between py-2 max-md:py-0 max-md:pb-[env(safe-area-inset-bottom)] border border-neutral-200 dark:border-neutral-800">
-        <div className="flex items-center gap-4 max-md:gap-0 max-md:-ml-3">
-          {socialLinks.map((link) => {
-            const IconComponent = link.icon
-            return (
-              <Link
-                key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="max-md:p-3.5 text-neutral-700 dark:text-neutral-50 opacity-70 hover:opacity-100 transition cursor-pointer"
-                aria-label={`Visit ${link.name} profile`}
-              >
-                <IconComponent size={15} />
-              </Link>
-            )
-          })}
-        </div>
+    <footer className="w-full bg-surface">
+      <Container className="flex items-center justify-between border border-line py-2 max-md:py-0 max-md:pb-[env(safe-area-inset-bottom)]">
+        <SocialLinks
+          socials={PROFILE_SOCIALS}
+          size={15}
+          className="flex items-center gap-4 max-md:-ml-3 max-md:gap-0"
+          itemClassName="text-fg-body opacity-70 transition-opacity hover:opacity-100 max-md:p-3.5"
+        />
       </Container>
     </footer>
-  )
+  );
 }
-
-export default Footer;

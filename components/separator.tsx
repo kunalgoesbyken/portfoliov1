@@ -1,12 +1,14 @@
-interface SeparatorProps {
-  className?: string;
-  fullWidth?: boolean;
-}
+import { cn } from "@/lib/utils";
 
-export default function Separator({ className = "", fullWidth = false }: SeparatorProps) {
+export default function Separator({ className, fullWidth = false }: { className?: string; fullWidth?: boolean }) {
   return (
     <div
-      className={`hidden md:block absolute right-6 h-px bg-[var(--pattern-fg)] opacity-90 dark:opacity-15 ${fullWidth ? 'left-0' : 'w-[53rem]'} ${className}`}
+      aria-hidden="true"
+      className={cn(
+        "absolute right-6 hidden h-px bg-pattern opacity-90 md:block dark:opacity-15",
+        fullWidth ? "left-0" : "w-[53rem]",
+        className,
+      )}
     />
   );
 }

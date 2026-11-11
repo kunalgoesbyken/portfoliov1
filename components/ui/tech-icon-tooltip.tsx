@@ -1,32 +1,21 @@
 import { TechKey, iconMap, techNames } from "@/lib/tech-icons";
+import { TooltipBubble } from "@/components/ui/tooltip-bubble";
+import { cn } from "@/lib/utils";
 
-interface TechIconTooltipProps {
-  tech: TechKey[];
-  size?: "sm" | "md";
-  scope: string;
-}
+const SIZES = {
+  sm: { icon: "size-4", gap: "gap-2" },
+  md: { icon: "size-5", gap: "gap-3" },
+} as const;
 
-export function TechIconTooltip({ tech, size = "md", scope }: TechIconTooltipProps) {
-  const iconSize = size === "sm" ? "w-4 h-4" : "w-5 h-5";
-  const gap = size === "sm" ? "gap-2" : "gap-3";
-
+export function TechIconTooltip({ tech, size = "md", scope }: { tech: TechKey[]; size?: keyof typeof SIZES; scope: string }) {
   return (
-    <div className={`flex flex-wrap ${gap}`}>
+    <div className={cn("flex flex-wrap", SIZES[size].gap)}>
       {tech.map((key) => {
         const Icon = iconMap[key];
-
         return (
-          <span key={`${scope}-${key}`} tabIndex={0} className="group/tech relative inline-flex outline-none">
-            <Icon
-              className={`${iconSize} text-neutral-500 dark:text-neutral-400`}
-              aria-label={techNames[key]}
-            />
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-20 hidden group-hover/tech:block group-focus/tech:block" role="tooltip">
-              <div className="relative bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-[10px] font-medium px-2 py-1 rounded-md shadow-lg whitespace-nowrap border border-neutral-200 dark:border-neutral-700">
-                {techNames[key]}
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-neutral-100 dark:bg-neutral-800 rotate-45 border-b border-r border-neutral-200 dark:border-neutral-700" />
-              </div>
-            </div>
+          <span key={`${scope}-${key}`} tabIndex={0} className="group/tip relative inline-flex outline-none">
+            <Icon className={cn(SIZES[size].icon, "text-fg-subtle")} role="img" aria-label={techNames[key]} />
+            <TooltipBubble>{techNames[key]}</TooltipBubble>
           </span>
         );
       })}

@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest } from "next/server";
+import { PORTFOLIO_CONTEXT } from "@/lib/context";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -15,7 +16,7 @@ interface Message {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { messages, context } = body;
+    const { messages } = body;
 
     if (!Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
@@ -47,15 +48,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (context !== undefined) {
-      if (typeof context !== "string" || context.length > 5000) {
-        return new Response(JSON.stringify({ error: "Invalid request" }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-    }
-
     if (!GEMINI_API_KEY) {
       return new Response(
         JSON.stringify({
@@ -70,7 +62,6 @@ export async function POST(req: NextRequest) {
 
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-    // Create chat with system instruction
     const chat = ai.chats.create({
       model: "gemini-2.5-flash",
       history: messages
@@ -81,18 +72,15 @@ export async function POST(req: NextRequest) {
         })),
     });
 
-    // Get the last user message
     const lastMessage = messages[messages.length - 1];
     const userMessage = lastMessage?.content || "";
 
-    // Create a streaming response
     const stream = await chat.sendMessageStream({
-      message: `${context}
+      message: `${PORTFOLIO_CONTEXT}
 
 User: ${userMessage}`,
     });
 
-    // Create a ReadableStream for the response
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
       async start(controller) {

@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { TechKey } from "@/lib/tech-icons";
 import { ExpandableItem } from "@/components/timeline-item";
+import { Heading } from "@/components/ui/heading";
+import Separator from "@/components/separator";
 
 interface ExperienceItem {
   company: string;
@@ -45,7 +47,7 @@ const CompanyLogo = ({ experience }: { experience: ExperienceItem }) => {
   if (!href) return images;
 
   return (
-    <Link href={href} target="_blank" className="block">
+    <Link href={href} target="_blank" rel="noopener noreferrer" className="block">
       {images}
     </Link>
   );
@@ -73,7 +75,7 @@ Market-data queries went from 13.6s to 48-135ms, and another one from 5.9s to 78
       company: "Indian Kanoon",
       designation: "Software Developer",
       date: "April 2025 - Feb 2026",
-      description: `Built <a href="https://indiankanoon.org/prism/" target="_blank" class="underline hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors">Prism</a> from scratch. It's AI that reads case law and legal documents at scale.
+      description: `Built <a href="https://indiankanoon.org/prism/" target="_blank" rel="noopener noreferrer" class="underline hover:text-fg-muted transition-colors">Prism</a> from scratch. It's AI that reads case law and legal documents at scale.
 Got it handling 5,000+ concurrent users.`,
       logo: "/images/logos/kanoon-light.png",
       logoDark: "/images/logos/kanoon-dark.png",
@@ -106,12 +108,10 @@ Tuned SQL pagination until retrieval felt instant.`,
 
   return (
     <div className="max-w-4xl mx-auto mb-0">
-      <h1 className="text-3xl font-bold font-custom tracking-tight text-neutral-900 dark:text-neutral-50 py-2">
-        <span className="link--elara">Experiences</span>
-      </h1>
-      <div className="hidden md:block absolute right-6 left-0 h-px bg-[var(--pattern-fg)] my-0.5 opacity-90 dark:opacity-15"></div>
+      <Heading className="py-2">Experiences</Heading>
+      <Separator fullWidth className="my-0.5" />
 
-      <div className="flex flex-col divide-y divide-dashed divide-neutral-200 dark:divide-neutral-800 my-2">
+      <div className="flex flex-col divide-y divide-dashed divide-line my-2">
         {experiences.map((exp) => (
           <ExpandableItem
             key={exp.company}
@@ -119,27 +119,25 @@ Tuned SQL pagination until retrieval felt instant.`,
             scope={exp.company}
             header={
               <>
-                {/* Logo */}
                 <div className="relative shrink-0 mt-1 max-md:mt-0 z-10">
                   <CompanyLogo experience={exp} />
                 </div>
 
-                {/* Content Container */}
                 <div className="flex flex-col md:flex-row md:justify-between flex-1 gap-2 md:gap-4 max-md:gap-0.5 max-md:pr-9 min-w-0">
                   <div className="flex flex-col gap-1">
-                    <h3 className="text-lg max-md:text-base font-bold text-neutral-900 dark:text-neutral-50 font-custom tracking-wide">
+                    <h3 className="text-lg max-md:text-base font-bold text-fg font-custom tracking-wide">
                       {exp.company}
                     </h3>
-                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 font-custom2">
+                    <p className="text-sm font-medium text-fg-muted font-custom2">
                       {exp.designation}
                     </p>
                   </div>
 
                   <div className="flex items-center justify-between md:justify-end gap-4 mt-1 md:mt-0 max-md:mt-0">
-                    <span className="text-sm max-md:text-[13px] text-neutral-500 dark:text-neutral-500 font-custom2 whitespace-nowrap">
+                    <span className="text-sm max-md:text-[13px] text-fg-subtle font-custom2 whitespace-nowrap">
                       {exp.date}
                     </span>
-                    <div className="max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 text-neutral-400 dark:text-neutral-500 group-hover/row:text-neutral-900 dark:group-hover/row:text-neutral-100 transition-[color,rotate] duration-200 group-aria-expanded/row:rotate-180">
+                    <div className="max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:grid max-md:place-items-center max-md:size-11 p-1 text-fg-faint group-hover/row:text-fg transition-[color,rotate] duration-200 group-aria-expanded/row:rotate-180">
                       <ChevronDown size={16} />
                     </div>
                   </div>
@@ -147,14 +145,14 @@ Tuned SQL pagination until retrieval felt instant.`,
               </>
             }
           >
-            <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300 font-custom2 leading-relaxed">
+            <ul className="space-y-2 text-sm text-fg-body font-custom2 leading-relaxed">
                 {exp.description
                   .split("\n")
                   .filter((line) => line.trim() !== "")
                   .map((point, i) => (
                     <li
                       key={i}
-                      className="relative pl-4 before:absolute before:left-0 before:content-['-'] before:text-neutral-400 dark:before:text-neutral-500"
+                      className="relative pl-4 before:absolute before:left-0 before:content-['-'] before:text-fg-faint"
                       dangerouslySetInnerHTML={{ __html: point }}
                     />
                   ))}

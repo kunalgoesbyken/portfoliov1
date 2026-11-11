@@ -49,11 +49,11 @@ function LegendItem({ entry, className }: { entry: LegendEntry; className: strin
 export function DiagramLegend({ kinds, hasRationale }: { kinds: string[]; hasRationale: boolean }) {
   const entries = kinds.flatMap((kind) => (LEGEND[kind] ? [{ kind, entry: LEGEND[kind] }] : []));
   return (
-    <ul aria-label="Legend" className="flex min-h-9 flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-neutral-200 dark:border-neutral-800 px-4 py-2.5 font-custom2 text-xs text-neutral-500">
+    <ul aria-label="Legend" className="flex min-h-9 flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-line px-4 py-2.5 font-custom2 text-xs text-fg-subtle">
       {entries.map(({ kind, entry }) => (
-        <LegendItem key={kind} entry={entry} className="stroke-neutral-500" />
+        <LegendItem key={kind} entry={entry} className="stroke-fg-subtle" />
       ))}
-      {hasRationale && <LegendItem entry={DECISION} className="stroke-amber-700 dark:stroke-amber-400" />}
+      {hasRationale && <LegendItem entry={DECISION} className="stroke-accent" />}
     </ul>
   );
 }

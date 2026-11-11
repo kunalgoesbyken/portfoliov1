@@ -1,100 +1,73 @@
-import Container from "@/components/containers";
-import PageBorder from "@/components/ui/page-border";
 import type { Metadata } from "next";
 import Image from "next/image";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { notFound } from "next/navigation";
-import { redirect } from "next/navigation";
-import { getSingleBlog } from "@/util/mdx_clean";
-import type { BlogMeta } from "@/util/mdx_clean";
+import { notFound, redirect } from "next/navigation";
+import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
-import { getMDXComponents } from "@/mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
+import PageShell from "@/components/ui/page-shell";
+import { getMDXComponents } from "@/mdx-components";
+import { getAllBlogs, getSingleBlog, type Blog } from "@/util/mdx_clean";
+import { formatDate } from "@/lib/utils";
+import { LCP_IMAGE_PROPS } from "@/lib/image";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  try {
-    const { data } = await getSingleBlog(slug);
-    return {
-      title: data.title ? `${data.title} | Kunal` : "Blog | Kunal",
-      description: data.description ?? "Reading a blog...",
-    };
-  } catch {
-    return { title: "Blog | Kunal", description: "Reading a blog..." };
-  }
-}
+type PageProps = { params: Promise<{ slug: string }> };
 
-type PageProps = {
-  params: Promise<{ slug: string }>;
+const MDX_OPTIONS: MDXRemoteProps["options"] = {
+  mdxOptions: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [[rehypePrettyCode, { theme: "github-dark-dimmed", keepBackground: true }]],
+  },
 };
 
+export const generateStaticParams = async () =>
+  (await getAllBlogs()).filter((post) => !post.externalUrl && post.slug).map((post) => ({ slug: post.slug! }));
+
+const loadBlog = async (slug: string): Promise<Blog | null> => getSingleBlog(slug).catch(() => null);
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const blog = await loadBlog(slug);
+  return {
+    title: blog?.data.title ?? "Blog",
+    description: blog?.data.description ?? "Reading a blog...",
+  };
+}
+
 export default async function SingleBlogPage({ params }: PageProps) {
-  // `params` may be a Promise in some Next versions; await to unwrap it safely
-  const resolvedParams = await params;
-  const slug = resolvedParams?.slug;
+  const { slug } = await params;
+  const blog = await loadBlog(slug);
+  if (!blog) notFound();
 
-  if (!slug) {
-    notFound();
-  }
-
-  let content: string;
-  let frontmatter: BlogMeta = {};
-  try {
-    const res = await getSingleBlog(slug);
-    content = res.content;
-    frontmatter = res.data || {};
-  } catch {
-    notFound();
-  }
-
-  if (frontmatter.externalUrl) {
-    redirect(frontmatter.externalUrl);
-  }
+  const { content, data } = blog;
+  if (data.externalUrl) redirect(data.externalUrl);
 
   return (
-    <Container className="min-h-screen px-8 pt-24 md:p-20 md:pb-10 font-custom2 tracking-tight">
-      <PageBorder side="right" />
-      <PageBorder side="left" />
-      <h1 className="text-neutral-900 dark:text-neutral-50 text-4xl font-custom font-bold  md:text-5xl">
-        {frontmatter.title ?? slug}
-      </h1>
+    <PageShell className="font-custom2 tracking-tight">
+      <h1 className="font-custom text-4xl font-bold text-fg md:text-5xl">{data.title ?? slug}</h1>
 
-      {frontmatter.date ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 text-right mt-2">{frontmatter.date}</p>
-      ) : null}
+      {data.date && (
+        <time dateTime={data.date} className="mt-2 block text-right text-sm text-fg-muted">
+          {formatDate(data.date)}
+        </time>
+      )}
 
-      {frontmatter.image ? (
-        <div className="my-6 mx-auto max-w-3xl" >
+      {data.image && (
+        <div className="mx-auto my-6 max-w-3xl">
           <Image
-            src={frontmatter.image.startsWith("/public") ? frontmatter.image.replace("/public", "") : frontmatter.image}
-            alt={frontmatter.title ?? ""}
+            src={data.image.replace(/^\/public/, "")}
+            alt={data.title ?? ""}
             width={1200}
             height={600}
-            className="w-full h-auto rounded-xl object-cover shadow-xl"
+            {...LCP_IMAGE_PROPS}
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="h-auto w-full rounded-xl object-cover shadow-xl"
           />
         </div>
-      ) : null}
+      )}
 
-      <div className="prose tracking-normal font-custom2 mx-auto">
-        <MDXRemote
-          source={content}
-          components={getMDXComponents({})}
-          options={{
-            mdxOptions: {
-              remarkPlugins: [remarkGfm],
-              rehypePlugins: [
-                [
-                  rehypePrettyCode,
-                  {
-                    theme: "github-dark-dimmed",
-                    keepBackground: true,
-                  },
-                ],
-              ],
-            },
-          }}
-        />
+      <div className="prose mx-auto font-custom2 tracking-normal">
+        <MDXRemote source={content} components={getMDXComponents({})} options={MDX_OPTIONS} />
       </div>
-    </Container>
+    </PageShell>
   );
 }

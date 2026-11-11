@@ -70,9 +70,9 @@ function StackItem({ name }: { name: string }) {
   return (
     <li className="inline-flex items-center gap-2">
       {Icon ? (
-        <Icon size={16} aria-hidden="true" className="shrink-0 text-neutral-700 dark:text-neutral-300" />
+        <Icon size={16} aria-hidden="true" className="shrink-0 text-fg-body" />
       ) : (
-        <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-neutral-400 dark:bg-neutral-600 mx-[5px]" />
+        <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-fg-faint mx-[5px]" />
       )}
       {name}
     </li>
@@ -82,11 +82,11 @@ function StackItem({ name }: { name: string }) {
 export function Stack({ items }: { items: string[] }) {
   if (items.length === 0) return null;
   return (
-    <section aria-labelledby="stack-heading" className="mt-14 border-t border-neutral-200 dark:border-neutral-800 pt-6">
-      <h2 id="stack-heading" className="font-custom2 text-xs uppercase tracking-[0.14em] text-neutral-500">
+    <section aria-labelledby="stack-heading" className="mt-14 border-t border-line pt-6">
+      <h2 id="stack-heading" className="eyebrow">
         Built with
       </h2>
-      <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3 font-custom2 text-sm text-neutral-800 dark:text-neutral-200">
+      <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3 font-custom2 text-sm text-fg">
         {items.map((name) => (
           <StackItem key={name} name={name} />
         ))}

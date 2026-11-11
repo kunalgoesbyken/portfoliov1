@@ -16,8 +16,8 @@ function Facts({ facts }: { facts: [string, string][] }) {
     <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-3 font-custom2">
       {facts.map(([term, detail]) => (
         <div key={term}>
-          <dt className="text-xs uppercase tracking-[0.14em] text-neutral-500">{term}</dt>
-          <dd className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">{detail}</dd>
+          <dt className="eyebrow">{term}</dt>
+          <dd className="mt-1 text-sm text-fg">{detail}</dd>
         </div>
       ))}
     </dl>
@@ -30,13 +30,13 @@ export function CaseStudyHeader({ project, meta }: { project: Project; meta: Cas
     <header>
       <Link
         href="/projects"
-        className="inline-flex items-center gap-1.5 max-md:py-3 font-custom2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+        className="inline-flex items-center gap-1.5 max-md:py-3 font-custom2 text-sm text-fg-subtle hover:text-fg transition-colors"
       >
         <ArrowLeft size={14} aria-hidden="true" /> All projects
       </Link>
-      <p className="mt-8 font-custom2 text-xs uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-400">{category}</p>
-      <h1 className="mt-2 font-custom text-5xl md:text-6xl tracking-tight text-neutral-900 dark:text-neutral-50">{project.title}</h1>
-      <p className="mt-4 max-w-2xl font-custom2 text-base md:text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">{summary}</p>
+      <p className="mt-8 eyebrow">{category}</p>
+      <h1 className="mt-2 font-custom text-5xl md:text-6xl tracking-tight text-fg">{project.title}</h1>
+      <p className="mt-4 max-w-2xl font-custom2 text-base md:text-lg leading-relaxed text-fg-body">{summary}</p>
       <Facts facts={[["Role", role], ["Timeline", timeline], ["Status", statusOf(project)]]} />
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap gap-x-6 gap-y-0 md:gap-y-2">
@@ -46,7 +46,7 @@ export function CaseStudyHeader({ project, meta }: { project: Project; meta: Cas
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 max-md:py-3 font-custom2 text-sm text-neutral-800 dark:text-neutral-200 underline decoration-neutral-300 dark:decoration-neutral-700 underline-offset-4 hover:decoration-current transition-colors"
+              className="inline-flex items-center gap-2 max-md:py-3 font-custom2 text-sm text-fg link-underline"
             >
               {link.icon}
               {link.label}

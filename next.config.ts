@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { IMAGE_QUALITIES } from "./lib/image";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["next-mdx-remote"],
@@ -14,7 +15,7 @@ const nextConfig: NextConfig = {
       },
     ],
     formats: ["image/avif", "image/webp"],
-    qualities: [60, 75],
+    qualities: IMAGE_QUALITIES,
   },
   experimental: {
     inlineCss: false,
