@@ -120,7 +120,7 @@ Tuned SQL pagination until retrieval felt instant.`,
 
                 <div className="flex flex-col md:flex-row md:justify-between flex-1 gap-2 md:gap-4 max-md:gap-0.5 max-md:pr-9 min-w-0">
                   <div className="flex flex-col gap-1">
-                    <h3 className="font-custom text-xl text-fg">
+                    <h3 className="font-custom text-lg font-bold tracking-wide text-fg max-md:text-base">
                       {exp.company}
                     </h3>
                     <p className="text-sm font-medium text-fg-muted font-custom2">

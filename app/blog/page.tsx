@@ -33,7 +33,7 @@ export default async function BlogIndex() {
           >
             <div className="min-w-0 flex-1">
               <div className="mb-1.5 flex items-center gap-3">
-                <h2 className="title-link font-custom text-xl text-fg md:text-2xl">{p.title ?? p.slug}</h2>
+                <h2 className="title-link font-custom text-lg font-bold text-fg md:text-xl">{p.title ?? p.slug}</h2>
                 {p.externalUrl && <SiMedium aria-label="On Medium" className="size-4 shrink-0 text-fg-faint" />}
               </div>
               {p.description && (

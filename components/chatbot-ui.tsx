@@ -226,7 +226,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
           <div className="border-line bg-muted flex flex-none items-center justify-between border-b px-4 py-3">
             <div className="flex items-center gap-2">
               <Avatar />
-              <h2 className="text-fg text-sm font-semibold">
+              <h2 className="font-custom text-fg text-sm font-semibold">
                 Ask about Kunal
               </h2>
             </div>
@@ -264,7 +264,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                   <div className="flex h-full flex-col items-center justify-center space-y-3 text-center">
                     <Avatar size="lg" />
                     <div>
-                      <p className="text-fg text-sm font-medium">
+                      <p className="font-custom text-fg text-sm font-medium">
                         Hey, I&apos;m Kunal&apos;s AI assistant
                       </p>
                       <p className="font-custom2 text-fg-subtle mt-1 max-w-[200px] text-xs">

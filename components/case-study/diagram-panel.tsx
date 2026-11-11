@@ -25,7 +25,7 @@ export function DiagramPanel({ title, selection, onSelect, onClose, keepOpenWith
           {selection && (
             <>
               <p className="eyebrow">{title}</p>
-              <Dialog.Title className="mt-2 mb-3 pr-8 font-custom text-xl text-fg">{selection.node.label}</Dialog.Title>
+              <Dialog.Title className="mt-2 mb-3 pr-8 font-custom text-xl font-semibold text-fg">{selection.node.label}</Dialog.Title>
               <DiagramNodeDetail node={selection.node} selection={selection} onSelect={onSelect} detailAs={Dialog.Description} />
             </>
           )}

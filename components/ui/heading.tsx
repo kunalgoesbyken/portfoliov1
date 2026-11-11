@@ -19,7 +19,7 @@ export function Heading({
   className?: string;
   children: ReactNode;
 }) {
-  return <Tag className={cn("font-custom tracking-tight text-balance text-fg", SIZES[size], className)}>{children}</Tag>;
+  return <Tag className={cn("font-custom font-bold tracking-tight text-balance text-fg", SIZES[size], className)}>{children}</Tag>;
 }
 
 export function Lede({ className, children }: { className?: string; children: ReactNode }) {

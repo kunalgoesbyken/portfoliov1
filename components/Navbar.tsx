@@ -30,7 +30,7 @@ export default function Navbar() {
       <nav
         aria-label="Main navigation"
         className={cn(
-          "fixed top-0 right-0 left-0 z-50 mx-auto flex max-w-4xl origin-top items-center justify-between gap-4 rounded-[2.5rem] bg-surface/80 px-4 py-3 font-custom2 text-fg backdrop-blur-lg transition-[translate,scale] duration-300 ease-out motion-reduce:transition-none md:gap-8 md:px-6",
+          "fixed top-0 right-0 left-0 z-50 mx-auto flex max-w-4xl origin-top items-center justify-between gap-4 rounded-[2.5rem] bg-surface/80 px-4 py-3 font-custom text-fg backdrop-blur-lg transition-[translate,scale] duration-300 ease-out motion-reduce:transition-none md:gap-8 md:px-6",
           "max-md:rounded-none max-md:border-b max-md:border-line max-md:bg-surface/90 max-md:px-3 max-md:py-1.5 max-md:pt-[max(0.375rem,env(safe-area-inset-top))]",
           scrolled && "md:-translate-y-1 md:scale-y-95 motion-reduce:!translate-y-0 motion-reduce:!scale-y-100",
         )}
