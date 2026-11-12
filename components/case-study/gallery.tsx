@@ -53,7 +53,7 @@ function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpe
         type="button"
         onClick={onOpen}
         aria-label={`View full screen: ${shot.caption}`}
-        className="flex aspect-[16/10] max-md:aspect-auto w-full cursor-zoom-in items-center justify-center rounded-lg border border-line bg-surface-alt p-2 md:p-5"
+        className="block w-full cursor-zoom-in overflow-hidden rounded-lg border border-line bg-surface-alt"
       >
         <Image
           src={shot.src}
@@ -63,7 +63,7 @@ function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpe
           sizes={SLIDE_SIZES}
           quality={IMAGE_QUALITY.card}
           {...(index === 0 ? LCP_IMAGE_PROPS : {})}
-          className="block h-auto max-h-full w-auto max-w-full max-md:w-full rounded-md shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+          className="block h-auto w-full"
         />
       </button>
       <figcaption className="mt-2 font-custom2 text-sm leading-snug text-fg-muted">{shot.caption}</figcaption>
