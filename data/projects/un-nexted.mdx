@@ -1,7 +1,7 @@
 ---
 role: "Solo, design to release"
 timeline: "Jan 2026 – Nov 2026"
-summary: The core of Next.js, rebuilt from scratch in under 700 lines of Bun and React, covering file-system routing, server-side data loading, server rendering and hydration, to understand how a meta-framework actually works.
+summary: The core of Next.js, rebuilt from scratch in under 700 lines of Bun and React. It covers file-system routing, server-side data loading, server rendering and hydration, and I built it to understand how a meta-framework actually works.
 stats:
   - { value: "6", label: "source files in the framework core" }
   - { value: "2", label: "runtime dependencies: React and React DOM" }
@@ -22,17 +22,17 @@ stack:
 
 <Section kicker="For everyone" title="What it does">
 
-Most React developers use Next.js as a black box. When a hydration error or a routing surprise appears, there is no mental model of what the framework did.
+Most React developers use Next.js as a black box. When a hydration error or a routing surprise appears, there's no mental model of what the framework did.
 
 Un-nexted opens the box. Drop a React file into `src/pages/` and run one command: `about.tsx` becomes `/about` and `blog/[slug].tsx` becomes a dynamic route. Pages arrive as real HTML, which is good for search engines and first paint, with their data loaded on the server through `getServerSideProps`, just like the Next.js pages router. Then the browser takes over and the page becomes interactive.
 
-It is a learning project, small enough to read top to bottom in one sitting. It deliberately leaves out caching, API routes and image optimisation, and says so. The full write-up is on the [blog](/blog/un-nexted).
+It's a learning project, small enough to read top to bottom in one sitting. It deliberately leaves out caching, API routes and image optimisation, and says so. The full write-up is on the [blog](/blog/un-nexted).
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
-Four files, one per stage: `router.ts`, `build.ts`, `server.ts` and `client.tsx`, plus a shared `types.ts`. Bun is the runtime, bundler and package manager, and it runs TypeScript directly, so there is no Babel or webpack. The `typescript` package is only there for type checking.
+Four files, one per stage: `router.ts`, `build.ts`, `server.ts` and `client.tsx`, plus a shared `types.ts`. Bun is the runtime, bundler and package manager, and it runs TypeScript directly, so there's no Babel or webpack. The `typescript` package is only there for type checking.
 
 <Diagram name="un-nexted-lifecycle" title="Request lifecycle" />
 
@@ -44,7 +44,7 @@ Four files, one per stage: `router.ts`, `build.ts`, `server.ts` and `client.tsx`
 
 <Highlights>
 <Highlight title="A router from a glob" result="Zero configuration, dynamic segments included">
-A directory tree becomes a list of URL patterns with named params, using the same file-name convention as the Next.js pages router. Catch-all routes and static-over-dynamic priority are not implemented.
+A directory tree becomes a list of URL patterns with named params, using the same file-name convention as the Next.js pages router. Catch-all routes and static-over-dynamic priority aren't implemented.
 </Highlight>
 <Highlight title="Hydration that matches by construction" result="The same props drive both renders">
 Hydration errors happen when the client renders different data than the server. Shipping the exact server props in the HTML makes the first client render identical.

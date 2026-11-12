@@ -34,17 +34,17 @@ stack:
 
 <Section kicker="For everyone" title="What it does">
 
-Every team that builds an API needs a way to call it, check the answers and repeat those checks before each release. The popular tools put shared collections, data-driven runs, report export and secret managers behind a paid plan and an account, so teams end up keeping one copy of their requests in the app and another in their test suite.
+If you build an API, you need a way to call it, check the answers and repeat those checks before each release. The popular tools put shared collections, data-driven runs, report export and secret managers behind a paid plan and an account, so you end up keeping one copy of your requests in the app and another in your test suite.
 
 Gostman is one free tool for all of it. You build requests in the app, or import them from Postman, Bruno, Insomnia, OpenAPI, HAR or curl, add checks such as "status is 200" or "the first item's userId is 1", and save everything as plain YAML files in a folder you can commit to Git.
 
 The same files then work in three places. Send a request by hand from the desktop or web app. Run the whole folder with `gostman run` on every pull request and get a text, JUnit, JSON, HTML or Markdown report. Or let a coding agent such as Claude Code or Cursor call your API through `gostman mcp`, without ever seeing your tokens.
 
-There is no account and no telemetry. The desktop app and the CLI contact only the hosts you send requests to and the services you set up, and the web app relays requests through a small proxy unless you run your own. The same download also does load testing, mock servers, OpenAPI linting, secret scanning and code generation for 21 targets, with 10 interface languages.
+There's no account and no telemetry. The desktop app and the CLI contact only the hosts you send requests to and the services you set up, and the web app relays requests through a small proxy unless you run your own. The same download also does load testing, mock servers, OpenAPI linting, secret scanning and code generation for 21 targets, with 10 interface languages.
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
 The backend is one Go module and the interface is one React app in `gostman-gui/frontend`, shared by the desktop and web builds. The `engine` package decides what is sent: variable substitution, auth, body encoding, redirects, proxies, certificates and, in the hosted web proxy, a block on private addresses. It covers REST, GraphQL, SOAP, server-sent events, raw TCP and UDP and NATS. gRPC goes through `rpc`, MCP servers through `mcpclient`, and the React app speaks WebSocket, Socket.IO, MQTT and SignalR over a WebSocket transport.
 
@@ -65,10 +65,10 @@ For each request, `session.execute` fills typed variables, runs pre-request scri
 
 <Highlights>
 <Highlight title="One scripting runtime, two hosts" result="400-request run: 3.9 s to 1.2 s, allocations down 74%">
-Scripts from imported collections are untrusted, so each one gets a runtime no other script has touched. Starting a new runtime for every check was the cost, so checks that run no user code now share one. Up to four runtimes for real scripts are booted ahead of time, which spreads the work over more cores but leaves CPU time unchanged.
+Scripts from imported collections are untrusted, so each one gets a runtime no other script has touched. Starting a new runtime for every check was the cost, so checks that run no user code now share one. Up to four runtimes for real scripts get booted ahead of time, which spreads the work over more cores but leaves CPU time unchanged.
 </Highlight>
-<Highlight title="Secrets a coding agent cannot read" result="Agents run real calls without ever seeing the values">
-The MCP server fills in a secret only for an address where one of your own requests already sends it, and scrubs every response for that secret in raw, URL-encoded, base64 and JSON-escaped forms. Writes are checked against a revision so two agents cannot silently overwrite each other.
+<Highlight title="Secrets a coding agent can't read" result="Agents run real calls without ever seeing the values">
+The MCP server fills in a secret only for an address where one of your own requests already sends it, and scrubs every response for that secret in raw, URL-encoded, base64 and JSON-escaped forms. Writes are checked against a revision so two agents can't silently overwrite each other.
 </Highlight>
 <Highlight title="Huge responses without a frozen UI" result="20 MB JSON: DOM nodes 16,113 to 934, longest frame 271 ms to 90 ms">
 The collection tree is windowed (33 rows in the DOM out of 5,258), JSONPath and extract rules run in workers with time limits, and large uploads stream instead of sitting in memory as base64. Pasting a 60,000-line body went from an 82.8 s freeze to a 12 ms key press.

@@ -37,8 +37,8 @@ export default function Error({
       title={<span className="text-2xl">Something went wrong</span>}
       message={
         isStaleBuild
-          ? "The site was just updated. Reload to get the latest version."
-          : error.message || "An unexpected error occurred. Please try again."
+          ? "I just updated the site. Reload to get the latest version."
+          : error.message || "Something broke on my end. Try again?"
       }
       action={
         <button type="button" onClick={isStaleBuild ? reloadPage : reset} className="btn-solid px-4 py-2">

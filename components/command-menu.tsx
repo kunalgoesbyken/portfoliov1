@@ -125,7 +125,7 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
       <CommandInput placeholder="Search actions…" className="border-none font-custom2 focus:ring-0" />
 
       <CommandList className="p-2 font-custom2">
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>Nothing found.</CommandEmpty>
         {COMMAND_GROUPS.map((group, index) => (
           <React.Fragment key={group.heading}>
             {index > 0 && <CommandSeparator className="my-2" />}

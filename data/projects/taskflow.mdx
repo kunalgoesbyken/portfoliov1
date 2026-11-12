@@ -34,17 +34,17 @@ stack:
 
 When a team spans timezones, work gets handed over in chat threads, and nobody can tell who owns what when they wake up.
 
-TaskFlow makes the handoff a first-class action. A timezone board shows one column per teammate with their local time, so passing a task to the next shift is a drag from one column to another. Task creation, handoffs and bulk changes are logged as events on the task, the new owner gets a notification, and handoff templates make sure the notes the next person needs are filled in before a task can move on.
+TaskFlow treats the handoff as a first-class action. A timezone board shows one column per teammate with their local time, so passing a task to the next shift is a drag from one column to another. Task creation, handoffs and bulk changes are logged as events on the task, the new owner gets a notification, and handoff templates make sure the notes the next person needs are filled in before a task can move on.
 
 Select many tasks at once to change status, priority or owner in one step. An analytics page shows who is overloaded, and the AI Shift Brief summarises everything that changed in the last day or week, so the morning catch-up takes a minute.
 
-GitHub webhooks update linked tasks: closing an issue or merging a pull request marks the task done, and reopening an issue reopens it. It can be self-hosted with Docker. Visitors can click "Try the demo" to open a populated workspace without signing up.
+GitHub webhooks update linked tasks: closing an issue or merging a pull request marks the task done, and reopening an issue reopens it. You can self-host it with Docker. Visitors can click "Try the demo" to open a populated workspace without signing up.
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
-A Next.js 15 App Router app on Vercel, running in the Mumbai region next to its Supabase Postgres database. Supabase provides sign-in, the database and realtime; Prisma is the only query layer.
+It's a Next.js 15 App Router app on Vercel, running in the Mumbai region next to its Supabase Postgres database. Supabase provides sign-in, the database and realtime; Prisma is the only query layer.
 
 1. `middleware.ts` refreshes the Supabase session cookie and redirects signed-out visitors away from `/dashboard`, `/tasks`, `/analytics` and `/settings`. It does not run on `/api`.
 2. Pages such as the dashboard and the timezone lanes are server components. They call `getAuthUser()` and read tasks through Prisma, so the first paint already has data.
@@ -57,16 +57,16 @@ A Next.js 15 App Router app on Vercel, running in the Mumbai region next to its 
 
 <Highlights>
 <Highlight title="Realtime without a second data path" result="Live updates always render the same joined shape as the API">
-Supabase Realtime payloads carry no joined rows, so applying them directly leaves tasks without an assignee or creator. Each event is treated as a signal that invalidates the TanStack Query cache and triggers a refetch, so there is one data path instead of two.
+Supabase Realtime payloads carry no joined rows, so applying them directly leaves tasks without an assignee or creator. I treat each event as a signal that invalidates the TanStack Query cache and triggers a refetch, so there's one data path instead of two.
 </Highlight>
 <Highlight title="Bulk changes in one transaction" result="A 50-task change is 2 writes, not 100, and they commit together">
-The bulk endpoint first checks that the caller can access every selected id; one foreign id rejects the whole request. The change is a single `updateMany` plus one `createMany` for the audit trail, both inside one `prisma.$transaction`, so a failure cannot leave a change without its audit events.
+The bulk endpoint first checks that the caller can access every selected id; one foreign id rejects the whole request. The change is a single `updateMany` plus one `createMany` for the audit trail, both inside one `prisma.$transaction`, so a failure can't leave a change without its audit events.
 </Highlight>
 <Highlight title="Verified webhooks and encrypted tokens" result="Inbound calls are verified and stored tokens are encrypted">
 GitHub webhooks are checked by recomputing the HMAC with a timing-safe comparison. Slack requests are verified the same way with a five-minute replay window, and Slack tokens are encrypted with AES-256-GCM before they are stored. A typed environment schema refuses to boot if the encryption key is shorter than 32 characters.
 </Highlight>
 <Highlight title="A self-seeding demo" result="One click from the sign-in page to a populated workspace">
-The demo endpoint creates its user and seeds five teammates in five timezones on first use. Seed rows use fixed ids with skip-duplicates, so concurrent first visitors cannot create copies, and the demo password is derived from a server secret rather than committed.
+The demo endpoint creates its user and seeds five teammates in five timezones on first use. Seed rows use fixed ids with skip-duplicates, so concurrent first visitors can't create copies, and the demo password is derived from a server secret rather than committed.
 </Highlight>
 </Highlights>
 

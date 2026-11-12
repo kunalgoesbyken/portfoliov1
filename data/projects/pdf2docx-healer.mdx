@@ -1,7 +1,7 @@
 ---
 role: "Solo, design to release"
 timeline: "Jun 2026 – Nov 2026"
-summary: A published Python package that wraps the popular pdf2docx converter and repairs what it loses, so bullet lists, numbering, clickable links, CJK fonts and scanned pages survive the conversion from PDF to Word.
+summary: A published Python package that wraps the popular pdf2docx converter and fixes what it loses, so bullet lists, numbering, clickable links, CJK fonts and scanned pages survive the conversion from PDF to Word.
 stack:
   - "Python"
   - "pdf2docx"
@@ -19,15 +19,15 @@ Converting a PDF to an editable Word file sounds solved until you open the resul
 
 pdf2docx-healer fixes those problems automatically. Install it with `pip install pdf2docx-healer`, then call `heal("report.pdf", "report.docx")` or run `pdf2docx-heal report.pdf`. For scanned documents, install Tesseract and add `--ocr`.
 
-You get a Word file where lists are real Word lists with the right nesting and numbering style, links are clickable, and Chinese, Japanese and Korean fonts fall back to common ones through a built-in table. Each repair can be switched off on its own.
+You get a Word file where lists are real Word lists with the right nesting and numbering style, links are clickable, and Chinese, Japanese and Korean fonts fall back to common ones through a built-in table. You can switch off each repair on its own.
 
-It is for teams that convert PDFs in scripts and pipelines and are tired of fixing formatting by hand.
+It's for teams that convert PDFs in scripts and pipelines and are tired of fixing formatting by hand.
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
-The package keeps pdf2docx intact, patches the two internals that lose list items, and repairs the finished file in separate passes. `heal()` in `src/docx_healer/converter.py` runs the whole flow, and the `pdf2docx-heal` command in `cli.py` is a thin wrapper around it.
+The package keeps pdf2docx intact, patches the two internals that lose list items, and fixes the finished file in separate passes. `heal()` in `src/docx_healer/converter.py` runs the whole flow, and the `pdf2docx-heal` command in `cli.py` is a thin wrapper around it.
 
 <Diagram name="pdf2docx-healer-pipeline" title="Healing pipeline" />
 
@@ -52,7 +52,7 @@ Word's built-in list styles only cover bullets and decimals, so lettered and rom
 "4. Numbered List" is a title, not an item. A sequence-reset check plus title-case heuristics keeps titles as normal paragraphs, and a cleanup pass resets a short title left styled at the end of a list.
 </Highlight>
 <Highlight title="Fail-soft by design" result="One failing pass never costs the others">
-Each repair pass has its own error handling and OCR degrades gracefully, so a font problem can never lose the lists and links already fixed.
+Each repair pass has its own error handling and OCR degrades gracefully, so a font problem can't lose the lists and links that were already fixed.
 </Highlight>
 </Highlights>
 

@@ -7,7 +7,7 @@ import { getAllBlogs } from "@/util/mdx_clean";
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "Thoughts on software engineering, web development, and technology",
+  description: "What I write about software engineering, web development and tech",
 };
 
 export default async function BlogIndex() {

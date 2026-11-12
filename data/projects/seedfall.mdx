@@ -33,11 +33,11 @@ Seedfall makes those moments happen on purpose, and makes them repeatable. You w
 
 When something breaks you get a seed number. That seed reproduces the exact same failure on any machine, with a full trace and a timeline. Seedfall then shrinks a failure with dozens of faults down to the two or three that matter, and once you have a fix, it proves the fix by replaying the failure and sweeping fresh seeds.
 
-It has already found real bugs in widely used projects, including NATS, hashicorp/raft, nutsdb and buntdb. One of them, in hashicorp/raft, leaves a node that panics on every restart after a badly timed power loss. Nine issues have been filed upstream and buntdb has already shipped a fix.
+It's already found real bugs in widely used projects, including NATS, hashicorp/raft, nutsdb and buntdb. One of them, in hashicorp/raft, leaves a node that panics on every restart after a badly timed power loss. Nine issues have been filed upstream and buntdb has already shipped a fix.
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
 The repository is one Go module. `sim` is the small library a workload imports for properties, operation history and `sim.Listen` and `sim.Dial`. `engine` is the simulator. `cmd/seedfall` is the CLI and the MCP server, `verify` and `report` produce proofs and triage output, and `seedfalltest` runs a sweep from `go test`.
 
@@ -60,7 +60,7 @@ One run of one seed goes like this:
 Reproducing a concurrent, distributed Go program byte for byte usually means patching the runtime. Routing every source of nondeterminism through three WASI calls made it possible with the stock toolchain. `seedfall run -check` runs each seed twice and stops at the first host call that differs.
 </Highlight>
 <Highlight title="Shrinking that never swaps bugs" result="33 faults to 2, one minute of virtual time to 991 ms, in 191 runs">
-Delta debugging removes faults, then the workload is capped, the duration trimmed and each fault simplified. A candidate is kept only if it fails with the same class, node, property and message. Scheduling, network latency, disk tearing, fault timing and I/O faults each draw from their own seeded stream, so removing one fault barely disturbs the rest of the run.
+Delta debugging removes faults first, then caps the workload, trims the duration and simplifies each fault. A candidate is kept only if it fails with the same class, node, property and message. Scheduling, network latency, disk tearing, fault timing and I/O faults each draw from their own seeded stream, so removing one fault barely disturbs the rest of the run.
 </Highlight>
 <Highlight title="A crash model with strict file system rules" result="Found that hashicorp/raft never fsyncs its snapshot directory">
 Most storage bugs only appear under strict POSIX rules, torn writes or failing fsyncs, none of which a laptop disk shows. In raft's case, a crash after log compaction leaves an empty snapshot directory, and the node panics in `NewRaft` on every restart.

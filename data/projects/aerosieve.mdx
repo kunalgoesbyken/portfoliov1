@@ -34,19 +34,19 @@ stack:
 
 <Section kicker="For everyone" title="What it does">
 
-Speech models learn from whatever audio they are given. Silence, hiss, distorted peaks, phone-line artefacts and test tones all end up in the training set unless someone takes them out, and nobody can listen to thousands of hours by hand.
+Speech models learn from whatever audio you feed them. Silence, hiss, distorted peaks, phone-line artefacts and test tones all end up in the training set unless someone takes them out, and nobody can listen to thousands of hours by hand.
 
 AeroSieve does that listening. Point it at a folder of recordings and it cuts each file into speech clips of 3 to 30 seconds, measures every clip for noise, loudness, distortion and tonality, and keeps only the clips that pass.
 
-Every rejected clip gets a plain reason: `low_snr`, `clipping`, `tonal`, `too_quiet`, `too_loud` or `silence`. Teams can see what their data actually looked like and loosen a threshold when their recordings are naturally noisy, instead of trusting a black box.
+Every rejected clip gets a plain reason: `low_snr`, `clipping`, `tonal`, `too_quiet`, `too_loud` or `silence`. You can see what your data actually looked like and loosen a threshold when your recordings are naturally noisy, instead of trusting a black box.
 
-It is built for teams training speech recognition and voice AI, especially in languages where cleaned public data is scarce. It was tested on English, Hindi, Tamil, Bengali, Telugu and Marathi.
+I built it for teams training speech recognition and voice AI, especially in languages where cleaned public data is scarce. I tested it on English, Hindi, Tamil, Bengali, Telugu and Marathi.
 
 The output is ready to train on: WebDataset shards, a manifest of every kept clip and a stats file. The same engine runs as a command-line tool, a Rust library, a Python package, a live WebSocket service for calls and voice agents, and in the browser, where your audio never leaves the page.
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
 A Rust workspace of ten crates, plus two binding crates (`bindings/python`, `bindings/wasm`) built separately. The `aerosieve` library crate wires the stages together: `Pipeline` writes shards, `Inspector` only judges, and `LiveInspector` judges audio that arrives in pieces. `aerosieve-cli` (clap) and `aerosieve-serve` (axum) are thin front ends over it, and `aerosieve-lexical` normalizes transcripts from YAML rules.
 
@@ -55,24 +55,24 @@ A Rust workspace of ten crates, plus two binding crates (`bindings/python`, `bin
 1. **Decode** (`aerosieve-decode`): Symphonia reads wav, mp3, flac, ogg or mp4, downmixes, and rubato resamples to 16 kHz. Loudness is nudged toward -20 dBFS with at most 3 dB of gain, and the source's own full scale is kept so clipping can still be measured.
 2. **Segment** (`aerosieve-segment`): a `SpeechDetector` gives each 32 ms window a speech probability. The default `EnergyDetector` uses signal level and needs no model. A hysteresis state machine, modelled on Silero's speech timestamps, ends a clip only after 500 ms of quiet. Clips under 3 s are dropped and longer ones are cut at their deepest internal dip, to at most 30 s.
 3. **Score** (`aerosieve-acoustic`): `score` returns four numbers with no ML model, WADA-SNR, RMS level, clip ratio and spectral flatness over 300 to 3400 Hz. `FilterPolicy::evaluate` then returns the first failing `RejectReason`, so thresholds can change without re-reading audio.
-4. **Shard** (`aerosieve-shard`): accepted clips become `.wav` and `.json` pairs in `shard-*.tar` files, built in a staging directory and renamed into place, with `manifest.jsonl` and `stats.json`. Rejected clips are not written. Their reasons are counted in the run totals and printed by `aerosieve inspect`.
+4. **Shard** (`aerosieve-shard`): accepted clips become `.wav` and `.json` pairs in `shard-*.tar` files, built in a staging directory and renamed into place, with `manifest.jsonl` and `stats.json`. Rejected clips aren't written, but their reasons are counted in the run totals and printed by `aerosieve inspect`.
 
 `Pipeline::process_files` inspects one batch of files per round with rayon and writes results in input order, so a parallel run matches a single-threaded one. `Segmenter::segment` is the `StreamSegmenter` fed the whole file.
 
 The live service exposes `/v1/stream`. Clients send 16-bit PCM frames over a WebSocket, each session holds a `LiveInspector`, and a verdict goes back once the pause that ends a clip is heard. Sessions (256 by default), utterance length, frame size and idle time are capped, and `/metrics` serves Prometheus text with a decision-latency histogram. The browser build compiles the same crates to WebAssembly: an `Inspection` decodes and scores once, then re-applies any `FilterPolicy` to the stored measurements.
 
 <Highlights>
-<Highlight title="A benchmark that cannot grade itself" result="24,385 of 24,409 defects caught; the right reason named for all but 2">
-SieveBench damages clean speech in 28 known ways (six noise levels, clipping, near silence, tones, hum, phone line) and runs 51,352 damaged copies through the same code as the CLI. The expected verdict comes from the damage, never from AeroSieve's thresholds, so tuning cannot make the benchmark agree with itself.
+<Highlight title="A benchmark that can't grade itself" result="24,385 of 24,409 defects caught; the right reason named for all but 2">
+SieveBench damages clean speech in 28 known ways (six noise levels, clipping, near silence, tones, hum, phone line) and runs 51,352 damaged copies through the same code as the CLI. The expected verdict comes from the damage, never from AeroSieve's thresholds, so tuning can't make the benchmark agree with itself.
 </Highlight>
 <Highlight title="The benchmark found real bugs" result="Kept Hindi speech rose from 16.4 to 25.6 minutes (+56%)">
-Loudness leveling was hiding clipping, so distorted files passed as clean; clipping is now measured against the source's full scale. Speech was also being cut at every 100 ms word gap, which left 23 of 73 clean English recordings with no clip at all; pauses under 500 ms are now bridged.
+Loudness leveling was hiding clipping, so distorted files passed as clean. Clipping is now measured against the source's full scale. Speech was also getting cut at every 100 ms word gap, which left 23 of 73 clean English recordings with no clip at all. Pauses under 500 ms are now bridged.
 </Highlight>
 <Highlight title="One state machine for live and batch" result="1,000 concurrent streams on a 4-core laptop, 0 failures">
-Batch processing is the streaming segmenter fed the whole file, so live and batch verdicts cannot disagree. A property test streams in random chunk sizes and checks the segments match, and a live test checks clips and scores match exactly across several chunk sizes. The live path judges samples as received, with no loudness leveling.
+Batch processing is the streaming segmenter fed the whole file, so live and batch verdicts can't disagree. A property test streams in random chunk sizes and checks the segments match, and a live test checks clips and scores match exactly across several chunk sizes. The live path judges samples as received, with no loudness leveling.
 </Highlight>
 <Highlight title="Noise measured without a clean reference" result="Within about 1.3 dB from 0 to 20 dB SNR">
-WADA-SNR estimates noise from the amplitude distribution of the clip alone. Babble reads up to 2.7 dB too clean, which is documented as a limitation instead of hidden. Flatness skips bins near Nyquist, where resampled audio is empty and speech would look tonal.
+WADA-SNR estimates noise from the amplitude distribution of the clip alone. Babble reads up to 2.7 dB too clean, which I documented as a limitation instead of hiding it. Flatness skips bins near Nyquist, where resampled audio is empty and speech would look tonal.
 </Highlight>
 <Highlight title="Fast by default" result="43 minutes of 48 kHz Hindi in 2.75 s, about 940x real time">
 Files are inspected in batches across every core with rayon and written back in input order. Unpaced, the server pushed 1.27 hours of audio through in 0.6 seconds.

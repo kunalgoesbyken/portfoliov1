@@ -1,6 +1,6 @@
 ---
 title: 'De-mystifying the Meta-framework: Why I Rebuilt Next.js from Scratch'
-description: 'I stripped away the black box to understand how SSR, Hydration, and File-system routing actually work under the hood. Here is the architecture of a meta-framework.'
+description: 'I cracked open the black box to understand how SSR, Hydration, and File-system routing actually work under the hood. Here is what a meta-framework looks like inside.'
 date: '2026-01-15'
 tags: ['react', 'ssr', 'system-design', 'bun', 'engineering']
 repo: 'https://github.com/kunalgoesbyken/Un-nexted'
@@ -11,7 +11,7 @@ author: 'Kunal'
 
 I used Next.js daily for two years. I knew *how* to use it. I could write a `getServerSideProps` function in my sleep and structure my `pages` directory perfectly.
 
-But I didn't verify *how* it worked.
+But I never checked *how* it actually worked.
 
 To me, Next.js was a black box. A magic compiler that took my React code and somehow made it SEO-friendly. As an engineer, "magic" is just a polite word for "abstraction I haven't understood yet."
 
@@ -19,16 +19,16 @@ So, I decided to break the abstraction. I built **Un-nexted**: a raw, bare-metal
 
 ## The Core Insight
 
-After rebuilding the core, I realized that a meta-framework is really just three things glueing together:
+After rebuilding the core, I realized that a meta-framework is really just three things glued together:
 1.  **A Compiler** (to separate server code from client code)
 2.  **A Server** (to render strings and handle requests)
 3.  **A Synchronization Protocol** (Hydration)
 
-Here is how I implemented each stage.
+Here's how I built each stage.
 
 ## 1. The "Magic" of File-System Routing
 
-We often take for granted that putting a file in `pages/about.tsx` makes it available at `/about`. Under the hood, this isn't magic; it's just a Glob pattern and a Hash Map.
+We take it for granted that putting a file in `pages/about.tsx` makes it available at `/about`. Under the hood, this isn't magic. It's just a Glob pattern and a Hash Map.
 
 In `Un-nexted`, the router doesn't rely on complex configuration. At server startup, it scans the directory:
 
@@ -75,17 +75,17 @@ return new Response(template.replace("<!--app-->", appHtml));
 
 ## 3. The Hydration & Serialization Gap
 
-This was the hardest engineering challenge.
+This was the hardest problem.
 
 If you just send the HTML string, the user sees the content, but the buttons don't work. The page is "dead." To bring it to life, React needs to **Hydrate** it in the browser.
 
-But there is a catch: **The browser doesn't know the data the server fetched.**
+But there's a catch: **The browser doesn't know the data the server fetched.**
 
 If the server renders a list of 5 users, but the browser initializes with an empty list, React will throw a hydration mismatch error because the HTML structures don't match.
 
 ### The Solution: Window Injection
 
-To solve this, `Un-nexted` implements the "Script Injection" pattern used by Next.js and Remix. We serialize the server props and attach them to the global window object before sending the HTML.
+To fix this, `Un-nexted` uses the "Script Injection" pattern that Next.js and Remix use. We serialize the server props and attach them to the global window object before sending the HTML.
 
 **On the Server:**
 ```html
@@ -105,17 +105,17 @@ hydrateRoot(document.getElementById('root'), <App {...initialData} />);
 
 ## Why Bun?
 
-I chose [Bun](https://bun.sh) for this project, and it significantly reduced complexity.
-*   **Unified Tooling:** Bun acts as the Runtime (Node alternative), the Bundler (Webpack alternative), and the Package Manager (npm alternative).
-*   **Speed:** Cold starts for the dev server are effectively instant.
+I picked [Bun](https://bun.sh) for this project, and it made things a lot simpler.
+*   **Unified Tooling:** Bun is the Runtime (Node alternative), the Bundler (Webpack alternative), and the Package Manager (npm alternative), all in one.
+*   **Speed:** Cold starts for the dev server are basically instant.
 *   **Native TypeScript:** I didn't have to configure Babel or `tsc` to get the server running.
 
 ## What I Learned
 
-Rebuilding a tool is the best way to respect it. `Un-nexted` works for basic use cases, but it lacks the production hardening of Next.js:
+Rebuilding a tool is the best way to respect it. `Un-nexted` works for basic use cases, but it doesn't have the production hardening Next.js has:
 *   **ISR/Caching:** My implementation renders on *every* request. Next.js has a sophisticated caching layer.
-*   **Route Groups:** My Regex router is simple; production routers use Radix Trees for performance.
-*   **Security:** Serializing data to the window requires careful sanitization to prevent XSS attacks.
+*   **Route Groups:** My Regex router is simple. Production routers use Radix Trees for performance.
+*   **Security:** Serializing data to the window needs careful sanitization to prevent XSS attacks.
 
 ## Conclusion
 

@@ -3,7 +3,7 @@ import { DEPLOYED_PROJECTS } from "@/lib/projects-data";
 import { SITE_NAME, SITE_TAGLINES, SITE_URL } from "@/lib/site";
 import { OG_SIZE, loadOgFonts, toPngDataUrl } from "@/lib/og";
 
-export const alt = `${SITE_NAME}: backend systems, Rust, Go and AI tools shipped to production`;
+export const alt = `${SITE_NAME}: backend engineer working in Rust, Go and AI tools that run in production`;
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

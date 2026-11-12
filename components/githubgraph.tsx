@@ -30,9 +30,9 @@ interface PRFilterConfig {
 
 const PR_FILTERS = {
   all: { label: "All", description: "Every pull request, latest first" },
-  merged: { label: "Merged", description: "Merged contributions to open source", state: "MERGED" },
-  open: { label: "Open", description: "Active pull requests", state: "OPEN" },
-  closed: { label: "Closed", description: "Closed pull requests", state: "CLOSED" },
+  merged: { label: "Merged", description: "PRs that got merged into open source projects", state: "MERGED" },
+  open: { label: "Open", description: "PRs that are still open", state: "OPEN" },
+  closed: { label: "Closed", description: "PRs that were closed", state: "CLOSED" },
 } satisfies Record<string, PRFilterConfig>;
 
 type PRFilter = keyof typeof PR_FILTERS;
@@ -126,7 +126,7 @@ const PullRequests = ({ prs }: { prs: GithubData["prs"] }) => {
       className="mt-10"
     >
       {filtered.length === 0 ? (
-        <p className="font-custom2 text-sm text-fg-muted">No pull requests found</p>
+        <p className="font-custom2 text-sm text-fg-muted">No pull requests here.</p>
       ) : (
         <>
           <ul className="divide-y divide-dashed divide-line [&>:first-child]:pt-0">

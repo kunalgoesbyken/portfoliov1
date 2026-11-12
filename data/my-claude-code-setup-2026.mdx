@@ -1,7 +1,7 @@
 ---
 slug: "my-claude-code-setup-2026"
-title: "Stop Using Claude Wrong: My Production-Grade Agentic Stack (2026)"
-description: "Default Claude Code is a toy. Here is how I configured it with Z AI, MCP, and custom semantic skills to ship production Go & React apps."
+title: "Stop Using Claude Wrong: The Agentic Stack I Actually Ship With (2026)"
+description: "Default Claude Code is a toy. Here's how I set it up with Z AI, MCP, and custom semantic skills to ship production Go & React apps."
 date: "2026-01-07"
 image: "/claude-anim.webp"
 author: Kunal
@@ -16,15 +16,15 @@ Most developers are using AI tools like it's still 2024. They paste code into a 
 
 I don't use AI to write boilerplate. **I use it to architect systems.**
 
-While `claude-code` is impressive out of the box, the default configuration feels like driving a Ferrari in a school zone. As a full-stack engineer shipping indie projects and managing complex Go/TypeScript backends, I need an agent that understands *context*, manages its own memory, and refuses to generate generic "AI slop."
+`claude-code` is impressive out of the box, but the default configuration feels like driving a Ferrari in a school zone. I'm a full-stack engineer shipping indie projects and managing complex Go/TypeScript backends, so I need an agent that understands *context*, manages its own memory, and refuses to generate generic "AI slop."
 
-Here is the exact stack, configuration, and reasoning behind my agentic workflow in 2026.
+Here's the exact stack, config, and reasoning behind my agentic workflow in 2026.
 
 ---
 
 ## 1. The Engine: Z AI
 
-Direct API usage burns money and adds latency. I route everything through **Z AI** (Zhipu AI), a platform providing GLM models with an Anthropic-compatible API endpoint.
+Direct API usage burns money and adds latency. I route everything through **Z AI** (Zhipu AI), a platform that offers GLM models with an Anthropic-compatible API endpoint.
 
 The beauty of Z AI is that it's a drop-in replacement. Configure once, and Claude Code works exactly the same, but with GLM-4.7 handling the heavy lifting.
 
@@ -81,7 +81,7 @@ Claude reads the actual current docs and writes the implementation correctly the
 
 ## 3. Custom Skills
 
-This is where the setup gets opinionated. I've written custom skill definitions to force Claude to adhere to **my** engineering standards, not the "average" of the internet.
+This is where the setup gets opinionated. I've written custom skill definitions to make Claude stick to **my** engineering standards, not the "average" of the internet.
 
 ### The Anti-Slop Frontend Designer
 

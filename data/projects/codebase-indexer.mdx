@@ -5,7 +5,7 @@ summary: Offline code search in Rust that finds code by meaning as well as by ke
 stats:
   - { value: "2", label: "rankers merged by rank: Tantivy BM25 and a hand-written HNSW graph" }
   - { value: "768", label: "dimensions per code chunk embedding" }
-  - { value: "3,000", label: "non-whitespace characters per chunk before it is split" }
+  - { value: "3,000", label: "non-whitespace characters per chunk before it's split" }
   - { value: "0", label: "bytes of code sent off the machine" }
 gallery:
   - { src: /images/projects/codebase-indexer/00-producthunt.webp, caption: "Offline semantic code search: tree-sitter chunks embedded with nomic-embed INT8 ONNX" }
@@ -29,17 +29,17 @@ stack:
 
 Searching code with grep only works when you already know the exact word the author used. Asking "where do goroutines get preempted?" finds nothing if the function is called `changePoint`.
 
-codebase-indexer lets you search a codebase by what the code does. Run `index` once, then ask a question in plain words and get the five best matches with file, line range and the code itself. Exact identifiers still work too, because every search combines keyword matching with meaning matching.
+codebase-indexer lets you search a codebase by what the code does. Run `index` once, then ask a question in plain words and get the five best matches with file, line range and the code itself. Exact identifiers still work too, because every search mixes keyword matching with meaning matching.
 
-It is built for developers working on private code who cannot send it to a hosted service. The embedding model runs locally on the CPU after a one-time download, so nothing leaves the machine. After the first run it keeps itself up to date cheaply: unchanged files are skipped, edited files are re-read, deleted files disappear from results.
+I built it for developers working on private code who can't send it to a hosted service. The embedding model runs locally on the CPU after a one-time download, so nothing leaves your machine. After the first run it stays up to date cheaply: unchanged files are skipped, edited files are re-read, and deleted files disappear from results.
 
 It understands Rust, Go, Python, TypeScript, Java, C and C++, plus Markdown and config files.
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
-About 1,200 lines of Rust in one binary with two commands, `index` and `query`. There is no database or vector service behind it: the vector log, the HNSW graph and the change tracking are all hand-written. Everything is stored in a `.indexer/` folder inside the indexed project.
+About 1,200 lines of Rust in one binary with two commands, `index` and `query`. There's no database or vector service behind it: I wrote the vector log, the HNSW graph and the change tracking by hand. Everything lives in a `.indexer/` folder inside the indexed project.
 
 <Diagram name="codebase-indexer-pipeline" title="Indexing and query pipeline" />
 
@@ -53,14 +53,14 @@ About 1,200 lines of Rust in one binary with two commands, `index` and `query`. 
 <Highlight title="Incremental indexing that survives edits and deletes" result="No-op re-index in 95 ms; a one-file edit re-embeds only that file">
 Embedding is the expensive step, so a content hash decides what reaches it. The log-structured store absorbs changes with tombstones instead of rewriting, which also makes it crash-tolerant.
 </Highlight>
-<Highlight title="A persisted HNSW graph that cannot go stale" result="A stale or corrupt graph falls back to an exact scan, never wrong results">
-The graph (M=16, efConstruction=200, diversity heuristic for neighbour pruning) is saved next to the log along with the log length it was built from, and checked for consistency on load. Below 1,000 records an exact cosine scan is used, since it is both fast and exact. The graph is rebuilt from scratch whenever an index run changes anything.
+<Highlight title="A persisted HNSW graph that can't go stale" result="A stale or corrupt graph falls back to an exact scan, never wrong results">
+The graph (M=16, efConstruction=200, diversity heuristic for neighbour pruning) is saved next to the log along with the log length it was built from, and checked for consistency on load. Below 1,000 records it uses an exact cosine scan, since that's both fast and exact. The graph is rebuilt from scratch whenever an index run changes anything.
 </Highlight>
 <Highlight title="Hybrid retrieval without score calibration" result="Exact identifiers and loose descriptions both find the right code">
 Keyword scores and cosine similarity live on incompatible scales. Fusing by rank instead of score means they never need calibrating. Asking "preempt goroutine at yield point" over Seedfall's engine returned the preemption config, its handler and the instrumentation helper.
 </Highlight>
 <Highlight title="Chunks that follow the syntax tree" result="Search results are whole declarations, not arbitrary windows">
-Fixed-size windows split functions and duplicate context. Declaration-level chunks with a recursive split and greedy re-merge keep results whole whenever a declaration fits, capped at a depth of 32 to bound pathological files. Code outside declarations, such as imports, is not indexed.
+Fixed-size windows split functions and duplicate context. Declaration-level chunks with a recursive split and greedy re-merge keep results whole whenever a declaration fits, capped at a depth of 32 to bound pathological files. Code outside declarations, such as imports, isn't indexed.
 </Highlight>
 </Highlights>
 

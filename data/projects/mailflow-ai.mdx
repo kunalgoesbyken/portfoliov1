@@ -1,7 +1,7 @@
 ---
 role: "Solo, design to release"
 timeline: "Feb 2026 – Nov 2026"
-summary: A Gmail client in the browser with an AI assistant that opens emails, switches views and drafts replies from plain-language requests, and never sends anything without your confirmation.
+summary: A Gmail client in the browser with an AI assistant that opens emails, switches views and drafts replies when you ask in plain language, and never sends anything until you confirm.
 stats:
   - { value: "0", label: "mail backends: Gmail is called from the browser" }
   - { value: "11", label: "keyboard shortcuts for reading and triage" }
@@ -31,40 +31,40 @@ stack:
 
 Triaging a busy inbox and writing routine replies eats hours. Most AI mail tools either want your whole mailbox on their servers or act on your behalf without asking.
 
-MailFlowAI keeps you in control. Sign in with Google and you get a fast inbox with search, filters, stars, archiving and keyboard shortcuts. Next to it sits an assistant you can talk to: "open the email from Priya", "go to sent mail", "draft a reply to this". It works from the ten most recent emails it is shown, not the whole mailbox.
+MailFlowAI keeps you in control. Sign in with Google and you get a fast inbox with search, filters, stars, archiving and keyboard shortcuts. Next to it sits an assistant you can talk to: "open the email from Priya", "go to sent mail", "draft a reply to this". It works from the ten most recent emails it's shown, not the whole mailbox.
 
-The assistant opens the right email or fills the composer with a draft marked as written by the assistant. You edit it, press Send and confirm. It has no way to send mail by itself.
+The assistant opens the right email, or fills the composer with a draft that's marked as written by the assistant. You edit it, press Send and confirm. It can't send mail by itself.
 
-Your mail goes straight from Gmail to your browser. The server handles the sign-in token exchange and the chat, so it sees your chat message and a short summary of ten emails, never the mailbox. The inbox refreshes itself every 30 seconds.
+Your mail goes straight from Gmail to your browser. The server handles the sign-in token exchange and the chat, so all it sees is your chat message and a short summary of ten emails, never the mailbox. The inbox refreshes itself every 30 seconds.
 
 </Section>
 
-<Section kicker="For engineers" title="How it is built">
+<Section kicker="For engineers" title="How I built it">
 
-A Next.js 15 and React 19 app with no mail backend. `app/page.tsx` renders the whole client app from `src/App.tsx`. The server side is two route handlers: `/api/auth/token`, which exchanges and refreshes OAuth tokens, and `/api/chat`.
+It's a Next.js 15 and React 19 app with no mail backend. `app/page.tsx` renders the whole client app from `src/App.tsx`. The server side is two route handlers: `/api/auth/token`, which exchanges and refreshes OAuth tokens, and `/api/chat`.
 
 1. Sign-in: `initiateOAuth()` stores a random state in sessionStorage and redirects to Google with the `gmail.modify` scope. Google returns to `/auth/callback`, which checks the state and sends the code to `/api/auth/token`. That route adds the server-only `GMAIL_CLIENT_SECRET`, exchanges the code with Google and returns the tokens. Refreshing an expired token uses the same route.
 2. Tokens: the access and refresh tokens live in sessionStorage through `token-storage.ts`, so a closed tab signs the user out.
 3. Mail: `GmailService`, built on ky, calls the Gmail REST API directly from the browser. `useEmails` loads 30 messages at a time into the Zustand `useAppStore`, which also holds filters, the open thread and the composer. Only the user and sign-in flag are persisted, and filtering and sorting run in the browser.
-4. Assistant: each chat request carries the user's text and a compact context of the current view, selected email, active filters and ten loaded emails as 100-character snippets. `/api/chat` streams a response from Groq (`openai/gpt-oss-120b`) with four tools declared as Zod schemas: `openEmail`, `navigateView`, `composeEmail` and `replyToEmail`. The server only acknowledges tool calls; `useAIChat` applies them to the store when the stream finishes, so every AI action is a visible change in the interface.
+4. Assistant: each chat request carries the user's text and a small context of the current view, selected email, active filters and ten loaded emails as 100-character snippets. `/api/chat` streams a response from Groq (`openai/gpt-oss-120b`) with four tools declared as Zod schemas: `openEmail`, `navigateView`, `composeEmail` and `replyToEmail`. The server only acknowledges tool calls; `useAIChat` applies them to the store when the stream finishes, so every AI action is a visible change in the interface.
 
 <Diagram name="mailflow-ai-system" title="System architecture" />
 
 <Highlights>
 <Highlight title="A runaway sync loop, found and fixed" result="640 inbox requests in 11 seconds down to 3">
-The effect that starts the 30-second sync depended on a fetch function rebuilt whenever the email list changed, so every successful fetch triggered another. With real Gmail that burns quota and risks rate limits. Holding the fetchers in a ref and depending only on sign-in state and the current view fixed it in 13 lines.
+The effect that starts the 30-second sync depended on a fetch function that got rebuilt whenever the email list changed, so every successful fetch triggered another one. With real Gmail that burns quota and risks rate limits. Keeping the fetchers in a ref and depending only on sign-in state and the current view fixed it in 13 lines.
 </Highlight>
 <Highlight title="Tool calls are the only way the AI acts" result="One send path, one confirmation, for human and AI drafts">
-The model has four narrowly typed tools and no send capability. Drafts go through the same composer and confirmation dialog as hand-written mail, and tool parts are typed end to end, so the dispatcher is a type-checked switch.
+The model gets four narrowly typed tools and no way to send. Drafts go through the same composer and confirmation dialog as hand-written mail, and tool parts are typed end to end, so the dispatcher is a type-checked switch.
 </Highlight>
 <Highlight title="Small, bounded context" result="The model sees snippets, never the mailbox">
 Instead of shipping the inbox, the client sends counts, filters and short snippets, and the system prompt tells the model to use only email ids that appear in that context.
 </Highlight>
-<Highlight title="Resilient Gmail fetching" result="One broken message never empties the inbox">
+<Highlight title="Gmail fetching that shrugs off bad messages" result="One broken message never empties the inbox">
 Messages are fetched in parallel with `Promise.allSettled`, MIME parts are parsed into a typed model, and HTML bodies are sanitised with DOMPurify before rendering.
 </Highlight>
 </Highlights>
 
-The screenshots use a sample inbox, since Gmail sign-in cannot be automated.
+The screenshots use a sample inbox, since Gmail sign-in can't be automated.
 
 </Section>

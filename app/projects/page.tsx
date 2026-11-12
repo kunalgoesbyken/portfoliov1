@@ -6,7 +6,7 @@ import Projects from "@/components/projects";
 
 export const metadata: Metadata = {
   title: "Projects",
-  description: "Projects and open source contributions by Kunal Roy Choudhury",
+  description: "Things I've built, plus my open source contributions",
 };
 
 export default function ProjectsPage() {

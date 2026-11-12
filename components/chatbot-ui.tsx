@@ -19,9 +19,9 @@ interface ChatbotUIProps {
 }
 
 const SUGGESTIONS = [
-  "Skills & tech stack",
-  "What is Kunal building at FinStocks AI?",
-  "How to reach Kunal",
+  "What does Kunal work with?",
+  "What's Kunal building at FinStocks AI?",
+  "How do I reach Kunal?",
 ];
 
 const Heading = ({ children }: { children?: React.ReactNode }) => (
@@ -184,7 +184,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
         {
           id: Date.now().toString(),
           role: "model",
-          content: "Sorry, I couldn't get a response. Please try again.",
+          content: "Sorry, something broke on my end. Try again?",
         },
       ]);
     } finally {
