@@ -23,7 +23,9 @@ const FAILOVER_MS = 900;
 const RECOVER_MS = 1500;
 const SWEEP_MS = 800;
 const REHINGE_MS = 520;
-const DISMISS_MS = 7000;
+const RECOVERED_MS = RECOVER_MS + SWEEP_MS;
+const LINGER_MS = 1400;
+const FADE_MS = 300;
 
 const TONE_CLASS: Record<Tone, string> = {
   muted: "text-fg-subtle",
@@ -68,6 +70,7 @@ export function ChaosButton() {
 
 export default function ChaosController() {
   const [lines, setLines] = useState<LogLine[]>([]);
+  const [open, setOpen] = useState(false);
   const [incident, setIncident] = useState(0);
   const [sweeping, setSweeping] = useState(false);
   const running = useRef(false);
@@ -89,6 +92,7 @@ export default function ChaosController() {
 
       setIncident(Math.floor(random(1000, 10000)));
       setLines([]);
+      setOpen(true);
       log("$", "kill -9 primary", "muted");
 
       if (animate) {
@@ -104,13 +108,14 @@ export default function ChaosController() {
         root.dataset.chaosPhase = "up";
         setSweeping(true);
       });
-      at(RECOVER_MS + SWEEP_MS, () => log("200", "recovered, 0 requests dropped", "success"));
-      at(RECOVER_MS + SWEEP_MS + REHINGE_MS, () => {
+      at(RECOVERED_MS, () => log("200", "recovered, 0 requests dropped", "success"));
+      at(RECOVERED_MS + REHINGE_MS, () => {
         delete root.dataset.chaosPhase;
         targets.forEach(resetTarget);
         setSweeping(false);
       });
-      at(DISMISS_MS, () => {
+      at(RECOVERED_MS + LINGER_MS, () => setOpen(false));
+      at(RECOVERED_MS + LINGER_MS + FADE_MS, () => {
         setLines([]);
         running.current = false;
       });
@@ -124,8 +129,6 @@ export default function ChaosController() {
     };
   }, []);
 
-  const visible = lines.length > 0;
-
   return (
     <>
       {sweeping && (
@@ -137,10 +140,11 @@ export default function ChaosController() {
       <div
         role="status"
         aria-live="polite"
-        aria-hidden={!visible}
+        aria-hidden={!open}
+        style={{ transitionDuration: `${FADE_MS}ms` }}
         className={cn(
-          "fixed bottom-4 left-4 z-[60] w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-line-strong bg-surface-raised font-mono text-xs shadow-lg transition-[opacity,translate] duration-300 motion-reduce:transition-none",
-          visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0",
+          "fixed bottom-4 left-4 z-[60] w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-line-strong bg-surface-raised font-mono text-xs shadow-lg transition-[opacity,translate] motion-reduce:transition-none",
+          open ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0",
         )}
       >
         <div className="flex justify-between border-b border-line px-3 py-2 text-2xs text-fg-subtle">
