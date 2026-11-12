@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { SiMedium } from "react-icons/si";
+import { FaMedium } from "react-icons/fa6";
 import type { BlogMeta } from "@/util/mdx_clean";
 import { formatDate } from "@/lib/utils";
 
@@ -17,7 +17,7 @@ export function BlogList({ posts, as: Title = "h2" }: { posts: BlogMeta[]; as?: 
           <div className="min-w-0 flex-1">
             <div className="mb-1.5 flex items-center gap-3">
               <Title className="title-link font-custom text-lg font-bold text-fg md:text-xl">{p.title ?? p.slug}</Title>
-              {p.externalUrl && <SiMedium aria-label="On Medium" className="size-4 shrink-0 text-fg-faint" />}
+              {p.externalUrl && <FaMedium aria-label="On Medium" className="size-4 shrink-0 text-fg-faint" />}
             </div>
             {p.description && (
               <p className="line-clamp-2 max-w-prose font-custom2 text-sm leading-relaxed text-fg-muted">{p.description}</p>
