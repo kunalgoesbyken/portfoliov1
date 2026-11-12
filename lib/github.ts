@@ -1,5 +1,6 @@
 import type { Activity } from "react-activity-calendar";
 import { GITHUB_USERNAME } from "@/lib/social-links";
+import { REVALIDATE_SECONDS } from "@/lib/config";
 
 export type PRState = "MERGED" | "OPEN" | "CLOSED";
 
@@ -55,7 +56,6 @@ interface ProfileResponse {
 }
 
 const GRAPHQL_URL = "https://api.github.com/graphql";
-const REVALIDATE_SECONDS = 3600;
 const PR_SEARCH = `author:${GITHUB_USERNAME} -user:${GITHUB_USERNAME} type:pr`;
 const CONTRIBUTION_LEVELS = ["NONE", "FIRST_QUARTILE", "SECOND_QUARTILE", "THIRD_QUARTILE", "FOURTH_QUARTILE"];
 

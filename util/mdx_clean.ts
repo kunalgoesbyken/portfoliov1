@@ -3,6 +3,7 @@ import path from "path";
 import matter from "gray-matter";
 import { DATA_DIR } from "@/lib/config";
 import { getMediumPosts } from "@/util/medium";
+import { toIsoDate } from "@/lib/utils";
 
 export type BlogMeta = {
   title?: string;
@@ -26,8 +27,6 @@ const CACHE = new Map<string, Blog>();
 const normalizeSlug = (slug: string) => slug.replace(MDX_EXTENSION, "");
 
 const isValidSlug = (slug: string) => path.basename(slug) === slug && !slug.includes("..");
-
-const toIsoDate = (date: unknown) => (date instanceof Date ? date.toISOString().slice(0, 10) : (date as string | undefined));
 
 const parseBlog = (raw: string, slug: string): Blog => {
   const { content, data } = matter(raw);

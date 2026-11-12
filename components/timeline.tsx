@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { ExpandableItem } from "@/components/timeline-item";
+import { InlineMarkdown } from "@/components/ui/inline-markdown";
 import { EXPERIENCES, experiencePeriod, type Experience } from "@/lib/experience-data";
 
 const CompanyLogo = ({ experience }: { experience: Experience }) => {
@@ -85,8 +86,9 @@ export const Timeline = () => {
                   <li
                     key={point}
                     className="relative pl-4 before:absolute before:left-0 before:content-['-'] before:text-fg-faint"
-                    dangerouslySetInnerHTML={{ __html: point }}
-                  />
+                  >
+                    <InlineMarkdown>{point}</InlineMarkdown>
+                  </li>
                 ))}
             </ul>
           </ExpandableItem>

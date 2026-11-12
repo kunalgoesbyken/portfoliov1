@@ -1,38 +1,51 @@
 import { XMLParser } from "fast-xml-parser";
 import { parse } from "node-html-parser";
+import { REVALIDATE_SECONDS } from "@/lib/config";
 import { MEDIUM_FEED_URL } from "@/lib/social-links";
+import { toIsoDate } from "@/lib/utils";
 import type { BlogMeta } from "@/util/mdx_clean";
 
-const REVALIDATE_SECONDS = 3600;
 const FETCH_TIMEOUT_MS = 8000;
 
 type FeedItem = {
-  title: string;
-  link: string;
-  pubDate: string;
-  category?: string[];
-  "content:encoded"?: string;
+  title?: unknown;
+  link?: unknown;
+  pubDate?: unknown;
+  category?: unknown[];
+  "content:encoded"?: unknown;
 };
 
 const parser = new XMLParser({ isArray: (name) => name === "item" || name === "category" });
 
-const canonicalUrl = (link: string) => {
-  const url = new URL(link);
-  return `${url.origin}${url.pathname}`;
+const text = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim() : undefined);
+
+const toUrl = (value: unknown) => {
+  const link = text(value);
+  return link && URL.canParse(link) ? new URL(link) : undefined;
 };
 
-const firstParagraph = (html: string) => parse(html).querySelector("p")?.text.trim();
+const firstParagraph = (html: unknown) => {
+  const source = text(html);
+  return source ? text(parse(source).querySelector("p")?.text) : undefined;
+};
 
-const toBlogMeta = (item: FeedItem): BlogMeta => {
-  const externalUrl = canonicalUrl(item.link);
-  return {
-    title: item.title,
-    slug: externalUrl.split("/").pop(),
-    date: new Date(item.pubDate).toISOString().slice(0, 10),
-    description: firstParagraph(item["content:encoded"] ?? ""),
-    tags: item.category,
-    externalUrl,
-  };
+const toBlogMeta = (item: FeedItem): BlogMeta[] => {
+  const title = text(item.title);
+  const url = toUrl(item.link);
+  const date = toIsoDate(item.pubDate);
+  if (!title || !url || !date) return [];
+
+  const externalUrl = `${url.origin}${url.pathname}`;
+  return [
+    {
+      title,
+      slug: url.pathname.split("/").filter(Boolean).pop(),
+      date,
+      description: firstParagraph(item["content:encoded"]),
+      tags: item.category?.flatMap((tag) => text(tag) ?? []),
+      externalUrl,
+    },
+  ];
 };
 
 export const getMediumPosts = async (): Promise<BlogMeta[]> => {
@@ -42,8 +55,8 @@ export const getMediumPosts = async (): Promise<BlogMeta[]> => {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!response.ok) throw new Error(`Medium feed responded ${response.status}`);
-    const feed = parser.parse(await response.text());
-    return ((feed.rss?.channel?.item ?? []) as FeedItem[]).map(toBlogMeta);
+    const items: FeedItem[] = parser.parse(await response.text()).rss?.channel?.item ?? [];
+    return items.flatMap(toBlogMeta);
   } catch (error) {
     console.warn("Failed to read Medium feed", error);
     return [];

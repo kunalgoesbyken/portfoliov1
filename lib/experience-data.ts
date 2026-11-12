@@ -57,7 +57,7 @@ export const EXPERIENCES: Experience[] = [
     href: "https://indiankanoon.org/",
     tech: ["python", "django", "react", "redis", "celery", "postgres", "gemini"],
     highlights: [
-      `Built <a href="https://indiankanoon.org/prism/" target="_blank" rel="noopener noreferrer" class="underline hover:text-fg-muted transition-colors">Prism</a> from scratch. It's AI that reads case law and legal documents at scale.`,
+      "Built [Prism](https://indiankanoon.org/prism/) from scratch. It's AI that reads case law and legal documents at scale.",
       "Got it handling 5,000+ concurrent users.",
     ],
     summary: "Sole engineer on Prism, a legal research product launched into a 1.5M-user platform.",
