@@ -1,5 +1,9 @@
 export const GITHUB_USERNAME = "kunalgoesbyken";
 
+export const MEDIUM_PROFILE = "https://medium.com/@kunal.rc";
+
+export const MEDIUM_FEED_URL = `${MEDIUM_PROFILE}/feed`;
+
 export const CONTACT_EMAIL = "kunt.rc7@gmail.com";
 
 export const SOCIAL_LINKS = {
