@@ -17,7 +17,7 @@ import { ChaosButton } from "@/components/chaos";
 import { SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINES } from "@/lib/site";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
-const LATEST_POSTS = 3;
+const LATEST_POSTS = 2;
 
 export default async function Home() {
   const [githubData, posts] = await Promise.all([getGithubData(), getAllBlogs()]);
@@ -78,16 +78,16 @@ export default async function Home() {
         <Projects />
       </Section>
 
-      <Section title="Writing" className="defer-render" action={<Link href="/blog" className="text-toggle gap-1.5">All posts<ArrowRight aria-hidden="true" className="size-3.5" /></Link>}>
-        <BlogList posts={posts.slice(0, LATEST_POSTS)} as="h3" />
-      </Section>
-
       <Section title="Experience" className="defer-render">
         <Timeline />
       </Section>
 
       <Section title="Proof of work" className="defer-render">
         <GithubGraph data={githubData} />
+      </Section>
+
+      <Section title="Writing" className="defer-render" action={<Link href="/blog" className="text-toggle gap-1.5">All posts<ArrowRight aria-hidden="true" className="size-3.5" /></Link>}>
+        <BlogList posts={posts.slice(0, LATEST_POSTS)} as="h3" />
       </Section>
 
       <Section title="Skills" className="defer-render">
