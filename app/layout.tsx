@@ -26,10 +26,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: SITE_NAME, template: `%s | ${SITE_SHORT_NAME}` },
   description:
-    "Backend engineer. I build services in Rust and Go that don't fall over, AI tools that run in production, and the frontends to go with them.",
+    "Backend and applied AI engineer. I build services in Rust and Go that don't fall over, AI tools that run in production, and the frontends to go with them.",
   openGraph: {
     title: SITE_NAME,
-    description: "Backend engineer building Rust and Go services that don't fall over, and AI tools that run in production.",
+    description: "Backend and applied AI engineer building Rust and Go services that don't fall over, and AI tools that run in production.",
     url: SITE_URL,
     siteName: "Kunal's Portfolio",
     locale: "en_US",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
-    description: "Backend engineer building Rust and Go services that don't fall over, and AI tools that run in production.",
+    description: "Backend and applied AI engineer building Rust and Go services that don't fall over, and AI tools that run in production.",
     creator: "@kunalgoesbyken",
   },
 };

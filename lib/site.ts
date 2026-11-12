@@ -10,6 +10,6 @@ export const SITE_TAGLINES = [
   "AI tools, shipped and in production. Not demos.",
 ] as const;
 
-export const SITE_ROLE = "Backend engineer";
+export const SITE_ROLE = "Backend and Applied AI";
 
 export const SITE_LOCATION = "Bengaluru, India";
