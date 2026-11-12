@@ -185,47 +185,6 @@ body {
   }
 }
 
-html[data-chaos-phase="down"] main {
-  animation: chaos-flicker 300ms linear;
-}
-html[data-chaos-phase="down"] :is(main section, [data-chaos]) {
-  transform-origin: var(--chaos-o);
-  animation: chaos-unhinge 720ms cubic-bezier(0.3, 0, 0.3, 1) var(--chaos-d) both;
-}
-html[data-chaos-phase="up"] :is(main section, [data-chaos]) {
-  transform-origin: var(--chaos-o);
-  animation: chaos-rehinge 520ms var(--ease-expo-out) var(--chaos-rd) both;
-}
-.chaos-sweep {
-  animation: chaos-sweep 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-.chaos-line {
-  animation: chaos-line 220ms ease-out both;
-}
-@keyframes chaos-flicker {
-  0%, 30%, 60%, 100% { opacity: 1; }
-  15% { opacity: 0.3; }
-  45% { opacity: 0.6; }
-}
-@keyframes chaos-unhinge {
-  0% { transform: none; filter: none; }
-  55% { transform: translateY(var(--chaos-y)) rotate(calc(var(--chaos-r) * 1.25)); }
-  78% { transform: translateY(var(--chaos-y)) rotate(calc(var(--chaos-r) * 0.9)); }
-  100% { transform: translateY(var(--chaos-y)) rotate(var(--chaos-r)); filter: grayscale(1) brightness(0.7); }
-}
-@keyframes chaos-rehinge {
-  from { transform: translateY(var(--chaos-y)) rotate(var(--chaos-r)); filter: grayscale(1) brightness(0.7); }
-  to { transform: none; filter: none; }
-}
-@keyframes chaos-sweep {
-  from { translate: 0 0; opacity: 1; }
-  90% { opacity: 1; }
-  to { translate: 0 100vh; opacity: 0; }
-}
-@keyframes chaos-line {
-  from { opacity: 0; translate: 0 3px; }
-}
-
 .defer-render {
   content-visibility: auto;
   contain-intrinsic-size: auto 600px;

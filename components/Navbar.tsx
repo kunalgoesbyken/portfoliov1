@@ -29,7 +29,6 @@ export default function Navbar() {
     <Container>
       <nav
         aria-label="Main navigation"
-        data-chaos
         className={cn(
           "bg-surface/80 font-custom text-fg fixed top-0 right-0 left-0 z-50 mx-auto flex max-w-4xl origin-top items-center justify-between gap-4 rounded-[2.5rem] px-4 py-3 backdrop-blur-lg transition-[translate,scale] duration-300 ease-out motion-reduce:transition-none md:gap-8 md:px-6",
           "max-md:border-line max-md:bg-surface/90 max-md:rounded-none max-md:border-b max-md:px-3 max-md:py-1.5 max-md:pt-[max(0.375rem,env(safe-area-inset-top))]",

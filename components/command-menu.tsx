@@ -14,7 +14,6 @@ import {
   LayoutDashboard,
   Moon,
   Sun,
-  Unplug,
   type LucideIcon,
 } from "lucide-react";
 import GithubIcon from "@/components/ui/github-icon";
@@ -23,7 +22,6 @@ import TwitterXIcon from "@/components/ui/twitter-x-icon";
 import MailFilledIcon from "@/components/ui/mail-filled-icon";
 import type { AnimatedIconProps } from "@/components/ui/types";
 import { SOCIAL_LINKS } from "@/lib/social-links";
-import { triggerChaos } from "@/lib/chaos";
 import {
   CommandDialog,
   CommandEmpty,
@@ -70,7 +68,6 @@ const COMMAND_GROUPS: { heading: string; commands: CommandDef[] }[] = [
     heading: "General",
     commands: [
       { label: "Copy link", key: "c", icon: Copy, run: () => navigator.clipboard.writeText(window.location.href) },
-      { label: "Pull the plug", key: "u", icon: Unplug, run: () => triggerChaos() },
     ],
   },
   {

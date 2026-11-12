@@ -6,7 +6,6 @@ import { Instrument_Serif, Instrument_Sans } from "next/font/google";
 import DeferredAnalytics from "@/components/deferred-analytics";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LazyChatbot, LazyFractalTree } from "@/components/lazy-widgets";
-import ChaosController from "@/components/chaos";
 import { SITE_NAME, SITE_SHORT_NAME, SITE_URL } from "@/lib/site";
 
 const instrumentSerif = Instrument_Serif({
@@ -70,7 +69,6 @@ export default function RootLayout({
           <main className="min-h-screen">{children}</main>
           <Footer />
           <LazyChatbot />
-          <ChaosController />
         </ThemeProvider>
       </body>
     </html>
