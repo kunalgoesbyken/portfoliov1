@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CalendarDays } from "lucide-react";
 import PageShell from "@/components/ui/page-shell";
 import { Heading } from "@/components/ui/heading";
 import { Section } from "@/components/ui/section";
@@ -8,13 +9,17 @@ import Projects from "@/components/projects";
 import Timeline from "@/components/timeline";
 import GithubGraph from "@/components/githubgraph";
 import LazySkills from "@/components/lazy-skills";
+import { BlogList } from "@/components/blog-list";
 import { getGithubData } from "@/lib/github";
+import { getAllBlogs } from "@/util/mdx_clean";
 import { ChaosButton } from "@/components/chaos";
 import { SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINES } from "@/lib/site";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
+const LATEST_POSTS = 3;
+
 export default async function Home() {
-  const githubData = await getGithubData();
+  const [githubData, posts] = await Promise.all([getGithubData(), getAllBlogs()]);
 
   return (
     <PageShell>
@@ -68,6 +73,10 @@ export default async function Home() {
 
       <Section title="Projects">
         <Projects />
+      </Section>
+
+      <Section title="Writing" className="defer-render" action={<Link href="/blog" className="text-toggle gap-1.5">All posts<ArrowRight aria-hidden="true" className="size-3.5" /></Link>}>
+        <BlogList posts={posts.slice(0, LATEST_POSTS)} as="h3" />
       </Section>
 
       <Section title="Experience" className="defer-render">
