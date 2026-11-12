@@ -26,7 +26,7 @@ function Facts({ facts }: { facts: [string, string][] }) {
 }
 
 export function CaseStudyHeader({ project, meta }: { project: Project; meta: CaseStudyMeta }) {
-  const { category, summary, role, timeline } = meta;
+  const { summary, role, timeline } = meta;
   return (
     <header>
       <Link
@@ -35,7 +35,7 @@ export function CaseStudyHeader({ project, meta }: { project: Project; meta: Cas
       >
         <ArrowLeft size={14} aria-hidden="true" /> All projects
       </Link>
-      <p className="mt-8 eyebrow">{category}</p>
+      <p className="mt-8 eyebrow">{project.category}</p>
       <Heading as="h1" size="display" className="mt-2">
         {project.title}
       </Heading>

@@ -1,6 +1,29 @@
 import { SITE_URL } from "@/lib/site";
-import { ALL_PROJECTS, projectPath } from "@/lib/projects-data";
-import { EXPERIENCE_CONTEXT } from "@/lib/experience-data";
+import { techNames } from "@/lib/tech-icons";
+import { ALL_PROJECTS, projectLinkEntries, projectPath, type Project } from "@/lib/projects-data";
+import { EXPERIENCES, experiencePeriod, type Experience } from "@/lib/experience-data";
+
+const bullets = (lines: string[]) => lines.map((line) => `- ${line}`);
+
+const experienceContext = (exp: Experience) =>
+  [
+    `## ${exp.company}, ${exp.designation} (${experiencePeriod(exp)})${exp.end ? "" : ", CURRENT ROLE"}`,
+    exp.summary,
+    ...bullets([...exp.details, `Stack: ${exp.tech.map((key) => techNames[key]).join(", ")}`]),
+  ].join("\n");
+
+const projectContext = (project: Project) =>
+  [
+    `## ${project.title} (${project.category})`,
+    project.description,
+    ...bullets([
+      ...(project.details ?? []),
+      ...projectLinkEntries(project).map(({ label, href }) => `${label}: ${href}`),
+      `Case study: ${SITE_URL}${projectPath(project.slug)}`,
+    ]),
+  ].join("\n");
+
+const section = <T,>(items: T[], format: (item: T) => string) => items.map(format).join("\n\n");
 
 // Portfolio context for the AI chatbot
 export const PORTFOLIO_CONTEXT = `You are an AI assistant for Kunal Roy Choudhury's portfolio website. Your job is to help visitors quickly learn about Kunal: his work, skills, projects, and how to reach him.
@@ -21,63 +44,11 @@ Kunal Roy Choudhury is a backend systems architect who also builds frontends (th
 
 # Work Experience
 
-${EXPERIENCE_CONTEXT}
+${section(EXPERIENCES, experienceContext)}
 
 # Projects
 
-## MailFlowAI
-Gmail client with an AI assistant that finds, opens and drafts email from plain-language requests.
-- Assistant acts only through four typed tool calls (Vercel AI SDK, Groq gpt-oss-120b) and cannot send mail; drafts go through the same confirm dialog as hand-written mail
-- Gmail is called straight from the browser, with 30-second background sync
-- Built with Next.js 15, React 19, Zustand and Tailwind CSS v4
-- GitHub: https://github.com/kunalgoesbyken/MailFlowAI
-- Live: https://ai-mail-app-pearl.vercel.app/
-
-## Gostman
-Open source API client for REST, GraphQL, gRPC and WebSocket, as a native desktop app (Go + Wails), a web app and a command line.
-- No account, no telemetry, no paid tier; collections are plain YAML files you can commit
-- gostman run runs the same collections in CI, with data-driven and parallel runs and HTML reports
-- gostman mcp lets coding agents call saved requests without seeing secrets
-- GitHub: https://github.com/kunalgoesbyken/gostman
-- Live: https://gostman.com
-
-## AeroSieve
-Rust pipeline that turns raw audio recordings into speech-model training data, with a reason for every clip it drops.
-- Decodes audio, cuts it into 3 to 30 second speech clips, drops silent, noisy, clipped and tonal clips, and writes WebDataset shards
-- SieveBench: caught 24,385 of 24,409 injected defects across 51,352 damaged recordings in six languages
-- Curates 43 minutes of 48 kHz Hindi audio in 2.75s on a laptop CPU, about 940x real time, with no ML model by default
-- Streaming WebSocket service: 1,000 concurrent live streams with verdicts at 14.8 ms p95, identical to batch results
-- Runs in the browser via WebAssembly, and ships as a CLI, a Rust crate and Python bindings
-- GitHub: https://github.com/kunalgoesbyken/AeroSieve
-- Live: https://aerosieve.vercel.app
-
-## Seedfall
-Deterministic simulation testing for unmodified Go programs.
-- Compiles Go with the stock toolchain to wasip1 and runs each node on wazero under a seeded scheduler and virtual clock
-- Crashes nodes mid-write, drops unsynced data, tears writes and partitions the network; any failure replays byte for byte from one seed and shrinks to the few faults that matter
-- Checks linearizability with Porcupine
-- Found that hashicorp/raft never fsyncs its snapshot directory, which under strict POSIX leaves a node panicking on restart
-- GitHub: https://github.com/kunalgoesbyken/seedfall
-- Live: https://seedfall-lemon.vercel.app
-
-## codebase-indexer
-Offline semantic code search in Rust.
-- Chunks source files with tree-sitter, embeds them with nomic-embed (INT8 ONNX) and searches with hybrid BM25 + vector retrieval fused by RRF
-- Custom persisted HNSW index, append-only vector store, and SHA-256 delta detection so only changed files are re-embedded
-- GitHub: https://github.com/kunalgoesbyken/codebase-indexer
-
-## TaskFlow
-Async team coordination hub for tracking work handoffs across timezones.
-- Real-time task updates and bulk operations
-- GitHub OAuth & issue sync
-- GitHub: https://github.com/kunalgoesbyken/TaskFlow
-
-## Un-Nexted
-Next.js core features reimplemented from scratch to show how the meta-framework actually works.
-- SSR, hydration, and file-system routing from first principles
-- GitHub: https://github.com/kunalgoesbyken/Un-nexted
-
-Every project has a detailed case study page: ${ALL_PROJECTS.map(({ title, slug }) => `${title} ${SITE_URL}${projectPath(slug)}`).join(", ")}.
+${section(ALL_PROJECTS, projectContext)}
 
 # Technical Skills
 - Languages: Go, Rust, Python, Java, TypeScript, SQL

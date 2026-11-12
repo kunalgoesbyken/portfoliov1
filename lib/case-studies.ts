@@ -14,7 +14,6 @@ export interface Screenshot extends MediaItem, ImageSize {}
 
 export interface CaseStudyMeta {
   summary: string;
-  category: string;
   role: string;
   timeline: string;
   stats: Stat[];
@@ -56,7 +55,6 @@ const parseScreenshot = async (slug: string, raw: Raw): Promise<Screenshot> => {
 
 const parseMeta = async (slug: string, data: Raw): Promise<CaseStudyMeta> => ({
   summary: requireText(slug, "summary", data.summary),
-  category: requireText(slug, "category", data.category),
   role: requireText(slug, "role", data.role),
   timeline: requireText(slug, "timeline", data.timeline),
   stats: requireList<Raw>(slug, "stats", data.stats).map((raw) => parseStat(slug, raw)),

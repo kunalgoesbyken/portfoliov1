@@ -39,7 +39,7 @@ export default async function ProjectOpenGraphImage({ params }: { params: Promis
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", width: size.width - PADDING * 3 - SHOT_WIDTH }}>
-          <div style={{ fontSize: 20, letterSpacing: 3, textTransform: "uppercase", color: "#fbbf24" }}>{meta.category}</div>
+          <div style={{ fontSize: 20, letterSpacing: 3, textTransform: "uppercase", color: "#fbbf24" }}>{project.category}</div>
           <div style={{ fontFamily: "Instrument Serif", fontSize: 76, lineHeight: 1, letterSpacing: -2, marginTop: 14 }}>
             {project.title}
           </div>

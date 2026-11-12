@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Globe, Package } from "lucide-react";
 import { SiPypi } from "react-icons/si";
 import GithubIcon from "@/components/ui/github-icon";
-import type { ProjectLinks } from "@/lib/projects-data";
+import { projectLinkEntries, type ProjectLinks } from "@/lib/projects-data";
 
 export interface ProjectLink {
   href: string;
@@ -10,9 +10,12 @@ export interface ProjectLink {
   icon: ReactNode;
 }
 
-export const projectLinks = ({ live, crates, pypi, github }: ProjectLinks): ProjectLink[] => [
-  ...(live ? [{ href: live, label: "Live site", icon: <Globe size={16} aria-hidden="true" /> }] : []),
-  ...(crates ? [{ href: crates, label: "crates.io", icon: <Package size={16} aria-hidden="true" /> }] : []),
-  ...(pypi ? [{ href: pypi, label: "PyPI", icon: <SiPypi size={16} aria-hidden="true" /> }] : []),
-  { href: github, label: "GitHub", icon: <GithubIcon size={16} /> },
-];
+const ICONS: Record<keyof ProjectLinks, ReactNode> = {
+  live: <Globe size={16} aria-hidden="true" />,
+  crates: <Package size={16} aria-hidden="true" />,
+  pypi: <SiPypi size={16} aria-hidden="true" />,
+  github: <GithubIcon size={16} />,
+};
+
+export const projectLinks = (links: ProjectLinks): ProjectLink[] =>
+  projectLinkEntries(links).map(({ key, label, href }) => ({ href, label, icon: ICONS[key] }));

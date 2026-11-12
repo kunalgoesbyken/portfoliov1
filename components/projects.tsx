@@ -105,7 +105,7 @@ function ProjectPreview({
             "group-hover:left-1/2 group-hover:-translate-x-1/2 group-hover:text-white group-hover:[text-shadow:0_1px_2px_rgb(0_0_0/0.6)]",
           )}
         >
-          {project.label}
+          {project.category}
         </span>
 
         <div

@@ -1,5 +1,5 @@
 import { SITE_LOCATION } from "@/lib/site";
-import { techNames, type TechKey } from "@/lib/tech-icons";
+import type { TechKey } from "@/lib/tech-icons";
 
 export interface Experience {
   company: string;
@@ -110,13 +110,3 @@ export const EXPERIENCES: Experience[] = [
 ];
 
 export const experiencePeriod = ({ start, end }: Experience) => `${start} - ${end ?? "Present"}`;
-
-const toContext = (exp: Experience) =>
-  [
-    `## ${exp.company}, ${exp.designation} (${experiencePeriod(exp)})${exp.end ? "" : ", CURRENT ROLE"}`,
-    exp.summary,
-    ...exp.details.map((detail) => `- ${detail}`),
-    `- Stack: ${exp.tech.map((key) => techNames[key]).join(", ")}`,
-  ].join("\n");
-
-export const EXPERIENCE_CONTEXT = EXPERIENCES.map(toContext).join("\n\n");
