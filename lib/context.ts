@@ -1,5 +1,6 @@
 import { SITE_URL } from "@/lib/site";
 import { ALL_PROJECTS, projectPath } from "@/lib/projects-data";
+import { EXPERIENCE_CONTEXT } from "@/lib/experience-data";
 
 // Portfolio context for the AI chatbot
 export const PORTFOLIO_CONTEXT = `You are an AI assistant for Kunal Roy Choudhury's portfolio website. Your job is to help visitors quickly learn about Kunal: his work, skills, projects, and how to reach him.
@@ -20,33 +21,7 @@ Kunal Roy Choudhury is a backend systems architect who also builds frontends (th
 
 # Work Experience
 
-## FinStocks AI, Lead Software Engineer (March 2026 - Present), CURRENT ROLE
-First employee. Leads a 3-engineer team building a natural-language-to-strategy backtesting engine.
-- Architected the backtesting engine: LLM output constrained to a typed Pydantic IR over 185 indicators and 148 patterns, with deterministic compilation and static validation
-- Accelerated backtesting with runtime Numba-JIT kernels and whole-universe fused execution over struct-of-arrays float32 Parquet; liveness analysis loads only strategy-referenced columns
-- Unified backtest and live execution through the same IR and compiler: tick coalescing for bounded evaluation latency, Redis Lua for atomic capital allocation across workers
-- Built an LLM chart terminal with 85 typed operations and symbolic price references, with a 1.4k-line validator enforcing level provenance to prevent fabricated chart levels
-- Engineered transactional push on Postgres using SKIP LOCKED, visibility leases and idempotent partial indexes; cut market-data queries from 13.6s to 48-135ms and 5.9s to 782ms, streaming bars via Redis Pub/Sub to a TradingView datafeed
-- Stack: Python, Pydantic, Numba, PostgreSQL, Redis, FastAPI, TradingView, TypeScript
-
-## Indian Kanoon, Software Developer (April 2025 - Feb 2026)
-Sole engineer on Prism, a legal research product launched into a 1.5M-user platform.
-- Built on Django, PostgreSQL and Redis with LLM workflows spanning 10+ tools
-- Achieved 40% lower latency and 92% query accuracy in a RAG retrieval stack using PostgreSQL full-text search, query expansion, caching and index tuning
-- Scaled it to 5,000+ concurrent users
-- Stack: Python, Django, React, Redis, Celery, PostgreSQL, Gemini AI
-
-## Chargebee, Software Engineer Intern (Sept 2024 - April 2025)
-Large-scale data migration and database optimization.
-- Migrated 500K+ subscriptions with zero customer-facing downtime
-- Built the migration framework with JOOQ schedulers and Vue.js validation tooling
-- Stack: Java, Vue.js, PostgreSQL, Docker
-
-## AiDash, Software Engineer Intern (Jan 2024 - Sept 2024)
-Scalable APIs and data retrieval frameworks.
-- Contributed to a 60% faster release cycle by extracting services from a 2M+ LOC monolith using Spring Boot and hexagonal architecture
-- Optimized SQL pagination over 100K+ record tables
-- Stack: Java, Python, Django, MongoDB, PostgreSQL, Amazon S3, Docker, Jenkins
+${EXPERIENCE_CONTEXT}
 
 # Projects
 
