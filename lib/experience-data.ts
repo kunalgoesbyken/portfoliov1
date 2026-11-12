@@ -78,12 +78,12 @@ export const EXPERIENCES: Experience[] = [
     tech: ["java", "vue", "postgres", "docker"],
     highlights: [
       "Led a big data migration and a round of database tuning.",
-      "Moved 2 million records and cut query time by 45%.",
-      "Built a validation layer that caught bad data before it reached 500k subscriptions.",
+      "Moved 500K+ subscriptions of enterprise billing data, and customers never saw a second of downtime.",
+      "Built the migration framework on JOOQ schedulers, plus Vue.js tooling that caught bad data before it moved.",
     ],
     summary: "Large-scale data migration and database optimization.",
     details: [
-      "Migrated 500K+ subscriptions with zero customer-facing downtime",
+      "Migrated 500K+ subscriptions of enterprise billing data with zero customer-facing downtime",
       "Built the migration framework with JOOQ schedulers and Vue.js validation tooling",
     ],
   },
