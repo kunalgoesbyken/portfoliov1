@@ -8,12 +8,13 @@ stats:
   - { value: "3 to 30 s", label: "length of every clip it keeps" }
   - { value: "6", label: "languages benchmarked, from English to Marathi" }
 gallery:
-  - { src: /images/projects/aerosieve/01-demo-mixed.webp, caption: "The browser demo judging a 70 second recording clip by clip, with reasons" }
-  - { src: /images/projects/aerosieve/02-demo-noisy.webp, caption: "A noisy recording: which clips fail and why" }
-  - { src: /images/projects/aerosieve/03-demo-threshold.webp, caption: "Raising the noise floor to 25 dB flips two kept clips to low_snr" }
-  - { src: /images/projects/aerosieve/04-sievebench-languages.webp, caption: "SieveBench per language: audio kept and defects caught" }
-  - { src: /images/projects/aerosieve/05-snr-accuracy.webp, caption: "Estimated noise level against injected noise for three noise types" }
-  - { src: /images/projects/aerosieve/06-speed.webp, caption: "940x real time in batch and 14.8 ms live verdicts" }
+  - { src: /images/projects/aerosieve/00-producthunt.webp, caption: "Keep the speech, drop the rest: every clip AeroSieve throws away comes with a reason" }
+  - { src: /images/projects/aerosieve/01-hero.webp, caption: "The landing page: a 70 second recording split into clips, three kept and three dropped with a reason each" }
+  - { src: /images/projects/aerosieve/02-demo-mixed.webp, caption: "The in-browser demo judging the same recording, with a verdict per clip and the threshold sliders" }
+  - { src: /images/projects/aerosieve/03-demo-threshold.webp, caption: "Raising the noise floor to 25 dB in the demo leaves one of six clips kept" }
+  - { src: /images/projects/aerosieve/04-sievebench-results.webp, caption: "SieveBench: 24,385 of 24,409 damaged clips caught, broken down by language" }
+  - { src: /images/projects/aerosieve/05-cli-inspect.webp, caption: "aerosieve inspect printing a verdict for every clip: low_snr, clipping or tonal" }
+  - { src: /images/projects/aerosieve/06-cli-curate.webp, caption: "aerosieve curate writing WebDataset shards: 5 of 14 clips accepted, with the rejection counts" }
 stack:
   - "Rust"
   - "Symphonia"

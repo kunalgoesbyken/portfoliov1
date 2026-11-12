@@ -22,7 +22,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "gostman",
     title: "Gostman",
-    src: "/images/gostman-app.webp",
+    src: "/images/projects/gostman/00-producthunt.webp",
     category: "Developer tool",
     description:
       "Open source API client for REST, GraphQL, gRPC and WebSocket: a native desktop app (Go + Wails), a web app, and a single-binary CLI that runs collections in CI and serves them to coding agents over MCP. No account, no telemetry, no paid tier.",
@@ -38,7 +38,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "aerosieve",
     title: "AeroSieve",
-    src: "/images/aerosieve-landing.webp",
+    src: "/images/projects/aerosieve/00-producthunt.webp",
     category: "Voice AI data pipeline",
     description:
       "Turns raw recordings into speech-model training data, with a reason for every clip it drops. Caught 24,385 of 24,409 injected defects across six languages, curates audio 940x faster than real time on a laptop CPU, and judges 1,000 live streams at 14.8 ms p95 over WebSocket. Runs in the browser via WebAssembly, and ships as a CLI, Rust crate and Python bindings.",
@@ -85,7 +85,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "un-nexted",
     title: "Un-Nexted",
-    src: "/images/un-nexted-1600.webp",
+    src: "/images/projects/un-nexted/00-producthunt.webp",
     category: "Framework internals",
     description:
       "Next.js core features (SSR, hydration, and file-system routing) reimplemented from scratch to show how the meta-framework actually works.",
