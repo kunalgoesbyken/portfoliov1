@@ -7,10 +7,13 @@ stats:
   - { value: "87x", label: "faster than real time over a 200-seed sweep" }
   - { value: "17", label: "MCP tools an AI coding agent can call" }
 gallery:
-  - { src: /images/projects/seedfall/01-run-finds-bug.webp, caption: "A sweep of 100 seeds catches a lost acknowledged write" }
-  - { src: /images/projects/seedfall/02-shrink.webp, caption: "Shrinking one failing seed from 33 faults to the 2 that matter" }
-  - { src: /images/projects/seedfall/04-bugs-found.webp, caption: "Real bugs found in open source projects, each with a replayable seed" }
-  - { src: /images/projects/seedfall/05-raft-finding.webp, caption: "Root-cause report for the hashicorp/raft snapshot fsync bug" }
+  - { src: /images/projects/seedfall/00-producthunt.webp, caption: "Find the bugs that only happen when your Go service crashes, and replay each one exactly" }
+  - { src: /images/projects/seedfall/01-landing-hero.webp, caption: "The landing page, with its demo paused on a seedfall run that just failed" }
+  - { src: /images/projects/seedfall/02-cli-run-finds-bug.webp, caption: "seedfall run on the kvlog example: seed 1 loses an acknowledged write after a partition and two crashes" }
+  - { src: /images/projects/seedfall/03-cli-shrink.webp, caption: "seedfall shrink cuts that failure from 33 faults and 200 operations down to 2 faults and 63 operations" }
+  - { src: /images/projects/seedfall/04-cli-replay.webp, caption: "Three replays of seed 1 print the same determinism hash every time" }
+  - { src: /images/projects/seedfall/05-landing-how-it-works.webp, caption: "How it works: three steps from install to a replayable bug" }
+  - { src: /images/projects/seedfall/06-landing-bugs-found.webp, caption: "Real code, real bugs: NATS JetStream, rosedblabs/wal, tidwall/buntdb, tidwall/wal and hashicorp/raft" }
 stack:
   - "Go"
   - "WebAssembly"

@@ -56,7 +56,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "seedfall",
     title: "Seedfall",
-    src: "/images/seedfall-poster.webp",
+    src: "/images/projects/seedfall/00-producthunt.webp",
     category: "Reliability testing",
     description:
       "Deterministic simulation testing for unmodified Go programs. Runs services on wazero under a seeded scheduler, then crashes them mid-write, tears their writes and partitions their network, and replays any failure from one seed. Found a missing directory fsync in hashicorp/raft that leaves a node unable to restart.",
