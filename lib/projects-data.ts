@@ -72,7 +72,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "codebase-indexer",
     title: "codebase-indexer",
-    src: "/images/codebase-indexer-poster.webp",
+    src: "/images/projects/codebase-indexer/00-producthunt.webp",
     category: "Search and retrieval",
     description:
       "Offline semantic code search. Chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and fuses BM25 and a hand-written persisted HNSW index with RRF. Only changed files are re-embedded, so a no-op re-index takes 95 ms.",

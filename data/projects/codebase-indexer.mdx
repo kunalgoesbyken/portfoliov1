@@ -7,6 +7,13 @@ stats:
   - { value: "768", label: "dimensions per code chunk embedding" }
   - { value: "3,000", label: "non-whitespace characters per chunk before it is split" }
   - { value: "0", label: "bytes of code sent off the machine" }
+gallery:
+  - { src: /images/projects/codebase-indexer/00-producthunt.webp, caption: "Offline semantic code search: tree-sitter chunks embedded with nomic-embed INT8 ONNX" }
+  - { src: /images/projects/codebase-indexer/01-first-index.webp, caption: "The first index of ripgrep's globset crate: 8 files into 134 chunks on a CPU" }
+  - { src: /images/projects/codebase-indexer/02-semantic-query.webp, caption: "A plain-English query returning ranked code chunks with file, line range and score" }
+  - { src: /images/projects/codebase-indexer/03-keyword-query.webp, caption: "An identifier query for GlobSetBuilder ranks its implementation first" }
+  - { src: /images/projects/codebase-indexer/04-incremental-reindex.webp, caption: "A no-op re-index in 95 ms, then one edited file re-embedded and found by the next query" }
+  - { src: /images/projects/codebase-indexer/05-error-query.webp, caption: "Asking how an invalid pattern is reported finds the ErrorKind enum" }
 stack:
   - "Rust"
   - "tree-sitter"
