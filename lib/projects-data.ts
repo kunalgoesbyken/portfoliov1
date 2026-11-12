@@ -21,7 +21,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "gostman",
     title: "Gostman",
-    src: "/images/gostman-landing.jpg",
+    src: "/images/gostman-app.webp",
     label: "Desktop app",
     description:
       "Open source API client for REST, GraphQL, gRPC and WebSocket: a native desktop app (Go + Wails), a web app, and a single-binary CLI that runs collections in CI and serves them to coding agents over MCP. No account, no telemetry, no paid tier.",
@@ -78,7 +78,7 @@ export const OPEN_SOURCE_PROJECTS: Project[] = [
   {
     slug: "taskflow",
     title: "TaskFlow",
-    src: "/images/taskflow-poster.jpg",
+    src: "/images/projects/taskflow/01-dashboard.webp",
     label: "Web app",
     description:
       "Async team coordination hub for tracking work handoffs across timezones. Real-time task updates, bulk operations, analytics dashboard, GitHub OAuth & issue sync, and self-hostable with Docker.",
@@ -89,7 +89,7 @@ export const OPEN_SOURCE_PROJECTS: Project[] = [
   {
     slug: "mailflow-ai",
     title: "MailFlowAI",
-    src: "/images/mailflow-ai-1280.webp",
+    src: "/images/projects/mailflow-ai/01-inbox.webp",
     label: "Inbox",
     description:
       "A Gmail client with an AI assistant that finds, opens and drafts mail through typed tool calls (Vercel AI SDK and Groq), and never sends without your confirmation. Mail goes straight from Gmail to the browser, with 30-second background sync.",

@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
@@ -36,15 +37,17 @@ export default async function Home() {
           <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-x-4 gap-y-2">
             <div className="min-w-0">
               <Heading as="h1">{SITE_NAME}</Heading>
-              <p className="font-custom2 text-fg-muted mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm">
-                <span>{SITE_ROLE}</span>
-                <span aria-hidden="true" className="text-fg-faint">
-                  ·
-                </span>
-                <span>{SITE_LOCATION}</span>
-                <span className="border-line-strong text-fg-body rounded-full border px-2.5 py-0.5 text-xs font-medium">
-                  Open to work
-                </span>
+              <p className="font-custom2 text-fg-muted mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                {[SITE_ROLE, SITE_LOCATION, "Open to work"].map((item, i) => (
+                  <Fragment key={item}>
+                    {i > 0 && (
+                      <span aria-hidden="true" className="text-fg-faint">
+                        ·
+                      </span>
+                    )}
+                    <span>{item}</span>
+                  </Fragment>
+                ))}
               </p>
             </div>
             <Socials />
@@ -62,9 +65,9 @@ export default async function Home() {
             href={SOCIAL_LINKS.booking}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-solid px-4 py-2 max-md:min-h-11"
+            className="frame-dashed font-custom2 text-fg-body hover:border-line-hover hover:text-fg inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors max-md:min-h-11"
           >
-            <CalendarDays aria-hidden="true" className="size-4" />
+            <CalendarDays aria-hidden="true" className="size-3.5" />
             Book an intro call
           </a>
           <ChaosButton />

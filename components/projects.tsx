@@ -5,7 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { DEPLOYED_PROJECTS, OPEN_SOURCE_PROJECTS, projectPath, type Project } from "@/lib/projects-data";
+import {
+  DEPLOYED_PROJECTS,
+  OPEN_SOURCE_PROJECTS,
+  projectPath,
+  type Project,
+} from "@/lib/projects-data";
 import { TechIconTooltip } from "@/components/ui/tech-icon-tooltip";
 import { Section } from "@/components/ui/section";
 import { ShowMore } from "@/components/ui/show-more";
@@ -15,7 +20,8 @@ import { IMAGE_QUALITY, LCP_IMAGE_PROPS } from "@/lib/image";
 
 const PREVIEW_COUNT = 2;
 
-const MOBILE_GRID = "grid grid-cols-2 gap-3 max-md:[&>:last-child:nth-child(odd)]:col-span-2";
+const MOBILE_GRID =
+  "grid grid-cols-2 gap-3 max-md:[&>:last-child:nth-child(odd)]:col-span-2";
 
 const FEATURED_GRID =
   "md:-mx-4 md:grid-cols-2 md:gap-0 md:[&>*]:border-dashed md:[&>*]:border-line md:[&>*]:p-4 md:[&>:nth-child(odd)]:border-r md:[&>:nth-child(n+3)]:border-t";
@@ -25,7 +31,8 @@ const STRIPES =
 
 const LINK_CLASS = {
   desktop: "icon-btn-ghost",
-  mobile: "frame-dashed inline-flex size-11 items-center justify-center text-fg-body transition-colors hover:border-line-hover",
+  mobile:
+    "frame-dashed inline-flex size-11 items-center justify-center text-fg-body transition-colors hover:border-line-hover",
 };
 
 function CardShell({ href, children }: { href: string; children: ReactNode }) {
@@ -37,31 +44,42 @@ function CardShell({ href, children }: { href: string; children: ReactNode }) {
   };
 
   return (
-    <div onClick={handleClick} className="group flex h-full min-w-0 cursor-pointer flex-col max-md:overflow-hidden max-md:frame-dashed">
+    <div
+      onClick={handleClick}
+      className="group max-md:frame-dashed flex h-full min-w-0 cursor-pointer flex-col max-md:overflow-hidden"
+    >
       {children}
     </div>
   );
 }
 
-function ProjectPreview({ project, featured, priority }: { project: Project; featured: boolean; priority: boolean }) {
-  const sizes = featured ? "(max-width: 768px) 45vw, 320px" : "(max-width: 768px) 45vw, 180px";
+function ProjectPreview({
+  project,
+  featured,
+  priority,
+}: {
+  project: Project;
+  featured: boolean;
+  priority: boolean;
+}) {
+  const sizes = featured
+    ? "(max-width: 768px) 45vw, 320px"
+    : "(max-width: 768px) 45vw, 180px";
   const quality = featured ? IMAGE_QUALITY.card : IMAGE_QUALITY.thumb;
 
   return (
     <div
       className={cn(
-        "shrink-0 transition-colors duration-300 motion-reduce:transition-none md:rounded-[10px] md:border md:border-line md:p-1 md:group-hover:border-line-strong",
+        "md:border-line md:bg-surface-raised md:group-hover:border-line-strong shrink-0 transition-colors duration-300 motion-reduce:transition-none md:rounded-xl md:border md:p-1",
         featured ? "md:mb-4" : "md:w-56",
       )}
     >
       <div
         className={cn(
-          "relative overflow-hidden bg-surface-alt select-none max-md:border-b max-md:border-line md:rounded-md md:border md:border-line",
+          "bg-surface-alt max-md:border-line relative isolate overflow-hidden select-none max-md:border-b md:rounded-lg md:shadow-[inset_0_0_0_1px_var(--line)]",
           featured ? "h-32 md:h-52" : "h-32 md:h-36",
         )}
       >
-        <div aria-hidden="true" className={cn("absolute inset-0 opacity-70 dark:opacity-40", STRIPES)} />
-
         <Image
           src={project.src}
           alt=""
@@ -69,12 +87,20 @@ function ProjectPreview({ project, featured, priority }: { project: Project; fea
           fill
           sizes={sizes}
           quality={quality}
-          className="scale-150 object-cover opacity-0 blur-2xl saturate-150 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none max-md:hidden"
+          className="-z-10 scale-150 object-cover opacity-25 blur-2xl saturate-150 transition-opacity duration-500 group-hover:opacity-90 motion-reduce:transition-none max-md:hidden dark:opacity-30 dark:group-hover:opacity-80"
+        />
+
+        <div
+          aria-hidden="true"
+          className={cn(
+            "absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_top,black,transparent_80%)] opacity-70 transition-opacity duration-500 group-hover:opacity-0 motion-reduce:transition-none",
+            STRIPES,
+          )}
         />
 
         <span
           className={cn(
-            "absolute top-2 left-2.5 z-10 font-custom2 text-2xs font-medium whitespace-nowrap text-fg-subtle max-md:hidden",
+            "font-custom2 text-2xs text-fg-subtle absolute top-2 left-2.5 z-10 font-medium whitespace-nowrap max-md:hidden",
             "transition-[left,translate,color] duration-300 motion-reduce:transition-none",
             "group-hover:left-1/2 group-hover:-translate-x-1/2 group-hover:text-white group-hover:[text-shadow:0_1px_2px_rgb(0_0_0/0.6)]",
           )}
@@ -84,11 +110,12 @@ function ProjectPreview({ project, featured, priority }: { project: Project; fea
 
         <div
           className={cn(
-            "absolute bottom-0 left-1/2 w-[86%] -translate-x-1/2 rounded-t-md bg-surface p-0.5 pb-0 md:w-[80%]",
-            "h-[80%] transition-[height] duration-300 motion-reduce:transition-none md:h-[75%] md:group-hover:h-[70%]",
+            "border-line-strong bg-surface-raised/70 absolute bottom-0 left-1/2 w-[86%] -translate-x-1/2 rounded-t-[10px] border border-b-0 p-1 pb-0 backdrop-blur-sm md:w-[82%]",
+            "shadow-[0_-12px_32px_-12px_rgb(0_0_0/0.35)] dark:shadow-[0_-12px_32px_-8px_rgb(0_0_0/0.7)]",
+            "h-[80%] transition-[height] duration-500 ease-[var(--ease-expo-out)] motion-reduce:transition-none md:h-[76%] md:group-hover:h-[70%]",
           )}
         >
-          <div className="relative size-full overflow-hidden rounded-t-[4px]">
+          <div className="relative size-full overflow-hidden rounded-t-md shadow-[0_0_0_1px_var(--line)]">
             <Image
               src={project.src}
               alt={project.title}
@@ -105,9 +132,23 @@ function ProjectPreview({ project, featured, priority }: { project: Project; fea
   );
 }
 
-function LinkIcons({ name, links, variant }: { name: string; links: ProjectLink[]; variant: keyof typeof LINK_CLASS }) {
+function LinkIcons({
+  name,
+  links,
+  variant,
+}: {
+  name: string;
+  links: ProjectLink[];
+  variant: keyof typeof LINK_CLASS;
+}) {
   return (
-    <div className={variant === "desktop" ? "hidden gap-3 md:flex" : "flex gap-2 pt-3 md:hidden"}>
+    <div
+      className={
+        variant === "desktop"
+          ? "hidden gap-3 md:flex"
+          : "flex gap-2 pt-3 md:hidden"
+      }
+    >
       {links.map((link) => (
         <a
           key={link.href}
@@ -130,14 +171,17 @@ function CardBody({ project }: { project: Project }) {
   return (
     <div className="flex min-w-0 flex-grow flex-col max-md:p-3 md:px-1">
       <div className="mb-1 flex items-center justify-between gap-3 md:mb-1.5">
-        <h3 className="flex min-w-0 font-custom text-base font-bold text-fg md:text-lg">
-          <Link href={href} className="title-link truncate outline-none max-md:-my-2.5 max-md:py-2.5">
+        <h3 className="font-custom text-fg flex min-w-0 text-base font-bold md:text-lg">
+          <Link
+            href={href}
+            className="title-link truncate outline-none max-md:-my-2.5 max-md:py-2.5"
+          >
             {project.title}
           </Link>
         </h3>
         <LinkIcons name={project.title} links={links} variant="desktop" />
       </div>
-      <p className="mb-3 max-w-prose font-custom2 text-xs leading-relaxed text-fg-muted max-md:line-clamp-3 md:mb-4 md:text-sm">
+      <p className="font-custom2 text-fg-muted mb-3 max-w-prose text-xs leading-relaxed max-md:line-clamp-3 md:mb-4 md:text-sm">
         {project.description}
       </p>
       <div className="mt-auto flex items-center justify-between gap-3">
@@ -145,11 +189,17 @@ function CardBody({ project }: { project: Project }) {
         <Link
           href={href}
           tabIndex={-1}
-          className="hidden items-center gap-1 font-custom2 text-sm text-fg-subtle transition-colors duration-300 group-hover:text-fg md:inline-flex"
+          className="font-custom2 text-fg-subtle group-hover:text-fg hidden items-center gap-1 text-sm transition-colors duration-300 md:inline-flex"
         >
           View project
-          <ArrowUpRight aria-hidden="true" className="size-3.5 group-hover:hidden" />
-          <ArrowRight aria-hidden="true" className="hidden size-3.5 group-hover:block" />
+          <ArrowUpRight
+            aria-hidden="true"
+            className="size-3.5 group-hover:hidden"
+          />
+          <ArrowRight
+            aria-hidden="true"
+            className="hidden size-3.5 group-hover:block"
+          />
         </Link>
       </div>
       <LinkIcons name={project.title} links={links} variant="mobile" />
@@ -157,9 +207,19 @@ function CardBody({ project }: { project: Project }) {
   );
 }
 
-function ProjectCard({ project, layout, priority = false }: { project: Project; layout: "featured" | "row"; priority?: boolean }) {
+function ProjectCard({
+  project,
+  layout,
+  priority = false,
+}: {
+  project: Project;
+  layout: "featured" | "row";
+  priority?: boolean;
+}) {
   const featured = layout === "featured";
-  const media = <ProjectPreview project={project} featured={featured} priority={priority} />;
+  const media = (
+    <ProjectPreview project={project} featured={featured} priority={priority} />
+  );
 
   return (
     <CardShell href={projectPath(project.slug)}>
@@ -181,20 +241,33 @@ function ProjectCard({ project, layout, priority = false }: { project: Project; 
 export default function Projects({ full = false }: { full?: boolean }) {
   const [showAll, setShowAll] = useState(false);
   const expanded = showAll || full;
-  const deployed = expanded ? DEPLOYED_PROJECTS : DEPLOYED_PROJECTS.slice(0, PREVIEW_COUNT);
-  const hiddenCount = DEPLOYED_PROJECTS.length + OPEN_SOURCE_PROJECTS.length - PREVIEW_COUNT;
+  const deployed = expanded
+    ? DEPLOYED_PROJECTS
+    : DEPLOYED_PROJECTS.slice(0, PREVIEW_COUNT);
+  const hiddenCount =
+    DEPLOYED_PROJECTS.length + OPEN_SOURCE_PROJECTS.length - PREVIEW_COUNT;
 
   return (
     <div>
       <div className={cn(MOBILE_GRID, FEATURED_GRID, "pb-6 md:pb-8")}>
         {deployed.map((project, idx) => (
-          <ProjectCard key={project.slug} project={project} layout="featured" priority={idx === 0} />
+          <ProjectCard
+            key={project.slug}
+            project={project}
+            layout="featured"
+            priority={idx === 0}
+          />
         ))}
       </div>
 
       {expanded && (
         <Section title="More projects" as="h3" size="md">
-          <div className={cn(MOBILE_GRID, "mb-4 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:divide-line md:[&>*]:py-5 md:[&>:first-child]:pt-0")}>
+          <div
+            className={cn(
+              MOBILE_GRID,
+              "md:divide-line mb-4 md:flex md:flex-col md:gap-0 md:divide-y md:divide-dashed md:[&>*]:py-5 md:[&>:first-child]:pt-0",
+            )}
+          >
             {OPEN_SOURCE_PROJECTS.map((project) => (
               <ProjectCard key={project.slug} project={project} layout="row" />
             ))}
