@@ -20,6 +20,8 @@ import { IMAGE_QUALITY, LCP_IMAGE_PROPS } from "@/lib/image";
 
 const PREVIEW_COUNT = 2;
 
+const GLOW_SIZES = "32px";
+
 const MOBILE_GRID =
   "grid grid-cols-2 gap-3 max-md:[&>:last-child:nth-child(odd)]:col-span-2";
 
@@ -85,9 +87,9 @@ function ProjectPreview({
           alt=""
           aria-hidden="true"
           fill
-          sizes={sizes}
-          quality={quality}
-          className="-z-10 scale-150 object-cover opacity-25 blur-2xl saturate-150 transition-opacity duration-500 group-hover:opacity-90 motion-reduce:transition-none max-md:hidden dark:opacity-30 dark:group-hover:opacity-80"
+          sizes={GLOW_SIZES}
+          quality={IMAGE_QUALITY.thumb}
+          className="-z-10 scale-150 object-cover opacity-25 blur-xl saturate-150 transition-opacity duration-500 group-hover:opacity-90 motion-reduce:transition-none max-md:hidden dark:opacity-30 dark:group-hover:opacity-80"
         />
 
         <div

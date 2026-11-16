@@ -76,19 +76,19 @@ export default async function Home() {
         <Projects />
       </Section>
 
-      <Section title="Experience" className="defer-render">
+      <Section title="Experience">
         <Timeline />
       </Section>
 
-      <Section title="Proof of work" className="defer-render">
+      <Section title="Proof of work">
         <GithubGraph data={githubData} />
       </Section>
 
-      <Section title="Writing" className="defer-render" action={<Link href="/blog" className="text-toggle gap-1.5">All posts<ArrowRight aria-hidden="true" className="size-3.5" /></Link>}>
+      <Section title="Writing" action={<Link href="/blog" className="text-toggle gap-1.5">All posts<ArrowRight aria-hidden="true" className="size-3.5" /></Link>}>
         <BlogList posts={posts.slice(0, LATEST_POSTS)} as="h3" />
       </Section>
 
-      <Section title="Skills" className="defer-render">
+      <Section title="Skills">
         <LazySkills />
       </Section>
     </PageShell>

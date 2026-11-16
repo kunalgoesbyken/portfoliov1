@@ -4,22 +4,17 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { MessageSquare } from "lucide-react";
 import * as m from "motion/react-m";
 import { AnimatePresence } from "motion/react";
-import dynamic from "next/dynamic";
 import MotionScope from "@/components/motion-scope";
 import { Spinner } from "@/components/ui/spinner";
+import { whenIdle } from "@/lib/idle";
 
-const ChatbotUI = dynamic(() => import("./chatbot-ui"), {
-  ssr: false,
-  loading: () => (
-    <div className="bg-inverse text-on-inverse fixed right-6 bottom-6 z-50 flex size-14 items-center justify-center rounded-full">
-      <Spinner className="size-6" />
-    </div>
-  ),
-});
+type ChatbotUIComponent = typeof import("./chatbot-ui").default;
+
+const TOOLTIP_SHOWN_KEY = "chatbot-tooltip-shown";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasOpened, setHasOpened] = useState(false);
+  const [ChatbotUI, setChatbotUI] = useState<ChatbotUIComponent | null>(null);
   const [showButton, setShowButton] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const hasShownTooltip = useRef(false);
@@ -27,10 +22,11 @@ export default function Chatbot() {
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    const tooltipShown = localStorage.getItem("chatbot-tooltip-shown");
-    if (!tooltipShown) {
-      hasShownTooltip.current = false;
-    }
+    hasShownTooltip.current = localStorage.getItem(TOOLTIP_SHOWN_KEY) !== null;
+  }, []);
+
+  const loadChatbotUI = useCallback(() => {
+    import("./chatbot-ui").then((mod) => setChatbotUI(() => mod.default));
   }, []);
 
   const revealButton = useCallback(() => {
@@ -41,7 +37,7 @@ export default function Chatbot() {
       scrollTimeoutRef.current = setTimeout(() => {
         setShowTooltip(true);
         hasShownTooltip.current = true;
-        localStorage.setItem("chatbot-tooltip-shown", "true");
+        localStorage.setItem(TOOLTIP_SHOWN_KEY, "true");
 
         setTimeout(() => {
           setShowTooltip(false);
@@ -81,11 +77,16 @@ export default function Chatbot() {
     };
   }, [revealButton]);
 
+  useEffect(() => {
+    if (!showButton) return;
+    return whenIdle(loadChatbotUI);
+  }, [showButton, loadChatbotUI]);
+
   const handleOpenChat = useCallback(() => {
-    setHasOpened(true);
+    loadChatbotUI();
     setIsOpen(true);
     setShowTooltip(false);
-  }, []);
+  }, [loadChatbotUI]);
 
   const handleCloseChat = useCallback(() => {
     setIsOpen(false);
@@ -146,7 +147,15 @@ export default function Chatbot() {
         )}
       </AnimatePresence>
 
-      {hasOpened && <ChatbotUI isOpen={isOpen} onClose={handleCloseChat} />}
+      {ChatbotUI ? (
+        <ChatbotUI isOpen={isOpen} onClose={handleCloseChat} />
+      ) : (
+        isOpen && (
+          <div className="bg-inverse text-on-inverse fixed right-6 bottom-6 z-50 flex size-14 items-center justify-center rounded-full">
+            <Spinner className="size-6" />
+          </div>
+        )
+      )}
     </MotionScope>
   );
 }

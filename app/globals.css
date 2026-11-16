@@ -107,6 +107,14 @@
   --color-pattern: var(--pattern-fg);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
 body {
   font-family: var(--font-sans), sans-serif;
 }
@@ -183,11 +191,6 @@ body {
   .mobile-fold[data-open="false"] > p:nth-of-type(n + 3) {
     display: none;
   }
-}
-
-.defer-render {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
 }
 
 .prose {

@@ -17,6 +17,8 @@ export interface PR {
     closedAt: string | null;
 }
 
+export type PullRequest = Pick<PR, "id" | "title" | "url" | "repository" | "state">;
+
 export interface Organization {
     login: string;
     avatarUrl: string;
@@ -24,7 +26,7 @@ export interface Organization {
 }
 
 export interface GithubData {
-    prs: PR[];
+    prs: PullRequest[];
     organizations: Organization[];
     contributions: Activity[];
 }
@@ -128,6 +130,8 @@ async function collectPRs(firstPage: SearchPage): Promise<PR[]> {
 
 const latestActivity = (pr: PR) => new Date(pr.mergedAt || pr.closedAt || pr.createdAt).getTime();
 
+const toPullRequest = ({ id, title, url, repository, state }: PR): PullRequest => ({ id, title, url, repository, state });
+
 const toOrganizations = (repositories: ContributedRepository[]): Organization[] => {
     const byLogin = new Map<string, Organization>();
     for (const { url, owner } of repositories) {
@@ -151,7 +155,7 @@ export async function getGithubData(): Promise<GithubData> {
         const { search, user } = await graphql<ProfileResponse>(PROFILE_QUERY, { login: GITHUB_USERNAME, search: PR_SEARCH });
         const prs = await collectPRs(search);
         return {
-            prs: prs.sort((a, b) => latestActivity(b) - latestActivity(a)),
+            prs: prs.sort((a, b) => latestActivity(b) - latestActivity(a)).map(toPullRequest),
             organizations: toOrganizations(user.repositoriesContributedTo.nodes),
             contributions: toActivities(user.contributionsCollection.contributionCalendar.weeks),
         };

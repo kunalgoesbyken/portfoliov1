@@ -111,18 +111,15 @@ const Markdown = ({ children }: { children: string }) => (
 export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [streamedResponse, setStreamedResponse] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [pending, setPending] = useState<ChatMessage | null>(null);
+  const isLoading = pending !== null;
+  const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ block: "end" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, streamedResponse]);
+    const list = listRef.current;
+    if (list) list.scrollTop = list.scrollHeight;
+  }, [messages, pending]);
 
   useEffect(() => {
     if (isOpen) {
@@ -135,15 +132,15 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
     if (!input.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       role: "user",
       content: input,
     };
+    const replyId = crypto.randomUUID();
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
-    setIsLoading(true);
-    setStreamedResponse("");
+    setPending({ id: replyId, role: "model", content: "" });
 
     try {
       const response = await fetch("/api/chat", {
@@ -168,27 +165,26 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
 
           const chunk = decoder.decode(value, { stream: true });
           fullResponse += chunk;
-          setStreamedResponse(fullResponse);
+          setPending({ id: replyId, role: "model", content: fullResponse });
         }
       }
 
       setMessages([
         ...newMessages,
-        { id: Date.now().toString(), role: "model", content: fullResponse },
+        { id: replyId, role: "model", content: fullResponse },
       ]);
-      setStreamedResponse("");
     } catch (error) {
       console.error("Chat error:", error);
       setMessages([
         ...newMessages,
         {
-          id: Date.now().toString(),
+          id: replyId,
           role: "model",
           content: "Sorry, something broke on my end. Try again?",
         },
       ]);
     } finally {
-      setIsLoading(false);
+      setPending(null);
     }
   };
 
@@ -233,7 +229,8 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
           </div>
 
           <div
-            className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4"
+            ref={listRef}
+            className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-4"
             aria-live="polite"
           >
             {messages.length === 0 && (
@@ -265,20 +262,12 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
               </div>
             )}
 
-            {messages.map((msg) => (
+            {(pending ? [...messages, pending] : messages).map((msg) => (
               <MessageRow key={msg.id} role={msg.role}>
-                {msg.role === "model" ? (
-                  <Markdown>{msg.content}</Markdown>
-                ) : (
+                {msg.role === "user" ? (
                   <p className="whitespace-pre-wrap">{msg.content}</p>
-                )}
-              </MessageRow>
-            ))}
-
-            {isLoading && (
-              <MessageRow role="model">
-                {streamedResponse ? (
-                  <Markdown>{streamedResponse}</Markdown>
+                ) : msg.content ? (
+                  <Markdown>{msg.content}</Markdown>
                 ) : (
                   <span
                     className="flex gap-1 py-1.5"
@@ -291,9 +280,7 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                   </span>
                 )}
               </MessageRow>
-            )}
-
-            <div ref={messagesEndRef} />
+            ))}
           </div>
 
           <form
@@ -308,7 +295,6 @@ export default function ChatbotUI({ isOpen, onClose }: ChatbotUIProps) {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask anything…"
                 aria-label="Message"
-                disabled={isLoading}
                 className="bg-muted text-fg placeholder:text-fg-subtle focus:border-line-hover h-11 min-w-0 flex-1 rounded-lg border border-transparent px-3 text-base focus:outline-none disabled:opacity-50 sm:h-10 sm:text-sm"
               />
               <button

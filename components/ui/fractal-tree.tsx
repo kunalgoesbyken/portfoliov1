@@ -1,44 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useTheme } from "next-themes";
 import { useMediaQuery } from "@/lib/hooks";
 
-const STROKE_COLORS = { dark: "#a3a3a33a", light: "#33333333" };
-
-const strokeFor = (theme: string | undefined) => (theme === "dark" ? STROKE_COLORS.dark : STROKE_COLORS.light);
+const STROKE_COLOR = "#33333333";
 
 export default function FractalTree() {
     const el = useRef<HTMLCanvasElement>(null);
-    const { resolvedTheme } = useTheme();
-    const colorRef = useRef(strokeFor(resolvedTheme));
     const [size, setSize] = useState({ width: 0, height: 0 });
-    const [shouldAnimate, setShouldAnimate] = useState(true);
     const isLargeScreen = useMediaQuery("(min-width: 768px)");
     const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-    const [isVisible, setIsVisible] = useState(true);
-
-    useEffect(() => {
-        colorRef.current = strokeFor(resolvedTheme);
-    }, [resolvedTheme]);
-
-    useEffect(() => {
-        const canvasEl = el.current;
-        if (!canvasEl) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const entry = entries[0];
-                if (entry) {
-                    setIsVisible(entry.isIntersecting);
-                }
-            },
-            { rootMargin: "100px" }
-        );
-
-        observer.observe(canvasEl);
-        return () => observer.disconnect();
-    }, []);
 
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
@@ -124,7 +95,7 @@ export default function FractalTree() {
         const drawStatic = () => {
             ctx.clearRect(0, 0, size.width, size.height);
             ctx.lineWidth = 1;
-            ctx.strokeStyle = colorRef.current;
+            ctx.strokeStyle = STROKE_COLOR;
 
             const drawStaticBranch = (x: number, y: number, rad: number, depth: number = 0) => {
                 if (depth > 8) return;
@@ -187,9 +158,6 @@ export default function FractalTree() {
 
         const frame = () => {
             if (performance.now() > stopAt) return;
-            if (!shouldAnimate || prefersReducedMotion || !isVisible) {
-                return;
-            }
 
             if (performance.now() - lastTime < interval) {
                 animationId = requestAnimationFrame(frame);
@@ -206,7 +174,6 @@ export default function FractalTree() {
                 }
             }
 
-            ctx.strokeStyle = colorRef.current;
             prevSteps.forEach((i) => {
                 if (random() < 0.5)
                     steps.push(i);
@@ -220,7 +187,7 @@ export default function FractalTree() {
         const start = () => {
             ctx.clearRect(0, 0, size.width, size.height);
             ctx.lineWidth = 1;
-            ctx.strokeStyle = colorRef.current;
+            ctx.strokeStyle = STROKE_COLOR;
             prevSteps = [];
             steps = [];
 
@@ -240,25 +207,8 @@ export default function FractalTree() {
 
         start();
 
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                setShouldAnimate(false);
-                cancelAnimationFrame(animationId);
-            } else if (isVisible) {
-                setShouldAnimate(true);
-                if (!prefersReducedMotion) {
-                    start();
-                }
-            }
-        };
-
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-
-        return () => {
-            cancelAnimationFrame(animationId);
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
-        };
-    }, [size, shouldAnimate, prefersReducedMotion, isLargeScreen, isVisible]);
+        return () => cancelAnimationFrame(animationId);
+    }, [size, prefersReducedMotion, isLargeScreen]);
 
     if (!isLargeScreen) {
         return null;
@@ -268,7 +218,7 @@ export default function FractalTree() {
 
     return (
         <div
-            className="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden z-[-1]"
+            className="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden z-[-1] dark:invert"
             aria-hidden="true"
             style={{
                 maskImage: mask,

@@ -46,12 +46,14 @@ function useTrackEdges() {
   return { trackRef, edges, update, step };
 }
 
-function Slide({ shot, index, onOpen }: { shot: Screenshot; index: number; onOpen: () => void }) {
+function Slide({ shot, index, onOpen, onIntent }: { shot: Screenshot; index: number; onOpen: () => void; onIntent: () => void }) {
   return (
     <figure className="m-0 w-[92%] shrink-0 snap-start md:w-[640px]">
       <button
         type="button"
         onClick={onOpen}
+        onPointerEnter={onIntent}
+        onFocus={onIntent}
         aria-label={`View full screen: ${shot.caption}`}
         className="block w-full cursor-zoom-in overflow-hidden rounded-lg border border-line bg-surface-alt"
       >
@@ -77,8 +79,9 @@ export function Gallery({ items }: { items: Screenshot[] }) {
   const [hasLightbox, setHasLightbox] = useState(false);
   if (items.length === 0) return null;
 
+  const loadLightbox = () => setHasLightbox(true);
   const openAt = (index: number) => {
-    setHasLightbox(true);
+    loadLightbox();
     setOpen(index);
   };
 
@@ -105,7 +108,7 @@ export function Gallery({ items }: { items: Screenshot[] }) {
         className="scrollbar-subtle flex snap-x snap-mandatory items-start gap-4 overflow-x-auto pb-3"
       >
         {items.map((shot, i) => (
-          <Slide key={shot.src} shot={shot} index={i} onOpen={() => openAt(i)} />
+          <Slide key={shot.src} shot={shot} index={i} onOpen={() => openAt(i)} onIntent={loadLightbox} />
         ))}
       </div>
       {hasLightbox && <Lightbox items={items} index={open} onIndexChange={setOpen} />}

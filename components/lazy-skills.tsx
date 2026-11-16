@@ -9,8 +9,12 @@ const Skills = dynamic(() => import("@/components/skills"));
 
 export default function LazySkills() {
   return (
-    <MountOnVisible minHeight={300}>
-      <Skills />
-    </MountOnVisible>
+    <div className="w-full pb-8 max-md:pb-6">
+      <div className="min-h-20">
+        <MountOnVisible minHeight={0}>
+          <Skills />
+        </MountOnVisible>
+      </div>
+    </div>
   );
 }

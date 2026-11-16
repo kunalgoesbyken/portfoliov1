@@ -58,17 +58,15 @@ const skills = [
 
 export default function Skills() {
     return (
-        <div className="w-full pb-8 max-md:pb-6">
-            <LogoSlider
-                logos={skills.map((skill) => (
-                    <div key={skill.name} className="flex flex-col items-center justify-center gap-2 text-fg-subtle">
-                        <skill.icon aria-hidden="true" className="size-8 md:size-10" />
-                        <span className="font-custom2 text-xs font-medium">{skill.name}</span>
-                    </div>
-                ))}
-                speed={40}
-                pauseOnHover
-            />
-        </div>
+        <LogoSlider
+            logos={skills.map((skill) => (
+                <div key={skill.name} className="flex flex-col items-center justify-center gap-2 text-fg-subtle">
+                    <skill.icon aria-hidden="true" className="size-8 md:size-10" />
+                    <span className="font-custom2 text-xs font-medium">{skill.name}</span>
+                </div>
+            ))}
+            speed={40}
+            pauseOnHover
+        />
     );
 }
