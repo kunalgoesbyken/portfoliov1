@@ -4,7 +4,6 @@ import remarkGfm from "remark-gfm";
 import PageShell from "@/components/ui/page-shell";
 import { getMDXComponents } from "@/mdx-components";
 import { CaseStudyHeader } from "@/components/case-study/header";
-import { StatStrip } from "@/components/case-study/stat-strip";
 import { Gallery } from "@/components/case-study/gallery";
 import { Section } from "@/components/case-study/section";
 import { Highlight, Highlights } from "@/components/case-study/highlights";
@@ -37,7 +36,6 @@ export default async function CaseStudyPage({ params }: PageProps) {
   return (
     <PageShell>
       <CaseStudyHeader project={project} meta={meta} />
-      <StatStrip stats={meta.stats} />
       <Gallery items={meta.gallery} />
       <article className="prose max-w-none font-custom2">
         <MDXRemote

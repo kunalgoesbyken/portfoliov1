@@ -64,10 +64,11 @@ export const DEPLOYED_PROJECTS: Project[] = [
       "Compiles Go with the stock toolchain to wasip1 and runs each node on wazero under a seeded scheduler and virtual clock",
       "Failing runs shrink to the few faults that matter",
       "Checks linearizability with Porcupine",
+      "Ships seedfall-gym, an RL environment of 42 crash-bug tasks scored on hidden seeds",
     ],
     tech: ["go"],
     github: "https://github.com/kunalgoesbyken/seedfall",
-    live: "https://seedfall-lemon.vercel.app",
+    live: "https://seedfall.kunalrc.xyz",
   },
   {
     slug: "codebase-indexer",

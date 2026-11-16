@@ -5,17 +5,17 @@ summary: A deterministic simulation tester for Go. It runs your unmodified servi
 stats:
   - { value: "10", label: "open source Go projects where it found a bug" }
   - { value: "87x", label: "faster than real time over a 200-seed sweep" }
-  - { value: "17", label: "MCP tools an AI coding agent can call" }
+  - { value: "22", label: "MCP tools an AI coding agent can call" }
+  - { value: "42", label: "RL tasks in seedfall-gym, graded on hidden seeds" }
 gallery:
   - { src: /images/projects/seedfall/00-producthunt.webp, caption: "Find the bugs that only happen when your Go service crashes, and replay each one exactly" }
-  - { src: /images/projects/seedfall/01-landing-hero.webp, caption: "The landing page, with its demo paused on a seedfall run that just failed" }
   - { src: /images/projects/seedfall/02-cli-run-finds-bug.webp, caption: "seedfall run on the kvlog example: seed 1 loses an acknowledged write after a partition and two crashes" }
-  - { src: /images/projects/seedfall/03-cli-shrink.webp, caption: "seedfall shrink cuts that failure from 33 faults and 200 operations down to 2 faults and 63 operations" }
   - { src: /images/projects/seedfall/04-cli-replay.webp, caption: "Three replays of seed 1 print the same determinism hash every time" }
   - { src: /images/projects/seedfall/05-landing-how-it-works.webp, caption: "How it works: three steps from install to a replayable bug" }
   - { src: /images/projects/seedfall/06-landing-bugs-found.webp, caption: "Real code, real bugs: NATS JetStream, rosedblabs/wal, tidwall/buntdb, tidwall/wal and hashicorp/raft" }
 stack:
   - "Go"
+  - "Python"
   - "WebAssembly"
   - "wazero"
   - "Porcupine"
@@ -35,11 +35,13 @@ When something breaks you get a seed number. That seed reproduces the exact same
 
 It's already found real bugs in widely used projects, including NATS, hashicorp/raft, nutsdb and buntdb. One of them, in hashicorp/raft, leaves a node that panics on every restart after a badly timed power loss. Nine issues have been filed upstream and buntdb has already shipped a fix.
 
+The same seeds also make a fair grader for AI agents. seedfall-gym is a reinforcement learning environment with 42 tasks: an agent gets a small Go storage system with a crash bug, fixes it, and is scored by the share of hidden seeds the fix survives. In operator mode, an agent instead keeps a live simulated cluster running through restarts and partitions, and is graded the same way.
+
 </Section>
 
 <Section kicker="For engineers" title="How I built it">
 
-The repository is one Go module. `sim` is the small library a workload imports for properties, operation history and `sim.Listen` and `sim.Dial`. `engine` is the simulator. `cmd/seedfall` is the CLI and the MCP server, `verify` and `report` produce proofs and triage output, and `seedfalltest` runs a sweep from `go test`.
+The repository holds the simulator and the gym. `sim` is the small library a workload imports for properties, operation history and `sim.Listen` and `sim.Dial`. `engine` is the simulator. `cmd/seedfall` is the CLI and the MCP server, `verify` and `report` produce proofs and triage output, and `seedfalltest` runs a sweep from `go test`. `gym/` is the RL environment: a Python package for the agent side and a separate Go grader module that links the simulator.
 
 <Diagram name="seedfall-system" title="Simulator architecture" />
 
@@ -81,6 +83,7 @@ Seeds are independent, so `seedfall run -j N` runs N at once, and virtual time s
 | Real bugs found | 18 root-cause reports across NATS JetStream, hashicorp/raft, nutsdb, buntdb, bitcask, diskv, bbolt and others |
 | Upstream | 9 issues filed, 1 fixed upstream (tidwall/buntdb) |
 | Controls | hashicorp/raft passes 600 seeds and etcd-io/raft 100; a deliberately broken copy of each is caught |
-| Codebase | 20,073 lines of Go outside tests and examples, 348 tests, 31 runnable example systems |
+| RL environment | 42 tasks; on every task the reference fix scores 1.0, the buggy code below 0.5 and a scripted cheat 0 |
+| Codebase | 20,693 lines of Go outside tests and examples, 362 Go tests, 99 gym tests, 31 runnable example systems |
 
 </Section>
