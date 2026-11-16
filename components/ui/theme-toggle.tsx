@@ -9,7 +9,7 @@ const ICON_CLASS =
   "origin-center transition-[rotate,opacity] duration-300 ease-in-out motion-reduce:transition-none";
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, systemTheme, setTheme } = useTheme();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playClick = () => {
@@ -23,11 +23,12 @@ export function ThemeToggle({ className }: { className?: string }) {
   const toggle = () => {
     playClick();
     const next = resolvedTheme === "dark" ? "light" : "dark";
+    const apply = () => setTheme(next === systemTheme ? "system" : next);
     if (!document.startViewTransition) {
-      setTheme(next);
+      apply();
       return;
     }
-    document.startViewTransition(() => flushSync(() => setTheme(next)));
+    document.startViewTransition(() => flushSync(apply));
   };
 
   return (
