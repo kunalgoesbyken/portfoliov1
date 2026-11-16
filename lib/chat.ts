@@ -1,0 +1,5 @@
+export const CHAT_HISTORY_TURNS = 10;
+
+export const CHAT_MAX_MESSAGES = CHAT_HISTORY_TURNS * 2 + 1;
+
+export const CHAT_MESSAGE_MAX_LENGTH = 10000;

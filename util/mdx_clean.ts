@@ -51,17 +51,18 @@ const byDateDesc = (a: BlogMeta, b: BlogMeta) => {
   return b.date.localeCompare(a.date);
 };
 
-const getLocalBlogs = async (): Promise<BlogMeta[]> => {
+export const getLocalBlogs = async (): Promise<Blog[]> => {
   const files = (await fs.readdir(DATA_DIR)).filter((file) => MDX_EXTENSION.test(file));
   const results = await Promise.allSettled(files.map((file) => getSingleBlog(file)));
   results
     .filter((result): result is PromiseRejectedResult => result.status === "rejected")
     .forEach(({ reason }) => console.warn("Failed to read blog", reason));
-  return results.flatMap((result) => (result.status === "fulfilled" ? [result.value.data] : []));
+  return results.flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
 };
 
 export const getAllBlogs = async (): Promise<BlogMeta[]> => {
-  const [local, remote] = await Promise.all([getLocalBlogs(), getMediumPosts()]);
+  const [blogs, remote] = await Promise.all([getLocalBlogs(), getMediumPosts()]);
+  const local = blogs.map((blog) => blog.data);
   const written = new Set(local.map((post) => post.externalUrl));
   return [...local, ...remote.filter((post) => !written.has(post.externalUrl))].sort(byDateDesc);
 };

@@ -7,6 +7,7 @@ import * as m from "motion/react-m";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { MediaItem } from "@/lib/media";
 import MotionScope from "@/components/motion-scope";
+import { fade } from "@/components/motion-presets";
 import { IMAGE_QUALITY } from "@/lib/image";
 
 interface LightboxProps {
@@ -83,10 +84,7 @@ export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
       <AnimatePresence>
         {media && (
           <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            {...fade}
             onClick={close}
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}

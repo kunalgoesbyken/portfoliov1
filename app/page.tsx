@@ -13,7 +13,7 @@ import LazySkills from "@/components/lazy-skills";
 import { BlogList } from "@/components/blog-list";
 import { getGithubData } from "@/lib/github";
 import { getAllBlogs } from "@/util/mdx_clean";
-import { SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINES } from "@/lib/site";
+import { SITE_AVATAR, SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINES } from "@/lib/site";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
 const LATEST_POSTS = 2;
@@ -26,7 +26,7 @@ export default async function Home() {
       <header className="mb-10">
         <div className="flex items-start gap-4 md:gap-5">
           <Image
-            src="/images/kunal-sm.jpg"
+            src={SITE_AVATAR}
             width={160}
             height={160}
             priority

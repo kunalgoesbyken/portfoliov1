@@ -273,6 +273,25 @@ body {
   @apply my-8 border-t border-line-strong;
 }
 
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+@utility text-shimmer {
+  background: linear-gradient(90deg, var(--fg-subtle) 35%, var(--fg) 50%, var(--fg-subtle) 65%) 0 0 / 200% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    color: var(--fg-subtle);
+  }
+}
+
 @keyframes loop-scroll {
   from {
     transform: translateX(0);

@@ -8,7 +8,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CommandMenuTrigger } from "@/components/command-menu-trigger";
 import { cn } from "@/lib/utils";
 import { useScrolledPast } from "@/lib/hooks";
-import { SITE_SHORT_NAME } from "@/lib/site";
+import { SITE_AVATAR, SITE_SHORT_NAME } from "@/lib/site";
 
 const NAV_ITEMS = [
   { title: "Projects", href: "/projects" },
@@ -52,7 +52,7 @@ export default function Navbar() {
           >
             <Image
               className="ring-line group-hover/home:ring-fg-faint group-focus-visible/home:ring-fg-faint size-9 rounded-full ring-1 transition-[scale,box-shadow] duration-200 ease-out group-hover/home:scale-105 group-hover/home:ring-2 group-focus-visible/home:ring-2 motion-reduce:transition-none md:size-10"
-              src="/images/kunal-sm.jpg"
+              src={SITE_AVATAR}
               width={100}
               height={100}
               alt=""
