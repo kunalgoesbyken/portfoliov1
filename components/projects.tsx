@@ -16,11 +16,10 @@ import { Section } from "@/components/ui/section";
 import { ShowMore } from "@/components/ui/show-more";
 import { projectLinks, type ProjectLink } from "@/components/project-links";
 import { cn } from "@/lib/utils";
-import { IMAGE_QUALITY, LCP_IMAGE_PROPS } from "@/lib/image";
+import { LCP_IMAGE_PROPS } from "@/lib/image";
 
 const PREVIEW_COUNT = 2;
 
-const GLOW_SIZES = "32px";
 
 const MOBILE_GRID =
   "grid grid-cols-2 gap-3 max-md:[&>:last-child:nth-child(odd)]:col-span-2";
@@ -64,11 +63,6 @@ function ProjectPreview({
   featured: boolean;
   priority: boolean;
 }) {
-  const sizes = featured
-    ? "(max-width: 768px) 45vw, 320px"
-    : "(max-width: 768px) 45vw, 180px";
-  const quality = featured ? IMAGE_QUALITY.card : IMAGE_QUALITY.thumb;
-
   return (
     <div
       className={cn(
@@ -87,8 +81,6 @@ function ProjectPreview({
           alt=""
           aria-hidden="true"
           fill
-          sizes={GLOW_SIZES}
-          quality={IMAGE_QUALITY.thumb}
           className="-z-10 scale-150 object-cover opacity-25 blur-xl saturate-150 transition-opacity duration-500 group-hover:opacity-90 motion-reduce:transition-none max-md:hidden dark:opacity-30 dark:group-hover:opacity-80"
         />
 
@@ -122,8 +114,6 @@ function ProjectPreview({
               src={project.src}
               alt={project.title}
               fill
-              sizes={sizes}
-              quality={quality}
               {...(priority ? LCP_IMAGE_PROPS : {})}
               className="object-cover object-top"
             />

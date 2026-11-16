@@ -62,7 +62,6 @@ export default async function SingleBlogPage({ params }: PageProps) {
             width={1200}
             height={600}
             {...LCP_IMAGE_PROPS}
-            sizes="(max-width: 768px) 100vw, 768px"
             className="h-auto w-full rounded-lg border border-line object-cover"
           />
         </div>

@@ -8,7 +8,6 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { MediaItem } from "@/lib/media";
 import MotionScope from "@/components/motion-scope";
 import { fade } from "@/components/motion-presets";
-import { IMAGE_QUALITY } from "@/lib/image";
 
 interface LightboxProps {
   items: MediaItem[];
@@ -110,8 +109,6 @@ export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
                 alt={media.caption}
                 width={0}
                 height={0}
-                sizes="(max-width: 768px) 100vw, 90vw"
-                quality={IMAGE_QUALITY.full}
                 className="h-auto max-h-[80dvh] w-auto max-w-full rounded-md"
               />
               <figcaption className="font-custom2 text-sm text-neutral-300">

@@ -5,7 +5,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Screenshot } from "@/lib/case-studies";
-import { IMAGE_QUALITY, LCP_IMAGE_PROPS } from "@/lib/image";
+import { LCP_IMAGE_PROPS } from "@/lib/image";
 
 const Lightbox = dynamic(() => import("@/components/ui/lightbox").then((m) => ({ default: m.Lightbox })), { ssr: false });
 
@@ -13,8 +13,6 @@ const SCROLL_EPSILON = 4;
 
 const ARROW_CLASS =
   "inline-flex size-8 max-md:size-11 items-center justify-center rounded-full border border-line-strong text-fg-body transition-colors enabled:cursor-pointer enabled:hover:border-line-hover enabled:hover:text-fg disabled:opacity-30";
-
-const SLIDE_SIZES = "(max-width: 768px) 92vw, 640px";
 
 const neighbourOffset = (track: HTMLElement, direction: 1 | -1) => {
   const offsets = Array.from(track.children, (child) => (child as HTMLElement).offsetLeft - track.offsetLeft);
@@ -62,8 +60,6 @@ function Slide({ shot, index, onOpen, onIntent }: { shot: Screenshot; index: num
           alt={shot.caption}
           width={shot.width}
           height={shot.height}
-          sizes={SLIDE_SIZES}
-          quality={IMAGE_QUALITY.card}
           {...(index === 0 ? LCP_IMAGE_PROPS : {})}
           className="block h-auto w-full"
         />
