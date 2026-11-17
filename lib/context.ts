@@ -7,7 +7,7 @@ import { techNames } from "@/lib/tech-icons";
 import { ALL_PROJECTS, projectLinkEntries, projectPath, type Project } from "@/lib/projects-data";
 import { EXPERIENCES, experiencePeriod, type Experience } from "@/lib/experience-data";
 import { getCaseStudy, type CaseStudy } from "@/lib/case-studies";
-import { getGithubData, type GithubData, type PRState } from "@/lib/github";
+import { getGithubData, type GithubData, type PRState, type RepositoryContribution } from "@/lib/github";
 import { getLocalBlogs, type Blog, type BlogMeta } from "@/util/mdx_clean";
 import { getMediumPosts } from "@/util/medium";
 
@@ -91,16 +91,21 @@ const remotePostContext = (meta: BlogMeta) =>
 const pullRequestTotals = (prs: GithubData["prs"]) => {
   const withState = (state: PRState) => prs.filter((pr) => pr.state === state);
   const merged = withState("MERGED");
-  const mergedRepos = new Set(merged.map((pr) => pr.repository.nameWithOwner)).size;
+  const mergedRepos = new Set(merged.map((pr) => pr.repository)).size;
   return `Merged pull requests: ${merged.length} across ${mergedRepos} repositories. Open: ${withState("OPEN").length}. Closed without merging: ${withState("CLOSED").length}.`;
 };
 
-const openSourceContext = ({ organizations, prs }: GithubData) =>
+const repositoryContext = ({ nameWithOwner, url, stars, merged }: RepositoryContribution) =>
+  `${nameWithOwner} (${url}, ${stars} stars): ${merged.length} merged`;
+
+const openSourceContext = ({ repositories, prs }: GithubData) =>
   [
     prs.length ? pullRequestTotals(prs) : "",
-    organizations.length ? `Contributed to: ${organizations.map((org) => `${org.login} (${org.url})`).join(", ")}` : "",
+    repositories.length
+      ? `Merged code contributions to third-party repositories, most merges first:\n${bullets(repositories.map(repositoryContext))}`
+      : "",
     prs.length
-      ? `Pull requests, latest first:\n${bullets(prs.map((pr) => `[${pr.state}] ${pr.repository.nameWithOwner}: ${pr.title} (${pr.url})`))}`
+      ? `Pull requests, latest first:\n${bullets(prs.map((pr) => `[${pr.state}] ${pr.repository}: ${pr.title} (${pr.url})`))}`
       : "",
   ]
     .filter(Boolean)

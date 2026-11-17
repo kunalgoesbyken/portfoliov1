@@ -3,6 +3,7 @@ import { Heading, Lede } from "@/components/ui/heading";
 import { cn } from "@/lib/utils";
 
 export function Section({
+  id,
   title,
   description,
   action,
@@ -11,6 +12,7 @@ export function Section({
   className,
   children,
 }: {
+  id?: string;
   title?: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
@@ -20,7 +22,7 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <section className={cn("-mx-(--bleed) border-t border-line px-(--bleed) pt-10 pb-2 md:pt-12", className)}>
+    <section id={id} className={cn("-mx-(--bleed) scroll-mt-24 border-t border-line px-(--bleed) pt-10 pb-2 md:pt-12", className)}>
       {title && (
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>

@@ -9,6 +9,7 @@ import Socials from "@/components/socials";
 import Projects from "@/components/projects";
 import Timeline from "@/components/timeline";
 import GithubGraph from "@/components/githubgraph";
+import OpenSourceSummary from "@/components/open-source-summary";
 import LazySkills from "@/components/lazy-skills";
 import { BlogList } from "@/components/blog-list";
 import { getGithubData } from "@/lib/github";
@@ -58,6 +59,8 @@ export default async function Home() {
             <li key={line}>{line}</li>
           ))}
         </ul>
+
+        <OpenSourceSummary repositories={githubData.repositories} />
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <a

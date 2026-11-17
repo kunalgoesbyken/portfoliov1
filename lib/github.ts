@@ -1,6 +1,6 @@
 import type { Activity } from "react-activity-calendar";
 import { GITHUB_USERNAME } from "@/lib/social-links";
-import { REVALIDATE_SECONDS } from "@/lib/config";
+import { DOC_FILE_EXTENSIONS, MIN_REPO_STARS, REVALIDATE_SECONDS } from "@/lib/config";
 
 export type PRState = "MERGED" | "OPEN" | "CLOSED";
 
@@ -10,24 +10,39 @@ export interface PR {
     url: string;
     repository: {
         nameWithOwner: string;
+        name: string;
+        url: string;
+        stargazerCount: number;
+        owner: { avatarUrl: string };
     };
+    files: { nodes: { path: string }[] };
     state: PRState;
     createdAt: string;
     mergedAt: string | null;
     closedAt: string | null;
 }
 
-export type PullRequest = Pick<PR, "id" | "title" | "url" | "repository" | "state">;
-
-export interface Organization {
-    login: string;
-    avatarUrl: string;
+export interface PullRequest {
+    id: string;
+    title: string;
     url: string;
+    repository: string;
+    state: PRState;
+}
+
+export interface RepositoryContribution {
+    nameWithOwner: string;
+    name: string;
+    url: string;
+    avatarUrl: string;
+    stars: number;
+    merged: [PullRequest, ...PullRequest[]];
 }
 
 export interface GithubData {
     prs: PullRequest[];
-    organizations: Organization[];
+    repositories: RepositoryContribution[];
+    inReview: number;
     contributions: Activity[];
 }
 
@@ -36,21 +51,14 @@ interface SearchPage {
     nodes: PR[];
 }
 
-interface ContributedRepository {
-    url: string;
-    owner: { __typename: string; login: string; avatarUrl: string };
-}
-
 interface ContributionDay {
     date: string;
     contributionCount: number;
     contributionLevel: string;
 }
 
-interface ProfileResponse {
-    search: SearchPage;
+interface CalendarResponse {
     user: {
-        repositoriesContributedTo: { nodes: ContributedRepository[] };
         contributionsCollection: {
             contributionCalendar: { weeks: { contributionDays: ContributionDay[] }[] };
         };
@@ -61,7 +69,7 @@ const GRAPHQL_URL = "https://api.github.com/graphql";
 const PR_SEARCH = `author:${GITHUB_USERNAME} -user:${GITHUB_USERNAME} type:pr`;
 const CONTRIBUTION_LEVELS = ["NONE", "FIRST_QUARTILE", "SECOND_QUARTILE", "THIRD_QUARTILE", "FOURTH_QUARTILE"];
 
-const EMPTY_DATA: GithubData = { prs: [], organizations: [], contributions: [] };
+const EMPTY_DATA: GithubData = { prs: [], repositories: [], inReview: 0, contributions: [] };
 
 const SEARCH_PAGE_FRAGMENT = `
   fragment SearchPageFields on SearchResultItemConnection {
@@ -71,7 +79,8 @@ const SEARCH_PAGE_FRAGMENT = `
         id
         title
         url
-        repository { nameWithOwner }
+        repository { nameWithOwner name url stargazerCount owner { avatarUrl } }
+        files(first: 100) { nodes { path } }
         state
         createdAt
         mergedAt
@@ -80,20 +89,15 @@ const SEARCH_PAGE_FRAGMENT = `
     }
   }`;
 
-const PROFILE_QUERY = `query ($login: String!, $search: String!) {
-    search(query: $search, type: ISSUE, first: 100) { ...SearchPageFields }
+const CALENDAR_QUERY = `query ($login: String!) {
     user(login: $login) {
-      repositoriesContributedTo(first: 100, includeUserRepositories: false, contributionTypes: [COMMIT, PULL_REQUEST, PULL_REQUEST_REVIEW, ISSUE]) {
-        nodes { url owner { __typename login avatarUrl } }
-      }
       contributionsCollection {
         contributionCalendar {
           weeks { contributionDays { date contributionCount contributionLevel } }
         }
       }
     }
-  }
-  ${SEARCH_PAGE_FRAGMENT}`;
+  }`;
 
 const SEARCH_PAGE_QUERY = `query ($search: String!, $after: String) {
     search(query: $search, type: ISSUE, first: 100, after: $after) { ...SearchPageFields }
@@ -110,36 +114,60 @@ async function graphql<T>(query: string, variables: Record<string, unknown>): Pr
         body: JSON.stringify({ query, variables }),
         next: { revalidate: REVALIDATE_SECONDS },
     });
+    if (!response.ok) {
+        throw new Error(`GitHub GraphQL request failed with status ${response.status}`);
+    }
     const json = await response.json();
-    if (!response.ok || json.errors) {
-        throw new Error(`GitHub GraphQL request failed: ${JSON.stringify(json.errors ?? json.message)}`);
+    if (json.errors) {
+        throw new Error(`GitHub GraphQL request failed: ${JSON.stringify(json.errors)}`);
     }
     return json.data;
 }
 
-async function collectPRs(firstPage: SearchPage): Promise<PR[]> {
-    const prs = [...firstPage.nodes];
-    let { hasNextPage, endCursor } = firstPage.pageInfo;
-    while (hasNextPage) {
-        const { search } = await graphql<{ search: SearchPage }>(SEARCH_PAGE_QUERY, { search: PR_SEARCH, after: endCursor });
+async function collectPRs(): Promise<PR[]> {
+    const prs: PR[] = [];
+    let after: string | null = null;
+    do {
+        const { search }: { search: SearchPage } = await graphql(SEARCH_PAGE_QUERY, { search: PR_SEARCH, after });
         prs.push(...search.nodes);
-        ({ hasNextPage, endCursor } = search.pageInfo);
-    }
+        after = search.pageInfo.hasNextPage ? search.pageInfo.endCursor : null;
+    } while (after);
     return prs;
+}
+
+async function collectActivities(): Promise<Activity[]> {
+    const { user } = await graphql<CalendarResponse>(CALENDAR_QUERY, { login: GITHUB_USERNAME });
+    return toActivities(user.contributionsCollection.contributionCalendar.weeks);
 }
 
 const latestActivity = (pr: PR) => new Date(pr.mergedAt || pr.closedAt || pr.createdAt).getTime();
 
-const toPullRequest = ({ id, title, url, repository, state }: PR): PullRequest => ({ id, title, url, repository, state });
+const toPullRequest = ({ id, title, url, repository, state }: PR): PullRequest => ({ id, title, url, repository: repository.nameWithOwner, state });
 
-const toOrganizations = (repositories: ContributedRepository[]): Organization[] => {
-    const byLogin = new Map<string, Organization>();
-    for (const { url, owner } of repositories) {
-        if (owner.__typename !== "Organization" || byLogin.has(owner.login)) continue;
-        byLogin.set(owner.login, { login: owner.login, avatarUrl: owner.avatarUrl, url });
+const isDocFile = (path: string) => DOC_FILE_EXTENSIONS.some((extension) => path.toLowerCase().endsWith(extension));
+
+const isNotable = (pr: PR) =>
+    pr.repository.stargazerCount >= MIN_REPO_STARS && pr.files.nodes.some((file) => !isDocFile(file.path));
+
+const reach = (repository: RepositoryContribution) => repository.merged.length * repository.stars;
+
+const toRepositories = (prs: PR[]): RepositoryContribution[] => {
+    const byName = new Map<string, RepositoryContribution>();
+    for (const pr of prs) {
+        if (pr.state !== "MERGED") continue;
+        const { nameWithOwner, name, url, stargazerCount, owner } = pr.repository;
+        const existing = byName.get(nameWithOwner);
+        if (existing) {
+            existing.merged.push(toPullRequest(pr));
+            continue;
+        }
+        byName.set(nameWithOwner, { nameWithOwner, name, url, avatarUrl: owner.avatarUrl, stars: stargazerCount, merged: [toPullRequest(pr)] });
     }
-    return [...byLogin.values()];
+    return [...byName.values()].sort((a, b) => reach(b) - reach(a));
 };
+
+export const mergedCount = (repositories: RepositoryContribution[]) =>
+    repositories.reduce((total, repository) => total + repository.merged.length, 0);
 
 const toActivities = (weeks: { contributionDays: ContributionDay[] }[]): Activity[] =>
     weeks.flatMap((week) =>
@@ -152,12 +180,14 @@ const toActivities = (weeks: { contributionDays: ContributionDay[] }[]): Activit
 
 export async function getGithubData(): Promise<GithubData> {
     try {
-        const { search, user } = await graphql<ProfileResponse>(PROFILE_QUERY, { login: GITHUB_USERNAME, search: PR_SEARCH });
-        const prs = await collectPRs(search);
+        const [collected, contributions] = await Promise.all([collectPRs(), collectActivities()]);
+        const prs = collected.sort((a, b) => latestActivity(b) - latestActivity(a));
+        const notable = prs.filter(isNotable);
         return {
-            prs: prs.sort((a, b) => latestActivity(b) - latestActivity(a)).map(toPullRequest),
-            organizations: toOrganizations(user.repositoriesContributedTo.nodes),
-            contributions: toActivities(user.contributionsCollection.contributionCalendar.weeks),
+            prs: prs.map(toPullRequest),
+            repositories: toRepositories(notable),
+            inReview: notable.filter((pr) => pr.state === "OPEN").length,
+            contributions,
         };
     } catch (error) {
         console.error("Failed to fetch GitHub data:", error);
