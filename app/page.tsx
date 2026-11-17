@@ -14,7 +14,7 @@ import LazySkills from "@/components/lazy-skills";
 import { BlogList } from "@/components/blog-list";
 import { getGithubData } from "@/lib/github";
 import { getAllBlogs } from "@/util/mdx_clean";
-import { PROOF_OF_WORK_ANCHOR, SITE_AVATAR, SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINE } from "@/lib/site";
+import { PROOF_OF_WORK_ANCHOR, SITE_AVATAR, SITE_LOCATION, SITE_NAME, SITE_ROLE } from "@/lib/site";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
 const LATEST_POSTS = 2;
@@ -53,8 +53,6 @@ export default async function Home() {
             <Socials />
           </div>
         </div>
-
-        <p className="font-custom2 text-fg-body mt-5 text-base">{SITE_TAGLINE}</p>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <a href={SOCIAL_LINKS.booking} target="_blank" rel="noopener noreferrer" className="action-chip">

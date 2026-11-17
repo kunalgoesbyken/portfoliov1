@@ -6,7 +6,6 @@ export const SITE_SHORT_NAME = "Kunal";
 
 export const SITE_AVATAR = "/images/kunal-sm.jpg";
 
-export const SITE_TAGLINE = "Backends that don't page you at 3am, and frontends like this one.";
 
 export const SITE_ROLE = "Backend and Applied AI";
 
