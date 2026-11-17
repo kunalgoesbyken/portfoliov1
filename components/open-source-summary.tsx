@@ -1,17 +1,16 @@
-import { ArrowDown } from "lucide-react";
+import Image from "next/image";
 import { mergedCount, type RepositoryContribution } from "@/lib/github";
 import { PROOF_OF_WORK_ANCHOR } from "@/lib/site";
-import { countOf, listParts } from "@/lib/utils";
+import { countOf, formatList } from "@/lib/utils";
 
 const HEADLINE_REPOSITORIES = 4;
 
-const headlineNames = (repositories: RepositoryContribution[]) => {
-  const names = [...repositories]
-    .sort((a, b) => b.stars - a.stars)
-    .slice(0, HEADLINE_REPOSITORIES)
-    .map((repository) => repository.name);
-  const rest = repositories.length - names.length;
-  return rest > 0 ? [...names, `${rest} more`] : names;
+const byStars = (repositories: RepositoryContribution[]) => [...repositories].sort((a, b) => b.stars - a.stars);
+
+const contributedTo = (headline: RepositoryContribution[], total: number) => {
+  const names = headline.map((repository) => repository.name);
+  const rest = total - headline.length;
+  return formatList(rest > 0 ? [...names, `${rest} more`] : names);
 };
 
 export const proofOfWorkDescription = (repositories: RepositoryContribution[], inReview: number) => {
@@ -27,24 +26,27 @@ export const proofOfWorkDescription = (repositories: RepositoryContribution[], i
 export default function OpenSourceSummary({ repositories }: { repositories: RepositoryContribution[] }) {
   if (repositories.length === 0) return null;
 
+  const headline = byStars(repositories).slice(0, HEADLINE_REPOSITORIES);
+
   return (
-    <a
-      href={`#${PROOF_OF_WORK_ANCHOR}`}
-      className="group font-custom2 text-fg-muted hover:text-fg-body mt-4 inline-flex items-center gap-1.5 text-sm transition-colors max-md:min-h-11"
-    >
-      <span>
-        {countOf(mergedCount(repositories), "pull request", "pull requests")} merged into{" "}
-        {listParts(headlineNames(repositories)).map((part, index) =>
-          part.type === "element" ? (
-            <span key={index} className="text-fg">
-              {part.value}
-            </span>
-          ) : (
-            part.value
-          ),
-        )}
+    <a href={`#${PROOF_OF_WORK_ANCHOR}`} className="action-chip">
+      <span className="flex gap-1">
+        {headline.map((repository) => (
+          <Image
+            key={repository.nameWithOwner}
+            src={repository.avatarUrl}
+            alt=""
+            title={repository.nameWithOwner}
+            width={16}
+            height={16}
+            className="size-4 rounded-sm"
+          />
+        ))}
       </span>
-      <ArrowDown aria-hidden="true" className="size-3.5 shrink-0 transition-transform group-hover:translate-y-0.5 motion-reduce:transition-none" />
+      <span>
+        {countOf(mergedCount(repositories), "PR merged", "PRs merged")}
+        <span className="sr-only"> into {contributedTo(headline, repositories.length)}</span>
+      </span>
     </a>
   );
 }

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { DEPLOYED_PROJECTS } from "@/lib/projects-data";
-import { SITE_NAME, SITE_TAGLINES, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { OG_SIZE, loadOgFonts, toPngDataUrl } from "@/lib/og";
 
 export const alt = `${SITE_NAME}: backend and applied AI engineer working in Rust, Go and AI tools that run in production`;
@@ -45,13 +45,7 @@ export default async function OpenGraphImage() {
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", marginTop: 22, fontSize: 25, color: "#d4d4d4" }}>
-          {SITE_TAGLINES.map((line) => (
-            <div key={line} style={{ display: "flex", marginTop: 6 }}>
-              {line}
-            </div>
-          ))}
-        </div>
+        <div style={{ display: "flex", marginTop: 28, fontSize: 25, color: "#d4d4d4" }}>{SITE_TAGLINE}</div>
 
         <div style={{ display: "flex", position: "absolute", top: CARD_TOP, left: PAGE_PADDING, gap: CARD_GAP }}>
           {previews.map(({ title, src }) => (

@@ -24,4 +24,4 @@ export const countOf = (count: number, singular: string, plural: string) =>
 
 const LIST_FORMAT = new Intl.ListFormat("en-US", { type: "conjunction" });
 
-export const listParts = (items: string[]) => LIST_FORMAT.formatToParts(items);
+export const formatList = (items: string[]) => LIST_FORMAT.format(items);

@@ -6,11 +6,7 @@ export const SITE_SHORT_NAME = "Kunal";
 
 export const SITE_AVATAR = "/images/kunal-sm.jpg";
 
-export const SITE_TAGLINES = [
-  "I build backends that don't fall over, and frontends like this one.",
-  "Rust, Go, and the boring reliability work most people skip.",
-  "AI tools, shipped and in production. Not demos.",
-] as const;
+export const SITE_TAGLINE = "Backends in Rust and Go that don't fall over, and frontends like this one.";
 
 export const SITE_ROLE = "Backend and Applied AI";
 

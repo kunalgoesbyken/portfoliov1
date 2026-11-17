@@ -14,7 +14,7 @@ import LazySkills from "@/components/lazy-skills";
 import { BlogList } from "@/components/blog-list";
 import { getGithubData } from "@/lib/github";
 import { getAllBlogs } from "@/util/mdx_clean";
-import { PROOF_OF_WORK_ANCHOR, SITE_AVATAR, SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINES } from "@/lib/site";
+import { PROOF_OF_WORK_ANCHOR, SITE_AVATAR, SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINE } from "@/lib/site";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
 const LATEST_POSTS = 2;
@@ -54,24 +54,14 @@ export default async function Home() {
           </div>
         </div>
 
-        <ul className="font-custom2 text-fg-body mt-5 space-y-1 text-base">
-          {SITE_TAGLINES.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
+        <p className="font-custom2 text-fg-body mt-5 text-base">{SITE_TAGLINE}</p>
 
-        <OpenSourceSummary repositories={githubData.repositories} />
-
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <a
-            href={SOCIAL_LINKS.booking}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="frame-dashed font-custom2 text-fg-body hover:border-line-hover hover:text-fg inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors max-md:min-h-11"
-          >
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <a href={SOCIAL_LINKS.booking} target="_blank" rel="noopener noreferrer" className="action-chip">
             <CalendarDays aria-hidden="true" className="size-3.5" />
             Book an intro call
           </a>
+          <OpenSourceSummary repositories={githubData.repositories} />
         </div>
       </header>
 
