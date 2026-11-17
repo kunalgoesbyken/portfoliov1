@@ -320,12 +320,15 @@ body {
   }
 }
 
+.contribution-calendar .react-activity-calendar {
+  width: 100% !important;
+}
 .contribution-calendar .react-activity-calendar__scroll-container {
   direction: rtl;
 }
 .contribution-calendar .react-activity-calendar__calendar {
   direction: ltr;
-  max-width: 100%;
+  width: 100%;
   min-width: 26.5rem;
   height: auto;
 }

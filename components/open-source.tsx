@@ -26,11 +26,13 @@ function RepositorySummary({ repository }: { repository: RepositoryContribution 
         <span className="flex items-center gap-1.5 font-custom2 text-xs text-fg-subtle tabular-nums">
           <Star aria-hidden="true" className="size-3" />
           <span className="sr-only">stars</span>
-          {formatCompact(repository.stars)}
+          <span className="min-w-[4.5ch] text-right">{formatCompact(repository.stars)}</span>
           <span aria-hidden="true" className="text-fg-faint">
             ·
           </span>
-          <span className="text-fg-body">{repository.merged.length} merged</span>
+          <span className="text-fg-body">
+            <span className="inline-block min-w-[2ch] text-right">{repository.merged.length}</span> merged
+          </span>
         </span>
       </span>
     </>
