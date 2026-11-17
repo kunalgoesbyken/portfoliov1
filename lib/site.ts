@@ -16,4 +16,4 @@ export const SITE_ROLE = "Backend and Applied AI";
 
 export const SITE_LOCATION = "Bengaluru, India";
 
-export const OPEN_SOURCE_ANCHOR = "open-source";
+export const PROOF_OF_WORK_ANCHOR = "proof-of-work";

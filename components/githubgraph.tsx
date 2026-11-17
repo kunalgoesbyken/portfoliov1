@@ -50,8 +50,12 @@ const ContributionCalendar = ({ contributions }: { contributions: Activity[] }) 
 
 const GithubGraph = ({ data }: GithubGraphProps) => (
   <>
-    {data.contributions.length > 0 && <ContributionCalendar contributions={data.contributions} />}
-    <OpenSource repositories={data.repositories} inReview={data.inReview} />
+    <OpenSource repositories={data.repositories} />
+    {data.contributions.length > 0 && (
+      <div className="mt-8">
+        <ContributionCalendar contributions={data.contributions} />
+      </div>
+    )}
   </>
 );
 

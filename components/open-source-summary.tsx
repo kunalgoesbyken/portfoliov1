@@ -1,6 +1,6 @@
 import { ArrowDown } from "lucide-react";
 import { mergedCount, type RepositoryContribution } from "@/lib/github";
-import { OPEN_SOURCE_ANCHOR } from "@/lib/site";
+import { PROOF_OF_WORK_ANCHOR } from "@/lib/site";
 import { countOf, listParts } from "@/lib/utils";
 
 const HEADLINE_REPOSITORIES = 4;
@@ -14,12 +14,22 @@ const headlineNames = (repositories: RepositoryContribution[]) => {
   return rest > 0 ? [...names, `${rest} more`] : names;
 };
 
+export const proofOfWorkDescription = (repositories: RepositoryContribution[], inReview: number) => {
+  if (repositories.length === 0) return undefined;
+  return [
+    `${countOf(mergedCount(repositories), "merged pull request", "merged pull requests")} across ${countOf(repositories.length, "repository", "repositories")}`,
+    inReview > 0 ? `${inReview} in review` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+};
+
 export default function OpenSourceSummary({ repositories }: { repositories: RepositoryContribution[] }) {
   if (repositories.length === 0) return null;
 
   return (
     <a
-      href={`#${OPEN_SOURCE_ANCHOR}`}
+      href={`#${PROOF_OF_WORK_ANCHOR}`}
       className="group font-custom2 text-fg-muted hover:text-fg-body mt-4 inline-flex items-center gap-1.5 text-sm transition-colors max-md:min-h-11"
     >
       <span>

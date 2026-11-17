@@ -9,12 +9,12 @@ import Socials from "@/components/socials";
 import Projects from "@/components/projects";
 import Timeline from "@/components/timeline";
 import GithubGraph from "@/components/githubgraph";
-import OpenSourceSummary from "@/components/open-source-summary";
+import OpenSourceSummary, { proofOfWorkDescription } from "@/components/open-source-summary";
 import LazySkills from "@/components/lazy-skills";
 import { BlogList } from "@/components/blog-list";
 import { getGithubData } from "@/lib/github";
 import { getAllBlogs } from "@/util/mdx_clean";
-import { SITE_AVATAR, SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINES } from "@/lib/site";
+import { PROOF_OF_WORK_ANCHOR, SITE_AVATAR, SITE_LOCATION, SITE_NAME, SITE_ROLE, SITE_TAGLINES } from "@/lib/site";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
 const LATEST_POSTS = 2;
@@ -83,7 +83,11 @@ export default async function Home() {
         <Timeline />
       </Section>
 
-      <Section title="Proof of work">
+      <Section
+        id={PROOF_OF_WORK_ANCHOR}
+        title="Proof of work"
+        description={proofOfWorkDescription(githubData.repositories, githubData.inReview)}
+      >
         <GithubGraph data={githubData} />
       </Section>
 
