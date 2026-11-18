@@ -41,12 +41,12 @@ export const DEPLOYED_PROJECTS: Project[] = [
     src: "/images/projects/aerosieve/00-producthunt.webp",
     category: "Voice AI data pipeline",
     description:
-      "Turns raw recordings into speech-model training data, and tells you why it dropped every clip it dropped. It caught 24,385 of 24,409 injected defects across six languages, curates audio 940x faster than real time on a laptop CPU, and judges 1,000 live streams at 14.8 ms p95 over WebSocket. It runs in the browser via WebAssembly, and ships as a CLI, Rust crate and Python bindings.",
+      "Turns raw recordings into speech-model training data and names the reason for every clip it drops. On 2,917 real Hindi phone recordings, Whisper's error rate is 8.9 points higher on the clips it rejects, and that test exposed a codec bug I fixed. It caught 24,385 of 24,409 injected defects in six languages.",
     details: [
+      "Tested on Gram Vaani Hindi with human-verified transcripts: rejected audio is harder for two unrelated recognizers, and the gap holds within 8 kHz phone audio alone",
+      "The same test showed its noise check does not predict errors on real calls, which is now a documented limitation",
       "Decodes audio, cuts it into 3 to 30 second speech clips, drops silent, noisy, clipped and tonal clips, and writes WebDataset shards",
-      "SieveBench injected those defects into 51,352 damaged recordings",
-      "The 940x figure is 43 minutes of 48 kHz Hindi audio curated in 2.75s, with no ML model by default",
-      "Streaming verdicts are identical to batch results",
+      "Ships as a CLI, Rust crate, Python bindings, a WebSocket service and a WebAssembly build that runs in the browser",
     ],
     tech: ["rust", "python"],
     github: "https://github.com/kunalgoesbyken/AeroSieve",

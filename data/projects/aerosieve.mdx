@@ -1,12 +1,12 @@
 ---
 role: "Solo, design to release"
 timeline: "Jun 2026 – Nov 2026"
-summary: A Rust pipeline that turns raw audio recordings into clean training data for speech models, and names the reason for every clip it throws away.
+summary: A Rust pipeline that turns raw audio recordings into clean training data for speech models and names the reason for every clip it throws away. I then tested whether those rejections matter on real Hindi phone speech, and the test found a bug.
 stats:
-  - { value: "6", label: "named rejection reasons, from low_snr to silence" }
-  - { value: "4", label: "deterministic measurements per clip, no ML model needed" }
-  - { value: "3 to 30 s", label: "length of every clip it keeps" }
-  - { value: "6", label: "languages benchmarked, from English to Marathi" }
+  - { value: "+8.9 pts", label: "higher Whisper error rate on the clips it rejects, on real Hindi phone speech" }
+  - { value: "75% → 93%", label: "phone audio kept after that test exposed a bug, which I fixed" }
+  - { value: "24,385 / 24,409", label: "injected defects caught across six languages" }
+  - { value: "940x", label: "faster than real time on a laptop CPU" }
 gallery:
   - { src: /images/projects/aerosieve/00-producthunt.webp, caption: "Keep the speech, drop the rest: every clip AeroSieve throws away comes with a reason" }
   - { src: /images/projects/aerosieve/01-hero.webp, caption: "The landing page: a 70 second recording split into clips, three kept and three dropped with a reason each" }
@@ -46,6 +46,31 @@ The output is ready to train on: WebDataset shards, a manifest of every kept cli
 
 </Section>
 
+<Section kicker="Proof" title="Does it hold up on real audio?">
+
+A benchmark I designed can only show that AeroSieve catches the damage I thought of. The question a speech team actually asks is different: are the clips it throws away really worse for a model?
+
+I took 2,917 utterances of Gram Vaani Hindi, 7.8 hours of spontaneous speech recorded over phones in Bihar, Jharkhand, Madhya Pradesh and Uttar Pradesh. Humans checked these transcripts twice, so when a model gets a clip wrong, the audio is to blame, not the label. AeroSieve judged every utterance, and two unrelated recognizers transcribed all of them with no fine-tuning.
+
+| | Whisper-large-v3 | MMS-1B |
+| :--- | ---: | ---: |
+| Error rate on clips AeroSieve keeps | 55.7% | 52.0% |
+| Error rate on clips it rejects | 64.6% | 60.6% |
+| Gap, with 95% confidence interval | +8.9 points (+2.2 to +16.9) | +8.6 points (+5.5 to +11.6) |
+| Gap within 8 kHz phone audio only | +7.6 points | +6.6 points |
+
+Rejected audio is harder for both models, and the gap survives when only phone recordings are compared, so it is not just "phone calls are harder".
+
+**The test found a bug.** Before the fix, AeroSieve rejected 38% of the 8 kHz recordings as tonal. Low-bitrate codecs cut speech off near 3 kHz, and that empty strip at the top of the band made speech look like a tone. Flatness now ignores band edges the recording does not carry. Kept audio went from 75% to 93%, and every benchmark score stayed identical.
+
+**It also showed what does not work.** The noise check, the one I expected to matter most, did not predict errors here. Its rejections were clips with background music that both models handled fine, and the noise estimate barely tracked errors within a channel. That is now written into the README's limitations rather than left for someone else to discover.
+
+What this does not prove yet is that training on the kept audio gives a better model. That needs a training run comparing raw, filtered and randomly trimmed data, which is planned in the repo.
+
+It ran on free Kaggle GPUs in about 45 minutes. The scripts, full tables and the plan are in [experiments/asr-hi](https://github.com/kunalgoesbyken/AeroSieve/tree/master/experiments/asr-hi).
+
+</Section>
+
 <Section kicker="For engineers" title="How I built it">
 
 A Rust workspace of ten crates, plus two binding crates (`bindings/python`, `bindings/wasm`) built separately. The `aerosieve` library crate wires the stages together: `Pipeline` writes shards, `Inspector` only judges, and `LiveInspector` judges audio that arrives in pieces. `aerosieve-cli` (clap) and `aerosieve-serve` (axum) are thin front ends over it, and `aerosieve-lexical` normalizes transcripts from YAML rules.
@@ -54,7 +79,7 @@ A Rust workspace of ten crates, plus two binding crates (`bindings/python`, `bin
 
 1. **Decode** (`aerosieve-decode`): Symphonia reads wav, mp3, flac, ogg or mp4, downmixes, and rubato resamples to 16 kHz. Loudness is nudged toward -20 dBFS with at most 3 dB of gain, and the source's own full scale is kept so clipping can still be measured.
 2. **Segment** (`aerosieve-segment`): a `SpeechDetector` gives each 32 ms window a speech probability. The default `EnergyDetector` uses signal level and needs no model. A hysteresis state machine, modelled on Silero's speech timestamps, ends a clip only after 500 ms of quiet. Clips under 3 s are dropped and longer ones are cut at their deepest internal dip, to at most 30 s.
-3. **Score** (`aerosieve-acoustic`): `score` returns four numbers with no ML model, WADA-SNR, RMS level, clip ratio and spectral flatness over 300 to 3400 Hz. `FilterPolicy::evaluate` then returns the first failing `RejectReason`, so thresholds can change without re-reading audio.
+3. **Score** (`aerosieve-acoustic`): `score` returns four numbers with no ML model, WADA-SNR, RMS level, clip ratio and spectral flatness over the part of 300 to 3400 Hz the recording carries. `FilterPolicy::evaluate` then returns the first failing `RejectReason`, so thresholds can change without re-reading audio.
 4. **Shard** (`aerosieve-shard`): accepted clips become `.wav` and `.json` pairs in `shard-*.tar` files, built in a staging directory and renamed into place, with `manifest.jsonl` and `stats.json`. Rejected clips aren't written, but their reasons are counted in the run totals and printed by `aerosieve inspect`.
 
 `Pipeline::process_files` inspects one batch of files per round with rayon and writes results in input order, so a parallel run matches a single-threaded one. `Segmenter::segment` is the `StreamSegmenter` fed the whole file.
@@ -62,6 +87,9 @@ A Rust workspace of ten crates, plus two binding crates (`bindings/python`, `bin
 The live service exposes `/v1/stream`. Clients send 16-bit PCM frames over a WebSocket, each session holds a `LiveInspector`, and a verdict goes back once the pause that ends a clip is heard. Sessions (256 by default), utterance length, frame size and idle time are capped, and `/metrics` serves Prometheus text with a decision-latency histogram. The browser build compiles the same crates to WebAssembly: an `Inspection` decodes and scores once, then re-applies any `FilterPolicy` to the stored measurements.
 
 <Highlights>
+<Highlight title="Checked against real recognizers, not just my own benchmark" result="Rejected clips: +8.9 points WER for Whisper, +8.6 for MMS">
+Scoring pre-cut utterances needed a new mode, `score_whole`, because re-segmenting them would separate audio from its transcript and silently drop anything under 3 s. With that in place, two pretrained models transcribed 2,917 human-verified Hindi phone utterances, and the error gap was measured with bootstrap confidence intervals, within each channel as well as overall.
+</Highlight>
 <Highlight title="A benchmark that can't grade itself" result="24,385 of 24,409 defects caught; the right reason named for all but 2">
 SieveBench damages clean speech in 28 known ways (six noise levels, clipping, near silence, tones, hum, phone line) and runs 51,352 damaged copies through the same code as the CLI. The expected verdict comes from the damage, never from AeroSieve's thresholds, so tuning can't make the benchmark agree with itself.
 </Highlight>
@@ -72,7 +100,7 @@ Loudness leveling was hiding clipping, so distorted files passed as clean. Clipp
 Batch processing is the streaming segmenter fed the whole file, so live and batch verdicts can't disagree. A property test streams in random chunk sizes and checks the segments match, and a live test checks clips and scores match exactly across several chunk sizes. The live path judges samples as received, with no loudness leveling.
 </Highlight>
 <Highlight title="Noise measured without a clean reference" result="Within about 1.3 dB from 0 to 20 dB SNR">
-WADA-SNR estimates noise from the amplitude distribution of the clip alone. Babble reads up to 2.7 dB too clean, which I documented as a limitation instead of hiding it. Flatness skips bins near Nyquist, where resampled audio is empty and speech would look tonal.
+WADA-SNR estimates noise from the amplitude distribution of the clip alone. Babble reads up to 2.7 dB too clean, which I documented as a limitation instead of hiding it. Flatness skips bins near Nyquist, where resampled audio is empty, and band edges more than 30 dB below the band's median, where a codec has cut the speech off.
 </Highlight>
 <Highlight title="Fast by default" result="43 minutes of 48 kHz Hindi in 2.75 s, about 940x real time">
 Files are inspected in batches across every core with rayon and written back in input order. Unpaced, the server pushed 1.27 hours of audio through in 0.6 seconds.
@@ -84,11 +112,12 @@ Decode, segment and score compile to a 1.7 MB WebAssembly module. The demo store
 
 | Metric | Result |
 | :--- | :--- |
+| Real phone speech | Rejected clips +8.9 (Whisper) and +8.6 (MMS) points WER on 2,917 human-verified utterances |
 | Injected defects caught | 24,385 of 24,409 across 51,352 damaged copies of 1,834 recordings |
 | Batch speed | 43 min of audio in 2.75 s on 8 threads (8.1 s on 1 thread) |
 | Live verdict latency | 14.8 ms p95 with 1,000 concurrent streams |
 | Unpaced server throughput | 7,650x real time with 16 clients |
-| Codebase | about 8,500 lines of Rust, 10 workspace crates, 135 tests |
+| Codebase | about 8,800 lines of Rust, 10 workspace crates, 143 tests |
 
 Speed and streaming figures were measured on a Core i5-9300H laptop (4 cores, 8 threads).
 
