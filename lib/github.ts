@@ -166,6 +166,8 @@ const toRepositories = (prs: PR[]): RepositoryContribution[] => {
     return [...byName.values()].sort((a, b) => reach(b) - reach(a));
 };
 
+export const byStars = (repositories: RepositoryContribution[]) => [...repositories].sort((a, b) => b.stars - a.stars);
+
 export const mergedCount = (repositories: RepositoryContribution[]) =>
     repositories.reduce((total, repository) => total + repository.merged.length, 0);
 

@@ -1,11 +1,9 @@
 import Image from "next/image";
-import { mergedCount, type RepositoryContribution } from "@/lib/github";
+import { byStars, mergedCount, type RepositoryContribution } from "@/lib/github";
 import { PROOF_OF_WORK_ANCHOR } from "@/lib/site";
 import { countOf, formatList } from "@/lib/utils";
 
 const HEADLINE_REPOSITORIES = 4;
-
-const byStars = (repositories: RepositoryContribution[]) => [...repositories].sort((a, b) => b.stars - a.stars);
 
 const contributedTo = (headline: RepositoryContribution[], total: number) => {
   const names = headline.map((repository) => repository.name);

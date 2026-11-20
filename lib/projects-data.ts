@@ -11,6 +11,7 @@ export interface ProjectLinks {
 export interface Project extends ProjectLinks {
   slug: string;
   title: string;
+  logo?: string;
   src: string;
   category: string;
   description: string;
@@ -21,6 +22,7 @@ export interface Project extends ProjectLinks {
 export const DEPLOYED_PROJECTS: Project[] = [
   {
     slug: "gostman",
+    logo: "/images/projects/gostman/logo.png",
     title: "Gostman",
     src: "/images/projects/gostman/00-producthunt.webp",
     category: "Developer tool",
@@ -37,6 +39,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   },
   {
     slug: "aerosieve",
+    logo: "/images/projects/aerosieve/logo.png",
     title: "AeroSieve",
     src: "/images/projects/aerosieve/00-producthunt.webp",
     category: "Voice AI data pipeline",
@@ -55,6 +58,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
   },
   {
     slug: "seedfall",
+    logo: "/images/projects/seedfall/logo.png",
     title: "Seedfall",
     src: "/images/projects/seedfall/00-producthunt.webp",
     category: "Reliability testing",

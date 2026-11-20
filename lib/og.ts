@@ -14,6 +14,15 @@ export const toPngDataUrl = async (publicPath: string, width: number, height: nu
   return `data:image/png;base64,${png.toString("base64")}`;
 };
 
+export const toLogoDataUrl = async (publicPath: string, maxWidth: number, maxHeight: number) => {
+  const { data, info } = await sharp(await readAsset("public", publicPath))
+    .trim()
+    .resize(maxWidth * 2, maxHeight * 2, { fit: "inside" })
+    .png()
+    .toBuffer({ resolveWithObject: true });
+  return { src: `data:image/png;base64,${data.toString("base64")}`, width: info.width / 2, height: info.height / 2 };
+};
+
 export const loadOgFonts = async () => {
   const [serif, sans] = await Promise.all([
     readAsset("assets", "fonts", "InstrumentSerif-Regular.ttf"),
