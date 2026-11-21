@@ -15,10 +15,10 @@ export const proofOfWorkDescription = (repositories: RepositoryContribution[], i
   if (repositories.length === 0) return undefined;
   return [
     `${countOf(mergedCount(repositories), "merged pull request", "merged pull requests")} across ${countOf(repositories.length, "repository", "repositories")}`,
-    inReview > 0 ? `${inReview} in review` : "",
+    inReview > 0 ? `${inReview}\u00a0in\u00a0review` : "",
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join("\u00a0· ");
 };
 
 export default function OpenSourceSummary({ repositories }: { repositories: RepositoryContribution[] }) {

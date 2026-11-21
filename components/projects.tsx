@@ -21,20 +21,13 @@ import { LCP_IMAGE_PROPS } from "@/lib/image";
 const PREVIEW_COUNT = 2;
 
 
-const MOBILE_GRID =
-  "grid grid-cols-2 gap-3 max-md:[&>:last-child:nth-child(odd)]:col-span-2";
+const MOBILE_GRID = "grid grid-cols-1 gap-3";
 
 const FEATURED_GRID =
   "md:-mx-4 md:grid-cols-2 md:gap-0 md:[&>*]:border-dashed md:[&>*]:border-line md:[&>*]:p-4 md:[&>:nth-child(odd)]:border-r md:[&>:nth-child(n+3)]:border-t";
 
 const STRIPES =
   "bg-[repeating-linear-gradient(315deg,var(--pattern-fg)_0,var(--pattern-fg)_1px,transparent_0,transparent_50%)] bg-[length:10px_10px]";
-
-const LINK_CLASS = {
-  desktop: "icon-btn-ghost",
-  mobile:
-    "frame-dashed inline-flex size-11 items-center justify-center text-fg-body transition-colors hover:border-line-hover",
-};
 
 function CardShell({ href, children }: { href: string; children: ReactNode }) {
   const router = useRouter();
@@ -47,7 +40,7 @@ function CardShell({ href, children }: { href: string; children: ReactNode }) {
   return (
     <div
       onClick={handleClick}
-      className="group max-md:frame-dashed flex h-full min-w-0 cursor-pointer flex-col max-md:overflow-hidden"
+      className="group max-md:frame-dashed flex h-full min-w-0 cursor-pointer max-md:flex-row max-md:overflow-hidden md:flex-col"
     >
       {children}
     </div>
@@ -66,14 +59,14 @@ function ProjectPreview({
   return (
     <div
       className={cn(
-        "md:border-line md:bg-surface-raised md:group-hover:border-line-strong shrink-0 transition-colors duration-300 motion-reduce:transition-none md:rounded-xl md:border md:p-1",
+        "md:border-line md:bg-surface-raised md:group-hover:border-line-strong shrink-0 transition-colors duration-300 motion-reduce:transition-none max-md:w-28 md:rounded-xl md:border md:p-1",
         featured ? "md:mb-4" : "md:w-56",
       )}
     >
       <div
         className={cn(
-          "bg-surface-alt max-md:border-line relative isolate overflow-hidden select-none max-md:border-b md:rounded-lg md:shadow-[inset_0_0_0_1px_var(--line)]",
-          featured ? "h-32 md:h-52" : "h-32 md:h-36",
+          "bg-surface-alt max-md:border-line relative isolate overflow-hidden select-none max-md:h-full max-md:min-h-28 max-md:border-r md:rounded-lg md:shadow-[inset_0_0_0_1px_var(--line)]",
+          featured ? "md:h-52" : "md:h-36",
         )}
       >
         <Image
@@ -124,23 +117,9 @@ function ProjectPreview({
   );
 }
 
-function LinkIcons({
-  name,
-  links,
-  variant,
-}: {
-  name: string;
-  links: ProjectLink[];
-  variant: keyof typeof LINK_CLASS;
-}) {
+function LinkIcons({ name, links }: { name: string; links: ProjectLink[] }) {
   return (
-    <div
-      className={
-        variant === "desktop"
-          ? "hidden gap-3 md:flex"
-          : "flex gap-2 pt-3 md:hidden"
-      }
-    >
+    <div className="flex shrink-0 gap-6 md:gap-3">
       {links.map((link) => (
         <a
           key={link.href}
@@ -148,7 +127,7 @@ function LinkIcons({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${link.label} for ${name}`}
-          className={LINK_CLASS[variant]}
+          className="icon-btn-ghost max-md:-m-3 max-md:size-10"
         >
           {link.icon}
         </a>
@@ -162,18 +141,18 @@ function CardBody({ project }: { project: Project }) {
   const href = projectPath(project.slug);
   return (
     <div className="flex min-w-0 flex-grow flex-col max-md:p-3 md:px-1">
-      <div className="mb-1 flex items-center justify-between gap-3 md:mb-1.5">
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-3 md:mb-1.5 md:flex-nowrap">
         <h3 className="font-custom text-fg flex min-w-0 text-base font-bold md:text-lg">
           <Link
             href={href}
-            className="title-link truncate outline-none max-md:-my-2.5 max-md:py-2.5"
+            className="title-link outline-none md:truncate max-md:-my-2.5 max-md:py-2.5"
           >
             {project.title}
           </Link>
         </h3>
-        <LinkIcons name={project.title} links={links} variant="desktop" />
+        <LinkIcons name={project.title} links={links} />
       </div>
-      <p className="font-custom2 text-fg-muted mb-3 max-w-prose text-xs leading-relaxed max-md:line-clamp-3 md:mb-4 md:text-sm">
+      <p className="font-custom2 text-fg-muted mb-3 max-w-prose text-xs leading-relaxed max-md:line-clamp-2 md:mb-4 md:text-sm">
         {project.description}
       </p>
       <div className="mt-auto flex items-center justify-between gap-3">
@@ -194,7 +173,6 @@ function CardBody({ project }: { project: Project }) {
           />
         </Link>
       </div>
-      <LinkIcons name={project.title} links={links} variant="mobile" />
     </div>
   );
 }
@@ -221,7 +199,7 @@ function ProjectCard({
           <CardBody project={project} />
         </>
       ) : (
-        <div className="flex h-full flex-col-reverse md:flex-row md:items-start md:gap-8">
+        <div className="flex h-full min-w-0 flex-1 flex-row-reverse md:flex-row md:items-start md:gap-8">
           <CardBody project={project} />
           {media}
         </div>

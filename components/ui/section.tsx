@@ -24,8 +24,8 @@ export function Section({
   return (
     <section id={id} className={cn("-mx-(--bleed) scroll-mt-24 border-t border-line px-(--bleed) pt-10 pb-2 md:pt-12", className)}>
       {title && (
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div className="min-w-0">
             <Heading as={as} size={size}>
               {title}
             </Heading>

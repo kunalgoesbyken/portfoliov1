@@ -54,7 +54,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-3">
+        <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
           <a href={SOCIAL_LINKS.booking} target="_blank" rel="noopener noreferrer" className="action-chip">
             <CalendarDays aria-hidden="true" className="size-3.5" />
             Book an intro call
@@ -79,7 +79,7 @@ export default async function Home() {
         <GithubGraph data={githubData} />
       </Section>
 
-      <Section title="Writing" action={<Link href="/blog" className="text-toggle gap-1.5">All posts<ArrowRight aria-hidden="true" className="size-3.5" /></Link>}>
+      <Section title="Writing" action={<Link href="/blog" className="text-toggle hit-44 shrink-0 gap-1.5">All posts<ArrowRight aria-hidden="true" className="size-3.5" /></Link>}>
         <BlogList posts={posts.slice(0, LATEST_POSTS)} as="h3" />
       </Section>
 

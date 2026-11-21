@@ -18,7 +18,7 @@ const HINT_DURATION_MS = 4000;
 const HINT_SEEN_KEY = "chatbot-tooltip-shown";
 
 const LAUNCHER_CLASS =
-  "bg-inverse text-on-inverse flex size-14 items-center justify-center rounded-full shadow-lg";
+  "bg-inverse text-on-inverse flex size-12 items-center md:size-14 justify-center rounded-full shadow-lg";
 
 function useRevealed() {
   const [revealed, setRevealed] = useState(false);
@@ -94,7 +94,7 @@ export default function ChatLauncher() {
     <MotionScope>
       <AnimatePresence>
         {revealed && !isOpen && (
-          <m.div {...pop} className="fixed right-6 bottom-6 z-40 origin-bottom-right">
+          <m.div {...pop} className="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 md:right-6 md:bottom-6 origin-bottom-right">
             <AnimatePresence>
               {hint && (
                 <m.div {...rise} className="absolute top-1/2 right-full mr-3 -translate-y-1/2 whitespace-nowrap">
@@ -120,7 +120,7 @@ export default function ChatLauncher() {
         <Panel isOpen={isOpen} onClose={close} />
       ) : (
         isOpen && (
-          <div className={`${LAUNCHER_CLASS} fixed right-6 bottom-6 z-50`}>
+          <div className={`${LAUNCHER_CLASS} fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 md:right-6 md:bottom-6`}>
             <Spinner className="size-6" />
           </div>
         )

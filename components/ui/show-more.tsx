@@ -21,7 +21,7 @@ export function ShowMore({
         type="button"
         aria-expanded={expanded}
         onClick={onToggle}
-        className="text-toggle"
+        className="text-toggle max-md:min-h-12 max-md:w-full max-md:border max-md:text-sm"
       >
         {expanded
           ? "↑ Show less"
