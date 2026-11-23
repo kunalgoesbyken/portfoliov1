@@ -28,7 +28,7 @@ export default function OpenSourceSummary({ repositories }: { repositories: Repo
 
   return (
     <a href={`#${PROOF_OF_WORK_ANCHOR}`} className="action-chip">
-      <span className="flex gap-1">
+      <span className="flex gap-1 max-sm:hidden">
         {headline.map((repository) => (
           <Image
             key={repository.nameWithOwner}
@@ -41,7 +41,7 @@ export default function OpenSourceSummary({ repositories }: { repositories: Repo
           />
         ))}
       </span>
-      <span>
+      <span className="whitespace-nowrap">
         {countOf(mergedCount(repositories), "PR merged", "PRs merged")}
         <span className="sr-only"> into {contributedTo(headline, repositories.length)}</span>
       </span>

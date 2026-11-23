@@ -54,10 +54,10 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
           <a href={SOCIAL_LINKS.booking} target="_blank" rel="noopener noreferrer" className="action-chip">
-            <CalendarDays aria-hidden="true" className="size-3.5" />
-            Book an intro call
+            <CalendarDays aria-hidden="true" className="size-3.5 shrink-0" />
+            Book a call
           </a>
           <OpenSourceSummary repositories={githubData.repositories} />
         </div>

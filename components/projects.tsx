@@ -40,7 +40,7 @@ function CardShell({ href, children }: { href: string; children: ReactNode }) {
   return (
     <div
       onClick={handleClick}
-      className="group max-md:frame-dashed flex h-full min-w-0 cursor-pointer max-md:flex-row max-md:overflow-hidden md:flex-col"
+      className="group max-md:frame-dashed flex h-full min-w-0 cursor-pointer flex-col max-md:overflow-hidden"
     >
       {children}
     </div>
@@ -59,13 +59,13 @@ function ProjectPreview({
   return (
     <div
       className={cn(
-        "md:border-line md:bg-surface-raised md:group-hover:border-line-strong shrink-0 transition-colors duration-300 motion-reduce:transition-none max-md:w-28 md:rounded-xl md:border md:p-1",
+        "md:border-line md:bg-surface-raised md:group-hover:border-line-strong shrink-0 transition-colors duration-300 motion-reduce:transition-none md:rounded-xl md:border md:p-1",
         featured ? "md:mb-4" : "md:w-56",
       )}
     >
       <div
         className={cn(
-          "bg-surface-alt max-md:border-line relative isolate overflow-hidden select-none max-md:h-full max-md:min-h-28 max-md:border-r md:rounded-lg md:shadow-[inset_0_0_0_1px_var(--line)]",
+          "bg-surface-alt max-md:border-line relative isolate overflow-hidden select-none max-md:aspect-[16/10] max-md:border-b md:rounded-lg md:shadow-[inset_0_0_0_1px_var(--line)]",
           featured ? "md:h-52" : "md:h-36",
         )}
       >
@@ -74,7 +74,7 @@ function ProjectPreview({
           alt=""
           aria-hidden="true"
           fill
-          className="-z-10 scale-150 object-cover opacity-25 blur-xl saturate-150 transition-opacity duration-500 group-hover:opacity-90 motion-reduce:transition-none max-md:hidden dark:opacity-30 dark:group-hover:opacity-80"
+          className="-z-10 scale-150 object-cover opacity-25 blur-xl saturate-150 transition-opacity duration-500 group-hover:opacity-90 motion-reduce:transition-none dark:opacity-30 dark:group-hover:opacity-80"
         />
 
         <div
@@ -87,7 +87,7 @@ function ProjectPreview({
 
         <span
           className={cn(
-            "font-custom2 text-2xs text-fg-subtle absolute top-2 left-2.5 z-10 font-medium whitespace-nowrap max-md:hidden",
+            "font-custom2 text-2xs text-fg-subtle absolute top-2 left-2.5 z-10 font-medium whitespace-nowrap",
             "transition-[left,translate,color] duration-300 motion-reduce:transition-none",
             "group-hover:left-1/2 group-hover:-translate-x-1/2 group-hover:text-white group-hover:[text-shadow:0_1px_2px_rgb(0_0_0/0.6)]",
           )}
@@ -152,7 +152,7 @@ function CardBody({ project }: { project: Project }) {
         </h3>
         <LinkIcons name={project.title} links={links} />
       </div>
-      <p className="font-custom2 text-fg-muted mb-3 max-w-prose text-xs leading-relaxed max-md:line-clamp-2 md:mb-4 md:text-sm">
+      <p className="font-custom2 text-fg-muted mb-3 max-w-prose text-sm leading-relaxed md:mb-4">
         {project.description}
       </p>
       <div className="mt-auto flex items-center justify-between gap-3">
@@ -199,7 +199,7 @@ function ProjectCard({
           <CardBody project={project} />
         </>
       ) : (
-        <div className="flex h-full min-w-0 flex-1 flex-row-reverse md:flex-row md:items-start md:gap-8">
+        <div className="flex h-full min-w-0 flex-1 flex-col-reverse md:flex-row md:items-start md:gap-8">
           <CardBody project={project} />
           {media}
         </div>
