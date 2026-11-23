@@ -27,7 +27,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
     src: "/images/projects/gostman/00-producthunt.webp",
     category: "Developer tool",
     description:
-      "An open source API client for REST, GraphQL, gRPC and WebSocket. It comes as a native desktop app (Go + Wails), a web app, and a single-binary CLI that runs collections in CI and serves them to coding agents over MCP. No account, no telemetry, no paid tier.",
+      "Postman without the account, the bloat or the paywall. Test your APIs on desktop, in the browser or in CI, and let AI agents call them without ever seeing your keys.",
     details: [
       "Collections are plain YAML files you can commit",
       "gostman run runs the same collections in CI, with data-driven and parallel runs and HTML reports",
@@ -44,7 +44,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
     src: "/images/projects/aerosieve/00-producthunt.webp",
     category: "Voice AI data pipeline",
     description:
-      "Turns raw recordings into speech-model training data and names the reason for every clip it drops. On 2,917 real Hindi phone recordings, Whisper's error rate is 8.9 points higher on the clips it rejects, and that test exposed a codec bug I fixed. It caught 24,385 of 24,409 injected defects in six languages.",
+      "Cleans messy recordings into training data for speech AI and says why it dropped each clip. On real Hindi phone calls, speech AI made more mistakes on exactly the clips it dropped.",
     details: [
       "Tested on Gram Vaani Hindi with human-verified transcripts: rejected audio is harder for two unrelated recognizers, and the gap holds within 8 kHz phone audio alone",
       "The same test showed its noise check does not predict errors on real calls, which is now a documented limitation",
@@ -63,7 +63,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
     src: "/images/projects/seedfall/00-producthunt.webp",
     category: "Reliability testing",
     description:
-      "Deterministic simulation testing for unmodified Go programs. It runs services on wazero under a seeded scheduler, then crashes them mid-write, tears their writes and partitions their network, and replays any failure from one seed. It found a missing directory fsync in hashicorp/raft that leaves a node unable to restart.",
+      "Crashes your Go app thousands of ways on purpose, then replays any failure exactly. It found a bug in HashiCorp's Raft that can stop a server from coming back up.",
     details: [
       "Compiles Go with the stock toolchain to wasip1 and runs each node on wazero under a seeded scheduler and virtual clock",
       "Failing runs shrink to the few faults that matter",
@@ -80,7 +80,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
     src: "/images/projects/codebase-indexer/00-producthunt.webp",
     category: "Search and retrieval",
     description:
-      "Offline semantic code search. It chunks source files with tree-sitter ASTs, embeds them with nomic-embed (INT8 ONNX), and fuses BM25 and a hand-written persisted HNSW index with RRF. Only changed files get re-embedded, so a no-op re-index takes 95 ms.",
+      "Search your code by what it does, not just what it's called. It runs fully offline on your laptop and re-checks an unchanged repo in 95 ms.",
     details: [
       "Append-only vector store with SHA-256 delta detection to find changed files",
     ],
@@ -93,7 +93,7 @@ export const DEPLOYED_PROJECTS: Project[] = [
     src: "/images/projects/un-nexted/00-producthunt.webp",
     category: "Framework internals",
     description:
-      "I reimplemented Next.js core features (SSR, hydration and file-system routing) from scratch to show how the meta-framework actually works.",
+      "I rebuilt the core of Next.js from scratch in under 700 lines to see how it really works: page routing, server rendering and the step that makes pages interactive.",
     tech: ["bun", "react", "ts"],
     github: "https://github.com/kunalgoesbyken/Un-nexted",
   },
@@ -106,7 +106,7 @@ export const OPEN_SOURCE_PROJECTS: Project[] = [
     src: "/images/projects/taskflow/01-dashboard.webp",
     category: "Team productivity",
     description:
-      "A hub where async teams coordinate and track work handoffs across timezones. Real-time task updates, bulk operations, an analytics dashboard, GitHub OAuth and issue sync, and you can self-host it with Docker.",
+      "A task board for remote teams that makes handing work to the next timezone explicit, so nothing gets dropped overnight. Live updates, GitHub sync, and you can host it yourself.",
     tech: ["next", "ts", "supabase", "prisma"],
     github: "https://github.com/kunalgoesbyken/TaskFlow",
     live: "https://taskflow-deploy-eta.vercel.app",
@@ -117,7 +117,7 @@ export const OPEN_SOURCE_PROJECTS: Project[] = [
     src: "/images/projects/mailflow-ai/01-inbox.webp",
     category: "AI product",
     description:
-      "A Gmail client with an AI assistant that finds, opens and drafts mail through typed tool calls (Vercel AI SDK and Groq), and never sends without your confirmation. Mail goes straight from Gmail to the browser, with 30-second background sync.",
+      "Gmail with an assistant you can just ask: find that invoice, open it, draft a reply. It never sends anything until you click confirm.",
     details: [
       "The assistant acts through four typed tool calls (Groq gpt-oss-120b) and cannot send mail; drafts go through the same confirm dialog as hand-written mail",
       "Built with Next.js 15, React 19, Zustand and Tailwind CSS v4",
@@ -132,7 +132,7 @@ export const OPEN_SOURCE_PROJECTS: Project[] = [
     src: "/images/pdf2docx-healer-terminal.webp",
     category: "Python library",
     description:
-      "A drop-in replacement for pdf2docx that preserves formatting. It heals bullet lists, hyperlinks, CJK fonts, and scanned PDFs via OCR in a post-processing pass. Published on PyPI.",
+      "Turning a PDF into a Word file usually breaks the bullets, links and fonts. This Python package puts them back, scanned pages included. Published on PyPI.",
     tech: ["python"],
     github: "https://github.com/kunalgoesbyken/pdf2docx-healer",
     pypi: "https://pypi.org/project/pdf2docx-healer/",
