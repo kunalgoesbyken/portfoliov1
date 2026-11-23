@@ -29,12 +29,11 @@ export const EXPERIENCES: Experience[] = [
     href: "https://finstocks.ai/",
     tech: ["python", "go", "pydantic", "numba", "postgres", "redis", "fastapi", "gemini", "tradingview", "ts"],
     highlights: [
-      `FinStocks lets Indian traders trade by chatting. Ask about a stock in English or Hindi, turn an idea like "buy when RSI dips under 30" into a strategy, test it on years of data, then trade it through Zerodha, Groww, Dhan or Upstox. I was the first engineer and now lead a team of 3.`,
-      "Led the strategy engine. The AI only writes the strategy down in a fixed format and plain code does the math, so the same idea always gives the same backtest, and what you tested is exactly what trades live.",
-      `Made the assistant safe to say yes to. It knows "buy 10 HDFC Bank" is an order and "should I buy HDFC Bank" is a question, never places a trade you didn't see on screen, and is tested against tricks like a fake "live mode is on" message.`,
-      "Found why the AI news feature gave every stock the same score. The AI was reading web links instead of headlines, one ticker got tagged on 59% of all news, and a label mismatch wiped out every signal. Fixed all of it and made the pipeline fail loudly instead of faking a neutral answer.",
-      `Built a chart you can talk to. Say "mark the dojis on Reliance" and it draws them, with a checker that stops the AI from making up price levels.`,
-      "Kept it fast and correct. Option chains load in 54 ms instead of 9 seconds, and prices that were off by 5.5 hours (server clock vs Indian time) now line up.",
+      "First engineer, now lead a team of 3 on an AI app where Indian traders research, test and trade by chatting.",
+      `Led the strategy engine: "buy when RSI dips under 30" becomes a strategy that backtests and trades the same way.`,
+      "Made the assistant safe to say yes to. It never places a trade you didn't see on screen.",
+      "Found why AI news gave every stock the same score, fixed it, and made it fail loudly instead of faking answers.",
+      `Built a chart you can talk to: "mark the dojis on Reliance" draws them, without made-up price levels.`,
     ],
     summary: "First engineer, now leads a team of 3 building an AI trading assistant for Indian retail traders.",
     details: [
