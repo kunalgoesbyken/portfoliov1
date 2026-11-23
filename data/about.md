@@ -1,10 +1,10 @@
 # About Kunal
 
-Kunal Roy Choudhury is a backend and applied AI engineer who also builds frontends (this site is one). He is open to work.
+Kunal Roy Choudhury builds LLM products where a wrong answer costs someone money or a court case. He is open to work.
 
-- Builds backends that don't fall over: Rust and Go services at scale
-- Ships AI tools that run in production, not just demos
-- Cares about the reliability work most people skip
+- FinStocks AI: an AI trading assistant for Indian traders, built as its first engineer
+- Indian Kanoon: Prism, AI legal research on a platform with 1.5M users
+- Cares most about the AI being right, not just running
 
 # Technical Skills
 
