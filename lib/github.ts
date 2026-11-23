@@ -149,7 +149,8 @@ const isDocFile = (path: string) => DOC_FILE_EXTENSIONS.some((extension) => path
 const isNotable = (pr: PR) =>
     pr.repository.stargazerCount >= MIN_REPO_STARS && pr.files.nodes.some((file) => !isDocFile(file.path));
 
-const reach = (repository: RepositoryContribution) => repository.merged.length * repository.stars;
+const byMergedThenStars = (a: RepositoryContribution, b: RepositoryContribution) =>
+    b.merged.length - a.merged.length || b.stars - a.stars;
 
 const toRepositories = (prs: PR[]): RepositoryContribution[] => {
     const byName = new Map<string, RepositoryContribution>();
@@ -163,7 +164,7 @@ const toRepositories = (prs: PR[]): RepositoryContribution[] => {
         }
         byName.set(nameWithOwner, { nameWithOwner, name, url, avatarUrl: owner.avatarUrl, stars: stargazerCount, merged: [toPullRequest(pr)] });
     }
-    return [...byName.values()].sort((a, b) => reach(b) - reach(a));
+    return [...byName.values()].sort(byMergedThenStars);
 };
 
 export const byStars = (repositories: RepositoryContribution[]) => [...repositories].sort((a, b) => b.stars - a.stars);
