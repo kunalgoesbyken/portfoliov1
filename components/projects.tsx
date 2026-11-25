@@ -24,12 +24,12 @@ const PREVIEW_COUNT = 2;
 const MOBILE_GRID = "grid grid-cols-1 gap-3";
 
 const FEATURED_GRID =
-  "md:-mx-4 md:grid-cols-2 md:gap-0 md:[&>*]:border-dashed md:[&>*]:border-line md:[&>*]:p-4 md:[&>:nth-child(odd)]:border-r md:[&>:nth-child(n+3)]:border-t";
+  "md:-mx-4 md:grid-cols-2 md:gap-0 md:[&>*]:border-dashed md:[&>*]:border-line md:[&>*]:p-4 md:[&>:nth-child(odd):not(:last-child)]:border-r md:[&>:nth-child(n+3)]:border-t";
 
 const STRIPES =
   "bg-[repeating-linear-gradient(315deg,var(--pattern-fg)_0,var(--pattern-fg)_1px,transparent_0,transparent_50%)] bg-[length:10px_10px]";
 
-function CardShell({ href, children }: { href: string; children: ReactNode }) {
+function CardShell({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
   const router = useRouter();
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("a, button")) return;
@@ -40,7 +40,7 @@ function CardShell({ href, children }: { href: string; children: ReactNode }) {
   return (
     <div
       onClick={handleClick}
-      className="group max-md:frame-dashed flex h-full min-w-0 cursor-pointer flex-col max-md:overflow-hidden"
+      className={cn("group max-md:frame-dashed flex h-full min-w-0 cursor-pointer flex-col max-md:overflow-hidden", className)}
     >
       {children}
     </div>
@@ -87,7 +87,7 @@ function ProjectPreview({
 
         <span
           className={cn(
-            "font-custom2 text-2xs text-fg-subtle absolute top-2 left-2.5 z-10 font-medium whitespace-nowrap",
+            "font-custom2 text-fg-muted absolute top-2 left-2.5 z-10 text-xs font-medium whitespace-nowrap",
             "transition-[left,translate,color] duration-300 motion-reduce:transition-none",
             "group-hover:left-1/2 group-hover:-translate-x-1/2 group-hover:text-white group-hover:[text-shadow:0_1px_2px_rgb(0_0_0/0.6)]",
           )}
@@ -108,7 +108,7 @@ function ProjectPreview({
               alt={project.title}
               fill
               {...(priority ? LCP_IMAGE_PROPS : {})}
-              className="object-cover object-top"
+              className="object-cover object-top dark:brightness-90"
             />
           </div>
         </div>
@@ -142,7 +142,7 @@ function CardBody({ project }: { project: Project }) {
   return (
     <div className="flex min-w-0 flex-grow flex-col max-md:p-3 md:px-1">
       <div className="mb-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-3 md:mb-1.5 md:flex-nowrap">
-        <h3 className="font-custom text-fg flex min-w-0 text-base font-bold md:text-lg">
+        <h3 className="font-custom text-fg flex min-w-0 text-lg md:text-xl">
           <Link
             href={href}
             className="title-link outline-none md:truncate max-md:-my-2.5 max-md:py-2.5"
@@ -160,7 +160,7 @@ function CardBody({ project }: { project: Project }) {
         <Link
           href={href}
           tabIndex={-1}
-          className="font-custom2 text-fg-subtle group-hover:text-fg hidden items-center gap-1 text-sm transition-colors duration-300 md:inline-flex"
+          className="font-custom2 text-fg-subtle group-hover:text-fg inline-flex shrink-0 items-center gap-1 text-sm whitespace-nowrap transition-colors duration-300"
         >
           View project
           <ArrowUpRight
@@ -181,10 +181,12 @@ function ProjectCard({
   project,
   layout,
   priority = false,
+  className,
 }: {
   project: Project;
   layout: "featured" | "row";
   priority?: boolean;
+  className?: string;
 }) {
   const featured = layout === "featured";
   const media = (
@@ -192,7 +194,7 @@ function ProjectCard({
   );
 
   return (
-    <CardShell href={projectPath(project.slug)}>
+    <CardShell href={projectPath(project.slug)} className={className}>
       {featured ? (
         <>
           {media}
@@ -220,14 +222,18 @@ export default function Projects({ full = false }: { full?: boolean }) {
   return (
     <div>
       <div className={cn(MOBILE_GRID, FEATURED_GRID, "pb-6 md:pb-8")}>
-        {deployed.map((project, idx) => (
-          <ProjectCard
-            key={project.slug}
-            project={project}
-            layout="featured"
-            priority={idx === 0}
-          />
-        ))}
+        {deployed.map((project, idx) => {
+          const spansRow = idx === deployed.length - 1 && deployed.length % 2 === 1;
+          return (
+            <ProjectCard
+              key={project.slug}
+              project={project}
+              layout={spansRow ? "row" : "featured"}
+              priority={idx === 0}
+              className={spansRow ? "md:col-span-2" : undefined}
+            />
+          );
+        })}
       </div>
 
       {expanded && (

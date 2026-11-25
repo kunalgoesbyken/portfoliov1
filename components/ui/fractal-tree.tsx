@@ -4,11 +4,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "@/lib/hooks";
 
 const STROKE_COLOR = "#33333333";
+const MIN_BRANCH = 30;
+const BRANCH_LENGTH = 6;
+const CONTENT_MAX_WIDTH_REM = 56;
+const TREE_REACH_REM = (MIN_BRANCH * BRANCH_LENGTH) / 16;
+const WIDE_GUTTER_QUERY = `(min-width: ${CONTENT_MAX_WIDTH_REM + 2 * TREE_REACH_REM}rem)`;
 
 export default function FractalTree() {
     const el = useRef<HTMLCanvasElement>(null);
     const [size, setSize] = useState({ width: 0, height: 0 });
-    const isLargeScreen = useMediaQuery("(min-width: 768px)");
+    const hasWideGutter = useMediaQuery(WIDE_GUTTER_QUERY);
     const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
     useEffect(() => {
@@ -31,7 +36,7 @@ export default function FractalTree() {
         const canvas = el.current;
         if (!canvas || size.width === 0 || size.height === 0) return;
 
-        if (!isLargeScreen) return;
+        if (!hasWideGutter) return;
 
         const ctx = canvas.getContext("2d")!;
 
@@ -51,8 +56,6 @@ export default function FractalTree() {
         const r15 = Math.PI / 12;
 
         const { random } = Math;
-        const MIN_BRANCH = 30;
-        const len = 6;
 
         let steps: (() => void)[] = [];
         let prevSteps: (() => void)[] = [];
@@ -65,7 +68,7 @@ export default function FractalTree() {
         };
 
         const step = (x: number, y: number, rad: number, counter: { value: number } = { value: 0 }) => {
-            const length = random() * len;
+            const length = random() * BRANCH_LENGTH;
             counter.value += 1;
 
             const [nx, ny] = polar2cart(x, y, length, rad);
@@ -100,7 +103,7 @@ export default function FractalTree() {
             const drawStaticBranch = (x: number, y: number, rad: number, depth: number = 0) => {
                 if (depth > 8) return;
 
-                const length = random() * len * 2;
+                const length = random() * BRANCH_LENGTH * 2;
                 const [nx, ny] = polar2cart(x, y, length, rad);
 
                 ctx.beginPath();
@@ -120,15 +123,10 @@ export default function FractalTree() {
                 }
             };
 
-            if (size.width < 500) {
-                drawStaticBranch(randomMiddle() * size.width, -5, r90);
-                drawStaticBranch(randomMiddle() * size.width, size.height + 5, -r90);
-            } else {
-                drawStaticBranch(randomMiddle() * size.width, -5, r90);
-                drawStaticBranch(randomMiddle() * size.width, size.height + 5, -r90);
-                drawStaticBranch(-5, randomMiddle() * size.height, 0);
-                drawStaticBranch(size.width + 5, randomMiddle() * size.height, r180);
-            }
+            drawStaticBranch(randomMiddle() * size.width, -5, r90);
+            drawStaticBranch(randomMiddle() * size.width, size.height + 5, -r90);
+            drawStaticBranch(-5, randomMiddle() * size.height, 0);
+            drawStaticBranch(size.width + 5, randomMiddle() * size.height, r180);
         };
 
         if (prefersReducedMotion) {
@@ -191,15 +189,10 @@ export default function FractalTree() {
             prevSteps = [];
             steps = [];
 
-            if (size.width < 500) {
-                steps.push(() => step(randomMiddle() * size.width, -5, r90));
-                steps.push(() => step(randomMiddle() * size.width, size.height + 5, -r90));
-            } else {
-                steps.push(() => step(randomMiddle() * size.width, -5, r90));
-                steps.push(() => step(randomMiddle() * size.width, size.height + 5, -r90));
-                steps.push(() => step(-5, randomMiddle() * size.height, 0));
-                steps.push(() => step(size.width + 5, randomMiddle() * size.height, r180));
-            }
+            steps.push(() => step(randomMiddle() * size.width, -5, r90));
+            steps.push(() => step(randomMiddle() * size.width, size.height + 5, -r90));
+            steps.push(() => step(-5, randomMiddle() * size.height, 0));
+            steps.push(() => step(size.width + 5, randomMiddle() * size.height, r180));
 
             cancelAnimationFrame(animationId);
             frame();
@@ -208,9 +201,9 @@ export default function FractalTree() {
         start();
 
         return () => cancelAnimationFrame(animationId);
-    }, [size, prefersReducedMotion, isLargeScreen]);
+    }, [size, prefersReducedMotion, hasWideGutter]);
 
-    if (!isLargeScreen) {
+    if (!hasWideGutter) {
         return null;
     }
 

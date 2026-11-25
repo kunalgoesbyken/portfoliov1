@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronDown, ChevronUp } from "lucide-react";
+
 export function ShowMore({
   expanded,
   hiddenCount,
@@ -14,6 +16,7 @@ export function ShowMore({
   className?: string;
 }) {
   if (hiddenCount <= 0) return null;
+  const Icon = expanded ? ChevronUp : ChevronDown;
   const label = noun ? `${noun}${hiddenCount > 1 ? "s" : ""}` : "";
   return (
     <div className={`flex justify-center ${className}`}>
@@ -21,11 +24,12 @@ export function ShowMore({
         type="button"
         aria-expanded={expanded}
         onClick={onToggle}
-        className="text-toggle max-md:min-h-12 max-md:w-full max-md:border max-md:text-sm"
+        className="text-toggle gap-1.5 max-md:min-h-12 max-md:w-full max-md:border max-md:text-sm"
       >
         {expanded
-          ? "↑ Show less"
+          ? "Show less"
           : `Show ${hiddenCount} more${label ? ` ${label}` : ""}`}
+        <Icon aria-hidden="true" className="size-3.5" />
       </button>
     </div>
   );

@@ -11,11 +11,13 @@ const TechIconTooltip = dynamic(
 );
 
 export function ExpandableItem({
+  leading,
   header,
   children,
   tech,
   scope,
 }: {
+  leading: ReactNode;
   header: ReactNode;
   children: ReactNode;
   tech?: TechKey[];
@@ -30,23 +32,18 @@ export function ExpandableItem({
 
   return (
     <div className="relative">
-      <div
-        className="group/row flex cursor-pointer items-start gap-4 rounded-sm py-4 outline-none focus-visible:ring-2 focus-visible:ring-line-hover focus-visible:ring-offset-4 focus-visible:ring-offset-surface max-md:relative max-md:min-h-14 max-md:items-center max-md:gap-3 max-md:py-3.5"
-        onClick={(e) => {
-          if ((e.target as HTMLElement).closest("a")) return;
-          toggle();
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            toggle();
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        aria-expanded={open}
-      >
-        {header}
+      <div className="flex items-stretch gap-4 max-md:relative max-md:min-h-14 max-md:gap-3">
+        <div className="flex shrink-0 items-start pt-5 max-md:items-center max-md:pt-0">{leading}</div>
+        <h3 className="flex min-w-0 flex-1">
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={open}
+            className="group/row flex min-w-0 flex-1 cursor-pointer items-start rounded-sm py-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-line-hover focus-visible:ring-offset-4 focus-visible:ring-offset-surface max-md:items-center max-md:py-3.5"
+          >
+            {header}
+          </button>
+        </h3>
       </div>
 
       <Collapse open={open}>

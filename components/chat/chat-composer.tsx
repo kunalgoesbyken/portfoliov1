@@ -53,7 +53,7 @@ export function ChatComposer({ value, onChange, onSend, onStop, isStreaming, aut
           </button>
         )}
       </div>
-      <p className="font-custom2 text-fg-faint text-2xs mt-2 text-center max-sm:hidden">
+      <p className="font-custom2 text-fg-subtle text-2xs mt-2 text-center max-sm:hidden">
         <kbd className="kbd">Enter</kbd> to send, <kbd className="kbd">Shift</kbd> <kbd className="kbd">Enter</kbd> for a new line
       </p>
     </form>

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Heading } from "@/components/ui/heading";
+import PageShell from "@/components/ui/page-shell";
 
 export function StatusScreen({
   title,
@@ -11,12 +12,14 @@ export function StatusScreen({
   action: ReactNode;
 }) {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-      <Heading as="h1">{title}</Heading>
-      <p className="font-custom2 text-fg-muted mt-3 max-w-md text-sm">
-        {message}
-      </p>
-      <div className="mt-6">{action}</div>
-    </div>
+    <PageShell className="flex flex-col">
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        <Heading as="h1">{title}</Heading>
+        <p className="font-custom2 text-fg-muted mt-3 max-w-md text-sm">
+          {message}
+        </p>
+        <div className="mt-6">{action}</div>
+      </div>
+    </PageShell>
   );
 }

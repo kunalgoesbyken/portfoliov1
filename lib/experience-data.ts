@@ -1,4 +1,5 @@
 import { SITE_LOCATION } from "@/lib/site";
+import { formatPeriod } from "@/lib/utils";
 import type { TechKey } from "@/lib/tech-icons";
 
 export interface Experience {
@@ -22,7 +23,7 @@ export const EXPERIENCES: Experience[] = [
   {
     company: "FinStocks AI",
     designation: "Lead Software Engineer",
-    start: "March 2026",
+    start: "2026-03",
     location: SITE_LOCATION,
     logo: "/images/logos/finstocks-light.png",
     logoDark: "/images/logos/finstocks-dark.png",
@@ -50,8 +51,8 @@ export const EXPERIENCES: Experience[] = [
   {
     company: "Indian Kanoon",
     designation: "Software Developer",
-    start: "April 2025",
-    end: "Feb 2026",
+    start: "2025-04",
+    end: "2026-02",
     location: SITE_LOCATION,
     logo: "/images/logos/kanoon-light.png",
     logoDark: "/images/logos/kanoon-dark.png",
@@ -71,8 +72,8 @@ export const EXPERIENCES: Experience[] = [
   {
     company: "Chargebee",
     designation: "Software Engineer Intern",
-    start: "Sept 2024",
-    end: "April 2025",
+    start: "2024-09",
+    end: "2025-04",
     location: SITE_LOCATION,
     logo: "/images/logos/chargebee.png",
     href: "https://www.chargebee.com/",
@@ -91,8 +92,8 @@ export const EXPERIENCES: Experience[] = [
   {
     company: "AiDash",
     designation: "Software Engineer Intern",
-    start: "Jan 2024",
-    end: "Sept 2024",
+    start: "2024-01",
+    end: "2024-09",
     location: SITE_LOCATION,
     logo: "/images/logos/aidash.png",
     href: "https://www.linkedin.com/company/aidash/",
@@ -110,4 +111,4 @@ export const EXPERIENCES: Experience[] = [
   },
 ];
 
-export const experiencePeriod = ({ start, end }: Experience) => `${start} - ${end ?? "Present"}`;
+export const experiencePeriod = ({ start, end }: Experience) => formatPeriod(start, end);

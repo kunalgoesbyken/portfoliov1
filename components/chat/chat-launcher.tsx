@@ -7,6 +7,7 @@ import * as m from "motion/react-m";
 import MotionScope from "@/components/motion-scope";
 import { pop, rise } from "@/components/motion-presets";
 import { Spinner } from "@/components/ui/spinner";
+import { useMediaQuery } from "@/lib/hooks";
 import { whenIdle } from "@/lib/idle";
 
 type ChatPanelComponent = typeof import("@/components/chat/chat-panel").default;
@@ -79,7 +80,8 @@ function useToggleShortcut(toggle: () => void) {
 export default function ChatLauncher() {
   const [isOpen, setIsOpen] = useState(false);
   const revealed = useRevealed();
-  const hint = useFirstVisitHint(revealed);
+  const hasRoomForHint = useMediaQuery("(min-width: 768px)");
+  const hint = useFirstVisitHint(revealed && hasRoomForHint);
   const { Panel, load } = useChatPanel(revealed);
 
   const open = useCallback(() => {

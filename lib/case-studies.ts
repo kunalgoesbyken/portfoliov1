@@ -4,6 +4,7 @@ import matter from "gray-matter";
 import { DATA_DIR } from "@/lib/config";
 import type { MediaItem } from "@/lib/media";
 import { imageSize, type ImageSize } from "@/lib/image-size";
+import { formatPeriod, isIsoMonth } from "@/lib/utils";
 
 export interface Stat {
   value: string;
@@ -37,6 +38,12 @@ const fail = (slug: string, field: string): never => {
 const requireText = (slug: string, field: string, value: unknown): string =>
   typeof value === "string" && value.trim() ? value : fail(slug, field);
 
+const requireMonth = (slug: string, field: string, value: unknown): string =>
+  isIsoMonth(value) ? value : fail(slug, field);
+
+const parseTimeline = (slug: string, data: Raw): string =>
+  formatPeriod(requireMonth(slug, "start", data.start), data.end === undefined ? undefined : requireMonth(slug, "end", data.end));
+
 const requireList = <T,>(slug: string, field: string, value: unknown): T[] => {
   if (value === undefined) return [];
   return Array.isArray(value) ? value : fail(slug, field);
@@ -56,7 +63,7 @@ const parseScreenshot = async (slug: string, raw: Raw): Promise<Screenshot> => {
 const parseMeta = async (slug: string, data: Raw): Promise<CaseStudyMeta> => ({
   summary: requireText(slug, "summary", data.summary),
   role: requireText(slug, "role", data.role),
-  timeline: requireText(slug, "timeline", data.timeline),
+  timeline: parseTimeline(slug, data),
   stats: requireList<Raw>(slug, "stats", data.stats).map((raw) => parseStat(slug, raw)),
   stack: requireList<unknown>(slug, "stack", data.stack).map((raw) => requireText(slug, "stack", raw)),
   gallery: await Promise.all(requireList<Raw>(slug, "gallery", data.gallery).map((raw) => parseScreenshot(slug, raw))),

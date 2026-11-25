@@ -15,7 +15,7 @@ export default function ProjectsPage() {
       <Heading as="h1" className="mb-10">
         Projects
       </Heading>
-      <Section title="Featured">
+      <Section>
         <Projects full />
       </Section>
     </PageShell>

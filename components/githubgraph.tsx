@@ -17,13 +17,18 @@ interface GithubGraphProps {
 const CONTRIBUTION_COLORS = ["var(--contrib-0)", "var(--contrib-1)", "var(--contrib-2)", "var(--contrib-3)", "var(--contrib-4)"];
 const CALENDAR_THEME = { light: CONTRIBUTION_COLORS, dark: CONTRIBUTION_COLORS };
 const CALENDAR_HEIGHT = 140;
-const CALENDAR_LABELS = { totalCount: "{{count}} contributions in the last year" };
+const COUNT_FORMAT = new Intl.NumberFormat("en-US");
 
 const withTooltip = (block: BlockElement, activity: Activity) =>
   cloneElement(block, {
     "data-tooltip-id": "github-tooltip",
     "data-tooltip-content": `${activity.count} contributions on ${activity.date}`,
   });
+
+const totalLabel = (contributions: Activity[]) => {
+  const total = contributions.reduce((sum, activity) => sum + activity.count, 0);
+  return { totalCount: `${COUNT_FORMAT.format(total)} contributions in the last year` };
+};
 
 const ContributionCalendar = ({ contributions }: { contributions: Activity[] }) => (
   <MountOnVisible minHeight={CALENDAR_HEIGHT}>
@@ -32,7 +37,7 @@ const ContributionCalendar = ({ contributions }: { contributions: Activity[] }) 
         data={contributions}
         theme={CALENDAR_THEME}
         colorScheme="light"
-        labels={CALENDAR_LABELS}
+        labels={totalLabel(contributions)}
         blockSize={10}
         blockMargin={3}
         fontSize={12}

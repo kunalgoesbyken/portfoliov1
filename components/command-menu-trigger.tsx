@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { whenIdle } from "@/lib/idle";
-import { useMediaQuery } from "@/lib/hooks";
+import { useIsApplePlatform, useMediaQuery } from "@/lib/hooks";
 
 const CommandMenu = dynamic(() => import("@/components/command-menu").then((mod) => ({ default: mod.CommandMenu })), {
   ssr: false,
@@ -14,6 +14,7 @@ export function CommandMenuTrigger() {
   const [open, setOpen] = useState(false);
   const load = useCallback(() => setLoaded(true), []);
   const hasKeyboardLayout = useMediaQuery("(min-width: 640px)");
+  const isApple = useIsApplePlatform();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -47,7 +48,7 @@ export function CommandMenuTrigger() {
         className="group hidden items-center px-2 py-1.5 sm:flex"
       >
         <kbd className="kbd pointer-events-none transition-colors select-none group-hover:text-fg">
-          <span className="text-xs">⌘</span>K
+          {isApple ? <span className="text-xs">⌘</span> : "Ctrl "}K
         </kbd>
       </button>
       {loaded && <CommandMenu open={open} onOpenChange={setOpen} />}

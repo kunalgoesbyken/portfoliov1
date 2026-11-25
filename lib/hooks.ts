@@ -14,6 +14,24 @@ export function useMediaQuery(query: string) {
   );
 }
 
+type NavigatorWithUserAgentData = Navigator & { userAgentData?: { platform?: string } };
+
+const APPLE_PLATFORMS = ["mac", "iphone", "ipad", "ipod"];
+
+const detectApplePlatform = () => {
+  const nav: NavigatorWithUserAgentData = navigator;
+  const platform = (nav.userAgentData?.platform || nav.platform).toLowerCase();
+  return APPLE_PLATFORMS.some((name) => platform.includes(name));
+};
+
+export function useIsApplePlatform() {
+  return useSyncExternalStore(
+    () => () => {},
+    detectApplePlatform,
+    () => false,
+  );
+}
+
 export function useScrolledPast(threshold: number) {
   return useSyncExternalStore(
     (onChange) => {

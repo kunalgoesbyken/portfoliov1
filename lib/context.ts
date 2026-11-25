@@ -8,7 +8,7 @@ import { ALL_PROJECTS, projectLinkEntries, projectPath, type Project } from "@/l
 import { EXPERIENCES, experiencePeriod, type Experience } from "@/lib/experience-data";
 import { getCaseStudy, type CaseStudy } from "@/lib/case-studies";
 import { getGithubData, type GithubData, type PRState, type RepositoryContribution } from "@/lib/github";
-import { getLocalBlogs, type Blog, type BlogMeta } from "@/util/mdx_clean";
+import { getLocalBlogs, unwrittenRemotePosts, type Blog, type BlogMeta } from "@/util/mdx_clean";
 import { getMediumPosts } from "@/util/medium";
 
 const ASSISTANT_INSTRUCTIONS = `You are the assistant on ${SITE_NAME}'s portfolio site (${SITE_URL}). Visitors are usually recruiters, founders, hiring managers or engineers deciding whether to talk to him. Help them understand what he has built, how he thinks, and whether he fits what they need.
@@ -135,7 +135,6 @@ async function getPortfolioKnowledge(): Promise<string> {
     getMediumPosts(),
     getGithubData(),
   ]);
-  const localUrls = new Set(localPosts.map((post) => post.data.externalUrl));
 
   return [
     about.trim(),
@@ -144,7 +143,7 @@ async function getPortfolioKnowledge(): Promise<string> {
     section("Projects", ALL_PROJECTS.map((project) => projectContext(project, caseStudies.get(project.slug))).join("\n\n")),
     section("Writing", [
       ...localPosts.map(localPostContext),
-      ...remotePosts.filter((post) => !localUrls.has(post.externalUrl)).map(remotePostContext),
+      ...unwrittenRemotePosts(localPosts.map((post) => post.data), remotePosts).map(remotePostContext),
     ].join("\n\n")),
     section("Open source", openSourceContext(github)),
   ]

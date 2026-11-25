@@ -1,10 +1,10 @@
-import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import PageShell from "@/components/ui/page-shell";
 import { Heading } from "@/components/ui/heading";
 import { Section } from "@/components/ui/section";
+import { InlineList } from "@/components/ui/inline-list";
 import Socials from "@/components/socials";
 import Projects from "@/components/projects";
 import Timeline from "@/components/timeline";
@@ -21,6 +21,7 @@ const LATEST_POSTS = 2;
 
 export default async function Home() {
   const [githubData, posts] = await Promise.all([getGithubData(), getAllBlogs()]);
+  const proofItems = proofOfWorkDescription(githubData.repositories, githubData.inReview);
 
   return (
     <PageShell>
@@ -37,17 +38,15 @@ export default async function Home() {
           <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-x-4 gap-y-2">
             <div className="min-w-0">
               <Heading as="h1">{SITE_NAME}</Heading>
-              <p className="font-custom2 text-fg-muted mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                {[SITE_ROLE, SITE_LOCATION, "Open to work"].map((item, i) => (
-                  <Fragment key={item}>
-                    {i > 0 && (
-                      <span aria-hidden="true" className="text-fg-faint">
-                        ·
-                      </span>
-                    )}
-                    <span>{item}</span>
-                  </Fragment>
-                ))}
+              <p className="font-custom2 text-fg-muted mt-1.5 text-sm">
+                <InlineList>
+                  {SITE_ROLE}
+                  {SITE_LOCATION}
+                  <span className="inline-flex items-center gap-1.5">
+                    <span aria-hidden="true" className="bg-accent size-1.5 rounded-full" />
+                    Open to work
+                  </span>
+                </InlineList>
               </p>
             </div>
             <Socials />
@@ -74,7 +73,7 @@ export default async function Home() {
       <Section
         id={PROOF_OF_WORK_ANCHOR}
         title="Proof of work"
-        description={proofOfWorkDescription(githubData.repositories, githubData.inReview)}
+        description={proofItems && <InlineList>{proofItems}</InlineList>}
       >
         <GithubGraph data={githubData} />
       </Section>

@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { DATA_DIR } from "@/lib/config";
-import { getMediumPosts } from "@/util/medium";
+import { getMediumPosts, getMediumPostId } from "@/util/medium";
 import { toIsoDate } from "@/lib/utils";
 
 export type BlogMeta = {
@@ -13,6 +13,7 @@ export type BlogMeta = {
   image?: string;
   tags?: string[];
   externalUrl?: string;
+  externalId?: string;
 };
 
 export type Blog = {
@@ -60,9 +61,18 @@ export const getLocalBlogs = async (): Promise<Blog[]> => {
   return results.flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
 };
 
+const externalIdOf = (post: BlogMeta) => post.externalId ?? getMediumPostId(post.externalUrl);
+
+export const unwrittenRemotePosts = (local: BlogMeta[], remote: BlogMeta[]) => {
+  const written = new Set(local.map(externalIdOf).filter(Boolean));
+  return remote.filter((post) => {
+    const id = externalIdOf(post);
+    return !id || !written.has(id);
+  });
+};
+
 export const getAllBlogs = async (): Promise<BlogMeta[]> => {
   const [blogs, remote] = await Promise.all([getLocalBlogs(), getMediumPosts()]);
   const local = blogs.map((blog) => blog.data);
-  const written = new Set(local.map((post) => post.externalUrl));
-  return [...local, ...remote.filter((post) => !written.has(post.externalUrl))].sort(byDateDesc);
+  return [...local, ...unwrittenRemotePosts(local, remote)].sort(byDateDesc);
 };

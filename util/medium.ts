@@ -10,6 +10,7 @@ const FETCH_TIMEOUT_MS = 8000;
 type FeedItem = {
   title?: unknown;
   link?: unknown;
+  guid?: unknown;
   pubDate?: unknown;
   category?: unknown[];
   "content:encoded"?: unknown;
@@ -23,6 +24,9 @@ const toUrl = (value: unknown) => {
   const link = text(value);
   return link && URL.canParse(link) ? new URL(link) : undefined;
 };
+
+export const getMediumPostId = (value: unknown) =>
+  toUrl(value)?.pathname.split("/").filter(Boolean).pop()?.split("-").pop();
 
 const firstParagraph = (html: unknown) => {
   const source = text(html);
@@ -44,6 +48,7 @@ const toBlogMeta = (item: FeedItem): BlogMeta[] => {
       description: firstParagraph(item["content:encoded"]),
       tags: item.category?.flatMap((tag) => text(tag) ?? []),
       externalUrl,
+      externalId: getMediumPostId(item.guid) ?? getMediumPostId(url.href),
     },
   ];
 };

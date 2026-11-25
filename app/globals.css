@@ -32,11 +32,11 @@
 
   --pattern-fg: var(--color-neutral-200);
   --scrollbar-thumb: var(--color-neutral-300);
-  --contrib-0: #ebedf0;
-  --contrib-1: #9be9a8;
-  --contrib-2: #40c463;
-  --contrib-3: #30a14e;
-  --contrib-4: #216e39;
+  --contrib-0: var(--muted);
+  --contrib-1: color-mix(in oklch, var(--accent) 25%, var(--surface));
+  --contrib-2: color-mix(in oklch, var(--accent) 50%, var(--surface));
+  --contrib-3: color-mix(in oklch, var(--accent) 75%, var(--surface));
+  --contrib-4: var(--accent);
 
   --shadow-input: 0px 2px 3px -1px rgba(0, 0, 0, 0.1),
     0px 1px 0px 0px rgba(25, 28, 33, 0.02),
@@ -72,11 +72,6 @@
 
   --pattern-fg: var(--color-neutral-700);
   --scrollbar-thumb: var(--color-neutral-700);
-  --contrib-0: #161b22;
-  --contrib-1: #0e4429;
-  --contrib-2: #006d32;
-  --contrib-3: #26a641;
-  --contrib-4: #39d353;
 }
 
 @theme inline {
@@ -219,16 +214,16 @@ body {
 .prose :where(h4):not(:where(.not-prose, .not-prose *)),
 .prose :where(h5):not(:where(.not-prose, .not-prose *)),
 .prose :where(h6):not(:where(.not-prose, .not-prose *)) {
-  @apply font-custom tracking-tight text-balance text-fg;
+  @apply font-custom font-normal tracking-tight text-balance text-fg;
 }
 .prose :where(strong):not(:where(.not-prose, .not-prose *)) {
   @apply font-semibold text-fg;
 }
 .prose :where(h2):not(:where(.not-prose, .not-prose *)) {
-  @apply mt-12 mb-4 text-2xl font-bold md:text-3xl;
+  @apply mt-12 mb-4 text-2xl md:text-3xl;
 }
 .prose :where(h3):not(:where(.not-prose, .not-prose *)) {
-  @apply mt-8 mb-3 text-xl font-bold md:text-2xl;
+  @apply mt-8 mb-3 text-xl md:text-2xl;
 }
 .prose :where(a):not(:where(.not-prose, .not-prose *)) {
   @apply text-accent underline decoration-accent/30 underline-offset-2 transition-colors duration-200 hover:decoration-accent;
