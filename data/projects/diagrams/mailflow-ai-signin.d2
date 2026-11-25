@@ -1,9 +1,9 @@
-auth: /auth/callback\nstate check in browser {
+auth: /auth/callback\nchecks state {
   class: service
   tooltip: "Runs in the browser. Checks the random OAuth state that initiateOAuth() stored in sessionStorage, then sends the code to the token route. Token refresh in services/auth.ts goes through the same route."
 }
 
-oauth: "/api/auth/token\nserver-only client secret" {
+oauth: "/api/auth/token\nserver-only secret" {
   class: service
   tooltip: "Exchanges the authorization code, and later the refresh token, for tokens at Google using GMAIL_CLIENT_SECRET, which is never sent to the browser."
 }
@@ -18,6 +18,6 @@ tokens: sessionStorage\ntoken-storage.ts {
   tooltip: "Holds the access and refresh tokens returned by the token route. They live in sessionStorage, so a closed tab signs the user out."
 }
 
-auth -> oauth: code / refresh token
-oauth -> google: token exchange
-auth -> tokens: store tokens
+auth -> oauth: code
+oauth -> google: exchange
+auth -> tokens: save

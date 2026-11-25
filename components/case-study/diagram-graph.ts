@@ -21,7 +21,7 @@ export interface DiagramSize {
 }
 
 export const MIN_DIAGRAM_SCALE = 0.5;
-const FULL_SIZE_SCALE = 0.9;
+const FULL_SIZE_SCALE = 0.8;
 
 const fitOf = (size: DiagramSize, available: number) => {
   const scale = Math.min(1, available / size.width);

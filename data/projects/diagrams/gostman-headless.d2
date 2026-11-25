@@ -23,7 +23,7 @@ files: Collections\nYAML in Git {
   tooltip: "The same folder of YAML files the apps use. The runner loads it on every run, so the checks you built in the app are the ones CI runs."
 }
 
-engine: engine + rpc + mcpclient\nGo packages {
+engine: engine, rpc,\nmcpclient {
   class: service
   tooltip: "The same send code the apps use. The runner calls it for every request, and the agent's calls reach it through the same runner session."
 }

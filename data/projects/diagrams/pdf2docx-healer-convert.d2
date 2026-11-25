@@ -1,4 +1,4 @@
-pdf: Input PDF\nheal() or pdf2docx-heal {
+pdf: Input PDF\nheal() or CLI {
   class: external
   tooltip: "Text or scanned. heal() in converter.py is the entry point, and the pdf2docx-heal command in cli.py calls it with flags for OCR and for switching each repair off."
 }
@@ -24,7 +24,7 @@ draft: First-pass .docx {
 }
 
 pdf -> ocr: scanned?
-pdf -> convert: text PDF
-ocr -> convert: temp PDF
+pdf -> convert: text
+ocr -> convert: PDF
 patches -> convert: patch
-convert -> draft: write
+convert -> draft

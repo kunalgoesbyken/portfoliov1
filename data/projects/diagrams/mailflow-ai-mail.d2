@@ -8,7 +8,7 @@ tokens: sessionStorage\ntoken-storage.ts {
   tooltip: "The access token that GmailService attaches to every call. It was stored at sign-in, and closing the tab drops it."
 }
 
-gmail: GmailService\nky, Promise.allSettled {
+gmail: GmailService\nky, allSettled {
   class: service
   tooltip: "Calls the Gmail REST API directly with the stored access token. Messages are fetched in parallel with Promise.allSettled, so one failed message is skipped. MIME parts are parsed into a typed model and HTML bodies are sanitised with DOMPurify before rendering."
 }
@@ -20,4 +20,4 @@ google: "Gmail API\ngmail.modify scope" {
 
 app -> gmail: list, send
 tokens -> gmail: token
-gmail -> google: REST + Bearer
+gmail -> google: REST

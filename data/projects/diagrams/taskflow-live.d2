@@ -13,6 +13,12 @@ routes: Route handlers\nfull task shape {
   tooltip: "The refetch lands on the same route handlers as every other read, so a live update renders the same joined shape as a normal load."
 }
 
+db: Postgres\ntasks, notifications {
+  class: store
+  tooltip: "Every task and notification change here is published by Realtime as a signal. The refetch reads the same tables back through the route handlers."
+}
+
 browser -> realtime: subscribe
 realtime -> browser: change signal
 browser -> routes: refetch
+db -> realtime: changes

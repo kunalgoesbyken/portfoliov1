@@ -8,7 +8,7 @@ chat: /api/chat\nstreamText, 4 tools {
   tooltip: "Streams a Groq response with openEmail, navigateView, composeEmail and replyToEmail as Zod-typed tools. Each tool only returns an acknowledgement and none can send mail. The system prompt limits the model to email ids in the context."
 }
 
-groq: Groq\ngpt-oss-120b model {
+groq: Groq\ngpt-oss-120b {
   class: model
   tooltip: "Receives the chat history plus a compact context: current view, selected email, filters and the ten most recent emails as 100 character snippets. Replies stream back token by token."
 }
@@ -18,13 +18,13 @@ composer: Composer\nconfirmation dialog {
   tooltip: "Drafts from the assistant arrive here marked as written by the assistant. They go through the same composer and confirmation dialog as hand-written mail, so the user edits, presses Send and confirms."
 }
 
-gmail: GmailService\nthe only send path {
+gmail: GmailService\nonly send path {
   class: service
   tooltip: "The only way mail leaves the app. The assistant has no send tool, so a send happens only after the user confirms."
 }
 
-app -> chat: prompt + context
+app -> chat: prompt
 chat -> groq: stream
 chat -> app: tool calls
-app -> composer: fill draft
-composer -> gmail: send on confirm
+app -> composer: draft
+composer -> gmail: on confirm

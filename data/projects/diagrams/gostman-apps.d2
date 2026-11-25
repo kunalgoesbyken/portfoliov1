@@ -8,12 +8,12 @@ web: Web app\nReact PWA, Vite {
   tooltip: "The same React UI built with the web Vite config. lib/backend/web.js posts every request to /api/proxy, because browsers block cross-origin calls. WebSocket traffic goes straight from the browser, and scripts run in a fresh Web Worker each."
 }
 
-proxy: "/api/proxy\nGo function on Vercel" {
+proxy: "/api/proxy\nVercel function" {
   class: service
-  tooltip: "gostman.com on Vercel. api/proxy.go takes an engine.Request as JSON and returns an engine.Response. Its hosted policy blocks private addresses, cuts responses at 3 MB and caps timeouts at 30 s. The same handler runs in gostman relay and gostman serve."
+  tooltip: "gostman.com on Vercel. api/proxy.go takes an engine.Request as JSON and returns an engine.Response. Its policy blocks private addresses, cuts responses at 3 MB and caps timeouts at 30 s. The same handler runs in gostman relay and gostman serve."
 }
 
-engine: engine + rpc + mcpclient\nGo packages {
+engine: engine, rpc,\nmcpclient {
   class: service
   tooltip: "engine prepares and sends requests: variables, auth, body encoding, cookies, redirects, proxies and certificates for HTTP, GraphQL, SOAP, SSE, TCP, UDP and NATS. rpc handles gRPC and mcpclient handles MCP servers. The engine keeps no state between requests."
 }
@@ -28,8 +28,8 @@ api: Your APIs {
   tooltip: "Any HTTP, gRPC, WebSocket, MQTT or MCP endpoint. There is no account and no telemetry, so nothing else is contacted for requests."
 }
 
-desktop -> engine: Wails binding
+desktop -> engine: binding
 desktop -> files: open, save
 web -> proxy: POST
-proxy -> engine: hosted policy
-engine -> api: HTTP, gRPC, TCP
+proxy -> engine: policy
+engine -> api: send
