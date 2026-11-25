@@ -1,0 +1,3 @@
+{
+  "render": "Server rendering with renderToString instead of client-only rendering, because pages arrive as real HTML for search engines and first paint. Cost: nothing is sent until the whole page has rendered, and there is no streaming."
+}

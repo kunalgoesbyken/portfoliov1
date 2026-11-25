@@ -1,0 +1,3 @@
+{
+  "shrink": "Delta debugging keeps a candidate only if it fails the same way, not just fails, so shrinking never swaps one bug for another. Cost: it replays a lot, here 191 runs to go from 33 faults to 2."
+}

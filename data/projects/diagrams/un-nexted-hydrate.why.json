@@ -1,0 +1,3 @@
+{
+  "browser": "Hydrating with the server's props from a script tag instead of refetching, so the first client render matches the server HTML. Cost: the data travels twice, once inside the HTML and once as JSON."
+}

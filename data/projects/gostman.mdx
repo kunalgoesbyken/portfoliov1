@@ -49,20 +49,42 @@ There's no account and no telemetry. The desktop app and the CLI contact only th
 
 The backend is one Go module and the interface is one React app in `gostman-gui/frontend`, shared by the desktop and web builds. The `engine` package decides what is sent: variable substitution, auth, body encoding, redirects, proxies, certificates and, in the hosted web proxy, a block on private addresses. It covers REST, GraphQL, SOAP, server-sent events, raw TCP and UDP and NATS. gRPC goes through `rpc`, MCP servers through `mcpclient`, and the React app speaks WebSocket, Socket.IO, MQTT and SignalR over a WebSocket transport.
 
-<Diagram name="gostman-system" title="System architecture" />
+### From the desktop and web apps
 
-Each surface reaches the engine differently:
+<Diagram name="gostman-apps" title="Apps" />
 
-- **Desktop:** a Wails binding, `App.SendRequest`, calls `engine.Send` in the same process.
-- **Web:** `lib/backend/web.js` posts to `/api/proxy`, a Go function on Vercel (`api/proxy.go`) with a hosted policy: private addresses blocked, responses cut at 3 MB, 30 s timeout. `gostman relay` and `gostman serve` run the same handler locally or in a Docker image.
-- **CLI:** `gostman run` uses the Go `runner` package.
-- **Agents:** `gostman mcp` serves the `agent` package's 17 tools over stdio or loopback HTTP, on top of the same `runner` session.
+1. **Desktop.** A Wails binding, `App.SendRequest`, calls `engine.Send` in the same process. It also opens and saves the workspace folder of YAML files.
+2. **Web.** `lib/backend/web.js` posts to `/api/proxy`, a Go function on Vercel (`api/proxy.go`) with a hosted policy: private addresses blocked, responses cut at 3 MB, 30 s timeout. `gostman relay` and `gostman serve` run the same handler locally or in a Docker image.
+3. **Send.** Both reach the `engine`, which sends the request to your API.
+
+### From a terminal or a coding agent
+
+<Diagram name="gostman-headless" title="Headless" />
+
+1. **CLI.** `gostman run` uses the Go `runner` package.
+2. **Agents.** `gostman mcp` serves the `agent` package's 17 tools over stdio or loopback HTTP, on top of the same `runner` session.
+3. **Load and send.** The runner loads the same YAML collection and sends through the `engine`.
+
+### Running a folder: plan
+
+<Diagram name="gostman-plan" title="Plan" />
+
+1. **Load.** The collection comes from a Gostman folder, a Postman or Bruno export or an OpenAPI file, and an optional data file adds rows.
+2. **Plan.** `Session.Run` turns folder filters, tags, iterations and `--parallel` into an ordered list before anything is sent.
+3. **Hand off.** Each entry in the list goes to `session.execute`.
+
+### Running a folder: one request
+
+<Diagram name="gostman-request" title="Request" />
 
 The send pipeline exists twice, in `lib/execution.js` for the apps and in `runner/` for the CLI. Both run one JavaScript codebase for scripts, checks and extract rules. In the browser each script gets a fresh Web Worker, and in the CLI `src/cli/runtime.js` is bundled with esbuild into `runner/sandbox/bundle.js` and run inside goja, a JavaScript engine written in Go.
 
-<Diagram name="gostman-run" title="What happens during gostman run" />
+For each request, `session.execute` does these steps:
 
-For each request, `session.execute` fills typed variables, runs pre-request scripts, fetches a fresh OAuth token if needed, sends through `engine.Send`, `rpc.Invoke` or `mcpclient.Invoke`, keeps cookies, applies extract rules, then runs post-response scripts and assertions. The `report` package writes the result and the exit code is 0 for pass, 1 for a failed check, 2 for bad usage and 3 for no response.
+1. **Prepare.** It fills typed variables and runs pre-request scripts.
+2. **Authenticate and send.** It fetches a fresh OAuth token if needed, then sends through `engine.Send`, `rpc.Invoke` or `mcpclient.Invoke`, and keeps cookies.
+3. **Check.** It applies extract rules, then runs post-response scripts and assertions.
+4. **Report.** The `report` package writes the result and the exit code is 0 for pass, 1 for a failed check, 2 for bad usage and 3 for no response.
 
 <Highlights>
 <Highlight title="One scripting runtime, two hosts" result="400-request run: 3.9 s to 1.2 s, allocations down 74%">

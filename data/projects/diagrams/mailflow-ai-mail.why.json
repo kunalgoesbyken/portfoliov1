@@ -1,0 +1,4 @@
+{
+  "gmail": "Gmail is called from the browser with the token in sessionStorage instead of through a mail backend, so no server holds mail. Cost: any script on the page can read the token, and closing the tab drops it.",
+  "app": "A fixed 30 second poll, not a shorter interval, to protect Gmail quota. Cost: new mail can appear 30 s late, and a faulty effect once turned the poll into 640 requests in 11 s."
+}

@@ -1,0 +1,24 @@
+router: router.ts\nmatch() {
+  class: service
+  tooltip: "For each request, match() returns the first route that fits the path, along with its params."
+}
+
+data: getServerSideProps {
+  class: service
+  tooltip: "renderPage imports the matched page module and awaits getServerSideProps with params and pathname, merging the result into the props."
+}
+
+fallback: 404 and 500\nerror pages {
+  class: external
+  tooltip: "An unmatched path renders 404.tsx with status 404, and a failed import or throwing data function returns a plain 500 page instead of crashing the server."
+}
+
+render: renderToString {
+  class: service
+  tooltip: "react-dom/server renders the page into an HTML template. The pathname, props and page file path are written into a script tag with id __UNNEXTED_DATA__ as JSON with the less-than sign escaped, so the data cannot close the tag."
+}
+
+router -> data: match
+router -> fallback: no match
+data -> render: props
+data -> fallback: error

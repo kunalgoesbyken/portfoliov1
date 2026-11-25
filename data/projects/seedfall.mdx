@@ -44,9 +44,9 @@ The same seeds also make a fair grader for AI agents. seedfall-gym is a reinforc
 
 The repository holds the simulator and the gym. `sim` is the small library a workload imports for properties, operation history and `sim.Listen` and `sim.Dial`. `engine` is the simulator. `cmd/seedfall` is the CLI and the MCP server, `verify` and `report` produce proofs and triage output, and `seedfalltest` runs a sweep from `go test`. `gym/` is the RL environment: a Python package for the agent side and a separate Go grader module that links the simulator.
 
-<Diagram name="seedfall-system" title="Simulator architecture" />
+### 1. Run one seed in a simulated world
 
-One run of one seed goes like this:
+<Diagram name="seedfall-world" title="Simulator" />
 
 1. `engine.Build` compiles each node package with the stock Go toolchain for `GOOS=wasip1`. `NewRunner` rewrites the wasm to add a call counter to every function (`instrument.go`) and compiles it once with wazero, cached under `.seedfall/cache`.
 2. `Runner.run` builds a `world` for the seed: an in-memory file system and a network endpoint per node, seeded random streams for scheduling, network, disk and I/O faults, and a fault list generated up front.
@@ -54,9 +54,30 @@ One run of one seed goes like this:
 4. On wasip1 every source of nondeterminism leaves through three WASI calls, which the host implements: `random_get` is a ChaCha8 stream, `clock_time_get` is the virtual clock and `poll_oneoff` parks the node. A separate `seedfall` host module carries sockets, properties and operation history. Nothing needs a forked runtime or rewritten source.
 5. wasip1 has no preemption, so after 4,194,304 counted calls without blocking the counter calls back into the host, which uses the Go runtime's own cooperative preemption.
 6. The disk (`memfs.go`) keeps writes in a page cache and a crash keeps only synced data. Options add torn writes, reordered 4 KiB page writeback, strict directory durability, `EIO` on fsync, full disks, lost writes and bit flips. The network (`net.go`) gives TCP ordered streams with seeded latency, UDP that can reorder and drop, and one-way partitions. `sim.Listen` and `sim.Dial` reach it directly and an opt-in `net_overlay` patches Go's `net` package so plain `net/http` runs unchanged.
-7. At the end the recorded history is checked with Porcupine, and a hash over every host call proves two runs of a seed were identical.
 
-<Diagram name="seedfall-loop" title="Find, replay, shrink, prove" />
+### 2. Check the result
+
+<Diagram name="seedfall-verdict" title="Checker" />
+
+1. At the end the recorded history is checked with Porcupine against a sequential model. With the list-append model, an in-house Elle-style checker looks for isolation anomalies in `sim.Txn` histories.
+2. The result keeps the seed, the fault list, the trace and a hash over every host call. The hash proves two runs of a seed were identical.
+
+### 3. Find a failure and cut it down
+
+<Diagram name="seedfall-find" title="Sweep, shrink" />
+
+1. `seedfall run` sweeps seeds 1 to N as parallel jobs and stops at the first failure unless told to keep going.
+2. The failing seed is the whole bug report. It fixes the scheduling, network, disk and fault streams, so the same seed gives the same failure on any machine.
+3. `seedfall replay` reruns the seed and prints the full trace and the determinism hash. With `-html` it writes a timeline of messages, faults and the failing check.
+4. `seedfall shrink` cuts the 33 faults down with delta debugging, then caps the workload, trims the duration and simplifies the faults, repeating until nothing changes.
+
+### 4. Prove the fix
+
+<Diagram name="seedfall-prove" title="Verify" />
+
+1. The smallest failing schedule is saved as `.seedfall/seed-N.faults.json`. `replay`, `inspect` and `verify` take it with `-faults`, and `seedfall pin` keeps it as a regression that later sweeps replay.
+2. `seedfall verify` replays the failing schedule against the patched code and double-checks determinism.
+3. It then sweeps fresh seeds, sized for 95 percent confidence, and writes a Markdown proof. Optional `-mutate` also checks that your checks would notice a broken disk.
 
 <Highlights>
 <Highlight title="Determinism without forking Go" result="Same seed, same hash, 3 of 3 replays; run -check passes 200 of 200 seeds">

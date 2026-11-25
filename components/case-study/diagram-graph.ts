@@ -11,6 +11,31 @@ export interface DiagramNode {
 
 export type DiagramRationale = Record<string, string>;
 
+export const DIAGRAM_LAYOUTS = ["wide", "tall"] as const;
+
+export type DiagramLayout = (typeof DIAGRAM_LAYOUTS)[number];
+
+export interface DiagramSize {
+  width: number;
+  height: number;
+}
+
+export const MIN_DIAGRAM_SCALE = 0.5;
+const FULL_SIZE_SCALE = 0.9;
+
+const fitOf = (size: DiagramSize, available: number) => {
+  const scale = Math.min(1, available / size.width);
+  return { scale: Math.min(FULL_SIZE_SCALE, scale), width: size.width * scale };
+};
+
+export const pickLayout = (sizes: Record<DiagramLayout, DiagramSize>, available: number): DiagramLayout =>
+  DIAGRAM_LAYOUTS.reduce((best, layout) => {
+    const candidate = fitOf(sizes[layout], available);
+    const current = fitOf(sizes[best], available);
+    if (candidate.scale !== current.scale) return candidate.scale > current.scale ? layout : best;
+    return candidate.width > current.width ? layout : best;
+  });
+
 interface DiagramEdge {
   from: string;
   to: string;
@@ -139,19 +164,6 @@ export const selectionOf = (graph: DiagramGraph, key: string): DiagramSelection 
     inputs: linksOf(graph, graph.edges.filter((edge) => edge.to === key), "from"),
     outputs: linksOf(graph, graph.edges.filter((edge) => edge.from === key), "to"),
   };
-};
-
-export const orderedNodes = (graph: DiagramGraph): DiagramNode[] => {
-  const remaining = [...graph.nodes.values()];
-  const ordered: DiagramNode[] = [];
-  while (remaining.length) {
-    const waiting = new Set(remaining.map((node) => node.key));
-    const ready = remaining.findIndex(
-      (node) => !graph.edges.some((edge) => edge.to === node.key && edge.from !== node.key && waiting.has(edge.from)),
-    );
-    ordered.push(...remaining.splice(Math.max(ready, 0), 1));
-  }
-  return ordered;
 };
 
 const relatedTo = (graph: DiagramGraph, key: string) => {

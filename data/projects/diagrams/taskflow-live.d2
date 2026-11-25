@@ -1,0 +1,18 @@
+browser: Client components\nrealtime hooks {
+  class: client
+  tooltip: "useRealtimeTasks and useRealtimeNotifications only invalidate the TanStack Query cache, which makes the client refetch. The timezone lanes also use Realtime Presence to show which teammates are online."
+}
+
+realtime: Realtime\npostgres_changes {
+  class: external
+  tooltip: "Task and notification changes in Postgres arrive as signals. Payloads carry no joined rows, so each event invalidates the query cache and the client refetches the full shape from the API."
+}
+
+routes: Route handlers\nfull task shape {
+  class: service
+  tooltip: "The refetch lands on the same route handlers as every other read, so a live update renders the same joined shape as a normal load."
+}
+
+browser -> realtime: subscribe
+realtime -> browser: change signal
+browser -> routes: refetch

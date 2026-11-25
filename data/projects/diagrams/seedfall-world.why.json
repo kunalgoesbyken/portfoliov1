@@ -1,0 +1,5 @@
+{
+  "service": "The stock Go toolchain targeting wasip1 instead of a forked runtime or rewritten source, so new Go releases keep working. Cost: no cgo, so libraries such as go-sqlite3 cannot run, and mmap or flock code needs a stand-in.",
+  "sched": "Preempts a node after 4,194,304 counted calls instead of by elapsed time, because a count replays identically. Cost: loops with no calls are never interrupted unless preempt.loops is on, which slows the guest, so it is off by default.",
+  "disk": "A simulated disk with an explicit durability model instead of the real file system, so a crash keeps only fsynced data and strict POSIX cases can be tested. Cost: it tests a model, not the real kernel; XFS has none."
+}

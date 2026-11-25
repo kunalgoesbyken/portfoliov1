@@ -1,0 +1,35 @@
+service: Your Go service\nunmodified {
+  class: external
+  tooltip: "Each node package is built with GOOS=wasip1. No forked runtime and no source rewriting. Code that needs cgo cannot build, and mmap or flock code needs a built-in or hand-written shim."
+}
+
+workload: Workload\nsim package {
+  class: client
+  tooltip: "A small Go program built with the stock toolchain that drives the cluster. It imports sim for Always, Eventually and Sometimes properties, Put and Get history records, sim.Budget and sim.Listen. Outside the simulator, sim.Listen and sim.Dial call the standard net package."
+}
+
+runtime: wazero\nengine.Runner {
+  class: service
+  tooltip: "Compiles each guest once, after adding a call counter to every function in the wasm (instrument.go), and caches the result in .seedfall/cache. Every node start or restart is a fresh module instance."
+}
+
+sched: world.loop\nseeded scheduler {
+  class: service
+  tooltip: "Runs exactly one node at a time, and injects the faults: crashes hit the disk and partitions hit the network. It picks the earliest fault, restart or wake-up, breaks ties with the seed and jumps virtual time forward. The clock, random_get (ChaCha8) and poll_oneoff are the three WASI calls it implements."
+}
+
+disk: memfs.go\nin-memory disk {
+  class: store
+  tooltip: "One file system per node with a page cache: Sync makes writes durable and a crash keeps only durable data. Options add torn writes, reordered page writeback, strict_dirs, fsync EIO, full disks, lost writes and bit flips."
+}
+
+net: net.go\nsimulated network {
+  class: service
+  tooltip: "Ordered TCP streams with seeded latency and UDP datagrams that can reorder, drop or duplicate. Faults are rules on one direction of a link, so one-way partitions fall out of the same code."
+}
+
+service -> runtime
+workload -> runtime
+runtime -> sched: WASI calls
+runtime -> disk: file I/O
+runtime -> net: sockets

@@ -382,11 +382,12 @@ body {
   .ai-file:hover .ai-fold, .ai-file:hover .ai-lines, .ai-mail:hover .ai-open { animation: none; transform: none; }
 }
 
-.diagram-explorer svg {
-  display: block;
+.diagram-canvas {
   margin-inline: auto;
-  max-width: 100%;
-  min-width: 760px;
+}
+.diagram-canvas svg {
+  display: block;
+  width: 100%;
   height: auto;
 }
 .diagram-explorer .appendix-icon {

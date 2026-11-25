@@ -1,0 +1,24 @@
+ask: query command\nCLI {
+  class: client
+  tooltip: "Embeds the query once with the search_query prefix, then asks the vector store and the BM25 index for 20 candidates each."
+}
+
+vectors: VectorStore\nvectors.bin {
+  class: store
+  tooltip: "Returns the 20 chunks nearest the query vector, using the HNSW graph when its snapshot is current and an exact cosine scan otherwise, including below 1,000 records."
+}
+
+bm25: Bm25Index\nTantivy {
+  class: store
+  tooltip: "Returns the 20 best keyword matches. The lenient query parser means code-shaped input such as foo::bar() never fails to parse."
+}
+
+fuse: rrf_fuse\nk=60, top 5 {
+  class: service
+  tooltip: "query.rs merges the two ranked lists with Reciprocal Rank Fusion, keyed by file and start line, and prints the top five chunks with file, line range and code."
+}
+
+ask -> vectors: query vector
+ask -> bm25: keywords
+vectors -> fuse: top 20
+bm25 -> fuse: top 20

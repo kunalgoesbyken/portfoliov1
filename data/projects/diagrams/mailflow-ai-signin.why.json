@@ -1,0 +1,3 @@
+{
+  "oauth": "Only the code exchange and refresh run on the server, so the client secret stays out of the bundle, instead of putting Gmail behind a backend too. Cost: sign-in and each token refresh add a server hop."
+}

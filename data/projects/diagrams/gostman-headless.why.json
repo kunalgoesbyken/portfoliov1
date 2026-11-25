@@ -1,0 +1,3 @@
+{
+  "mcp": "Secrets are filled in inside Gostman and scrubbed from replies, so the agent never sees a token. Cost: a secret goes only to hosts where one of your own requests already sends it, so a new host needs a saved request."
+}

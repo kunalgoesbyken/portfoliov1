@@ -1,0 +1,23 @@
+shrink: seedfall shrink\n33 faults to 2 {
+  class: service
+  tooltip: "Saves its result, the minimal schedule, as a faults file. Here that took 191 runs to go from 33 faults to 2."
+}
+
+plan: Minimal schedule\n2 faults {
+  class: store
+  tooltip: "Saved as .seedfall/seed-N.faults.json. replay, inspect and verify take it with -faults, and seedfall pin keeps it as a regression that later sweeps replay."
+}
+
+replay: seedfall replay\n-faults {
+  class: service
+  tooltip: "Takes the saved schedule with -faults, so it replays just the 2 faults instead of all 33."
+}
+
+verify: seedfall verify\nchecks new seeds {
+  class: service
+  tooltip: "Replays the failing schedule against the patched code, double-checking determinism, then sweeps fresh seeds sized for 95 percent confidence and writes a Markdown proof. Optional -mutate also checks that the checks would notice a broken disk."
+}
+
+shrink -> plan: saves
+plan -> replay: -faults
+plan -> verify: -faults

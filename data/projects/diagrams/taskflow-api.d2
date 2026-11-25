@@ -1,0 +1,35 @@
+browser: Client components\nTanStack Query {
+  class: client
+  tooltip: "Fetches and mutates through route handlers with TanStack Query. The timezone lanes use dnd-kit and call the reassign route on drop."
+}
+
+routes: Route handlers\nAuth, Zod, Prisma {
+  class: service
+  tooltip: 'Every handler verifies the user with Supabase, validates input with Zod and scopes task queries to the creator or assignee. The bulk route runs updateMany and the audit createMany in one prisma.$transaction.'
+}
+
+auth: Supabase Auth {
+  class: external
+  tooltip: "Every handler calls getUser here through requireAuth(). The demo sign-in creates its user with the service role key on first use, then seeds a workspace with fixed ids and skip-duplicates."
+}
+
+db: Postgres\nPrisma {
+  class: store
+  tooltip: 'Create and reassign save the task, a TaskEvent and any notification in one prisma.$transaction. Queries use the pooled URL, migrations the direct URL.'
+}
+
+github: GitHub\nsigned webhooks {
+  class: external
+  tooltip: "Posts issue and pull request events. The route recomputes the HMAC-SHA256 signature with a timing-safe compare before it marks linked tasks done or reopens them."
+}
+
+gemini: Gemini 2.5 Flash Lite\nShift Brief {
+  class: model
+  tooltip: "The shift-brief route sends the caller's tasks updated in the last 24 hours or 7 days as a prompt and relays the response as server-sent events, with a 15 second timeout."
+}
+
+browser -> routes
+github -> routes
+routes -> auth: getUser
+routes -> db: Prisma
+routes -> gemini: stream

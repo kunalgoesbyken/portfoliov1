@@ -44,12 +44,31 @@ Your mail goes straight from Gmail to your browser. The server handles the sign-
 
 It's a Next.js 15 and React 19 app with no mail backend. `app/page.tsx` renders the whole client app from `src/App.tsx`. The server side is two route handlers: `/api/auth/token`, which exchanges and refreshes OAuth tokens, and `/api/chat`.
 
-1. Sign-in: `initiateOAuth()` stores a random state in sessionStorage and redirects to Google with the `gmail.modify` scope. Google returns to `/auth/callback`, which checks the state and sends the code to `/api/auth/token`. That route adds the server-only `GMAIL_CLIENT_SECRET`, exchanges the code with Google and returns the tokens. Refreshing an expired token uses the same route.
-2. Tokens: the access and refresh tokens live in sessionStorage through `token-storage.ts`, so a closed tab signs the user out.
-3. Mail: `GmailService`, built on ky, calls the Gmail REST API directly from the browser. `useEmails` loads 30 messages at a time into the Zustand `useAppStore`, which also holds filters, the open thread and the composer. Only the user and sign-in flag are persisted, and filtering and sorting run in the browser.
-4. Assistant: each chat request carries the user's text and a small context of the current view, selected email, active filters and ten loaded emails as 100-character snippets. `/api/chat` streams a response from Groq (`openai/gpt-oss-120b`) with four tools declared as Zod schemas: `openEmail`, `navigateView`, `composeEmail` and `replyToEmail`. The server only acknowledges tool calls; `useAIChat` applies them to the store when the stream finishes, so every AI action is a visible change in the interface.
+### 1. Sign in with Google
 
-<Diagram name="mailflow-ai-system" title="System architecture" />
+<Diagram name="mailflow-ai-signin" title="Sign-in" />
+
+1. **Redirect.** `initiateOAuth()` stores a random state in sessionStorage and redirects to Google with the `gmail.modify` scope.
+2. **Callback.** Google returns to `/auth/callback`, which checks the state and sends the code to `/api/auth/token`.
+3. **Exchange.** That route adds the server-only `GMAIL_CLIENT_SECRET`, exchanges the code with Google and returns the tokens. Refreshing an expired token uses the same route.
+4. **Store.** The access and refresh tokens live in sessionStorage through `token-storage.ts`, so a closed tab signs the user out.
+
+### 2. Read and sync mail
+
+<Diagram name="mailflow-ai-mail" title="Mail" />
+
+1. **Fetch.** `GmailService`, built on ky, calls the Gmail REST API directly from the browser with the stored access token.
+2. **Store.** `useEmails` loads 30 messages at a time into the Zustand `useAppStore`, which also holds filters, the open thread and the composer. Only the user and sign-in flag are persisted, and filtering and sorting run in the browser.
+3. **Sync.** A 30 second timer refetches the current view.
+
+### 3. Ask the assistant
+
+<Diagram name="mailflow-ai-assistant" title="Assistant" />
+
+1. **Send context.** Each chat request carries the user's text and a small context of the current view, selected email, active filters and ten loaded emails as 100-character snippets.
+2. **Stream.** `/api/chat` streams a response from Groq (`openai/gpt-oss-120b`) with four tools declared as Zod schemas: `openEmail`, `navigateView`, `composeEmail` and `replyToEmail`.
+3. **Apply.** The server only acknowledges tool calls. `useAIChat` applies them to the store when the stream finishes, so every AI action is a visible change in the interface.
+4. **Confirm.** A draft lands in the composer, and mail leaves only after the user presses Send and confirms.
 
 <Highlights>
 <Highlight title="A runaway sync loop, found and fixed" result="640 inbox requests in 11 seconds down to 3">

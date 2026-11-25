@@ -1,0 +1,3 @@
+{
+  "fuse": "Reciprocal Rank Fusion instead of adding raw scores, because cosine similarity and BM25 sit on incompatible scales. Cost: only ranks are used, so a far stronger match gets no more weight than a marginally stronger one."
+}

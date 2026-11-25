@@ -1,6 +1,0 @@
-{
-  "core.segment": "A level-based EnergyDetector behind a SpeechDetector trait instead of a neural detector, because it needs no model file. Cost: it measures energy, not speech, so loud music passes. Silero is a cargo feature and the CLI does not expose it.",
-  "core.acoustic": "Four deterministic measurements instead of a learned quality model, with scoring kept apart from FilterPolicy, so thresholds change without re-reading audio. Cost: babble noise reads up to 2.7 dB cleaner than it is.",
-  "core.shard": "Shards are built in a staging directory and renamed into place, so readers never see a partial tar. Cost: staging and output must be on the same volume, and the writer refuses an output directory that already holds a run.",
-  "entry.serve": "The live path runs the same StreamSegmenter that batch uses, so verdicts cannot drift apart. Cost: a clip is judged only after its closing pause, and live audio is not loudness-leveled."
-}

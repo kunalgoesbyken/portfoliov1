@@ -1,0 +1,23 @@
+folder: Collection\nYAML, Postman, Bruno {
+  class: store
+  tooltip: "A Gostman folder read by the workspace package, a Postman or Bruno export, or an OpenAPI file, loaded into one runner.Collection. Folders are read by a bounded pool of readers sized from the CPU count."
+}
+
+data: Data rows\nCSV, JSON, XLSX {
+  class: store
+  tooltip: "runner/data.go parses the file into rows. Each row is one iteration with its own variables, so one collection tests many inputs."
+}
+
+plan: Run plan\nSession.Run {
+  class: service
+  tooltip: "Resolves folder filters, tags, --only, iterations and --parallel into an ordered list of executions before anything is sent."
+}
+
+exec: session.execute\nper request {
+  class: service
+  tooltip: "Receives the ordered list from the run plan and handles each execution in turn."
+}
+
+folder -> plan
+data -> plan
+plan -> exec: in order

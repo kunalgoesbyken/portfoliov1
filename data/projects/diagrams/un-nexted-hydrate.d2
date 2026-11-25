@@ -1,0 +1,23 @@
+build: build.ts\nBun.build {
+  class: service
+  tooltip: "Writes the bundled client and one chunk per page into dist/ at every server start."
+}
+
+render: renderToString {
+  class: service
+  tooltip: "Hands the browser the page HTML with the data script tag inside it."
+}
+
+dist: dist/\nclient.js + chunks {
+  class: store
+  tooltip: "Build output. Bun.serve returns .js and .js.map files from here by file name, with no-cache in development and a one-year max-age in production."
+}
+
+browser: client.tsx\nhydrateRoot {
+  class: client
+  tooltip: "Reads the embedded data, looks up the page loader in unnexted:pages by file path, imports only that chunk and calls hydrateRoot with the same props, so React attaches handlers to the server HTML instead of re-rendering it."
+}
+
+build -> dist: write chunks
+dist -> browser: JS chunks
+render -> browser: HTML + props

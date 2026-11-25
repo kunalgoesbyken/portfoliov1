@@ -1,0 +1,23 @@
+chunk: Chunker\ntree-sitter {
+  class: service
+  tooltip: "Sends each chunk's text, with its path and line range, to the BM25 index, and the same chunk on to the embedder."
+}
+
+embed: Embedder\nnomic INT8 {
+  class: model
+  tooltip: "Turns each chunk into a 768-dimension vector for the vector store."
+}
+
+bm25: Bm25Index\nTantivy {
+  class: store
+  tooltip: "bm25.rs stores chunk text with its path and line range in a Tantivy index. Queries use the lenient parser, so code-shaped input such as foo::bar() never fails to parse."
+}
+
+vectors: VectorStore\nvectors.bin {
+  class: store
+  tooltip: "store.rs keeps an append-only record log with tombstones, compacted when dead records outnumber live ones. hnsw.rs builds a graph snapshot (vectors.hnsw) at 1,000 records or more, and rebuilds it whenever an index run changes anything. A stale or inconsistent snapshot falls back to an exact scan."
+}
+
+chunk -> embed: chunks
+chunk -> bm25: text
+embed -> vectors: vectors

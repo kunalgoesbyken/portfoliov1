@@ -1,0 +1,23 @@
+sweep: seedfall run\nseeds 1..N {
+  class: client
+  tooltip: "engine.Sweep runs seeds as parallel jobs (-j) and stops at the first failure unless told to keep going. 200 seeds took 9.4 s on a laptop."
+}
+
+fail: Failing seed\n33 faults {
+  class: store
+  tooltip: "The seed number is the whole bug report. It fixes the scheduling, network, disk and fault streams, so the same seed gives the same failure on any machine."
+}
+
+replay: seedfall replay\nsame hash {
+  class: service
+  tooltip: "Reruns the seed and prints the full trace and a determinism hash over every host call. With -html it writes a timeline of messages, faults and the failing check."
+}
+
+shrink: seedfall shrink\ndelta debugging {
+  class: service
+  tooltip: "ddmin over the fault list, then a capped workload, a trimmed duration and simplified faults, repeated until nothing changes. A candidate is kept only if it fails with the same class, node, property and message."
+}
+
+sweep -> fail: first failure
+fail -> replay: same seed
+fail -> shrink: ddmin

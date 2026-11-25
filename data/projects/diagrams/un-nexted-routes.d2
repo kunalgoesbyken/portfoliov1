@@ -1,0 +1,17 @@
+pages: src/pages\n*.tsx {
+  class: store
+  tooltip: "The app code. index.tsx is /, about.tsx is /about and blog/[slug].tsx is a dynamic route. _app.tsx, _document.tsx and nested files that start with an underscore are skipped."
+}
+
+router: router.ts\nglob to regex {
+  class: service
+  tooltip: "Bun.Glob scans src/pages once at startup. Each file becomes a URL pattern compiled to a regular expression with a capture group per [param], and match() returns the first route that fits along with its params."
+}
+
+build: build.ts\nBun.build {
+  class: service
+  tooltip: "Bundles client.tsx for the browser as ES modules with code splitting. A plugin supplies the virtual module unnexted:pages, a map from each page's file path to a literal import(), so every page becomes its own chunk in dist/. It runs at every server start."
+}
+
+pages -> router: scan
+router -> build: route list

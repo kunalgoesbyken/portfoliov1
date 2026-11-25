@@ -1,0 +1,30 @@
+pdf: Input PDF\nheal() or pdf2docx-heal {
+  class: external
+  tooltip: "Text or scanned. heal() in converter.py is the entry point, and the pdf2docx-heal command in cli.py calls it with flags for OCR and for switching each repair off."
+}
+
+ocr: ocr_pipeline.py\nopt-in OCR {
+  class: model
+  tooltip: "Runs only with --ocr. A page with under 50 characters of text counts as scanned, and when more than 30 percent of pages are scanned each one is rendered at 300 DPI and OCR'd by PyMuPDF's Tesseract call into a temp PDF. A page whose OCR fails is copied unchanged."
+}
+
+patches: patches.py\n2 monkey-patches {
+  class: service
+  tooltip: "Replaces pdf2docx.common.share.is_list_item, which never matches upstream, and wraps Blocks.collect_stream_lines to force list_not_table=True. Applied once per process, only when list repair is on."
+}
+
+convert: pdf2docx\nConverter {
+  class: service
+  tooltip: "The upstream converter, unmodified apart from the two patches. It writes the first-pass .docx to disk."
+}
+
+draft: First-pass .docx {
+  class: store
+  tooltip: "What plain pdf2docx would hand you: list items merged into one paragraph, links as plain text, fonts as named in the PDF. The repair passes edit this file in place."
+}
+
+pdf -> ocr: scanned?
+pdf -> convert: text PDF
+ocr -> convert: temp PDF
+patches -> convert: patch
+convert -> draft: write

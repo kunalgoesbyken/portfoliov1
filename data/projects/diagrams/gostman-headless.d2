@@ -1,0 +1,35 @@
+ci: Terminal or CI\ngostman run {
+  class: client
+  tooltip: "Runs the whole folder on every pull request. The command uses the Go runner package directly and writes a text, JUnit, JSON, HTML or Markdown report."
+}
+
+agent: Coding agent {
+  class: model
+  tooltip: "Claude Code, Codex or Cursor, connected over the Model Context Protocol. It sees request ids, names and responses with secret values replaced by their names."
+}
+
+mcp: gostman mcp\nagent.Desk {
+  class: service
+  tooltip: "Serves 17 tools such as send_request and run_folder over stdio or loopback HTTP with a bearer token, plus one tool per request tagged with --expose-tag. It wraps a runner session, fills secrets in only for hosts your own requests already call, and scrubs them from every reply."
+}
+
+runner: runner + goja\nGo package {
+  class: service
+  tooltip: "The Go runner package loads a collection, plans the run, and calls the bundled JavaScript inside goja for scripts, checks and extract rules. It sends through the engine, rpc or mcpclient and returns a report with an exit code."
+}
+
+files: Collections\nYAML in Git {
+  class: store
+  tooltip: "The same folder of YAML files the apps use. The runner loads it on every run, so the checks you built in the app are the ones CI runs."
+}
+
+engine: engine + rpc + mcpclient\nGo packages {
+  class: service
+  tooltip: "The same send code the apps use. The runner calls it for every request, and the agent's calls reach it through the same runner session."
+}
+
+ci -> runner
+agent -> mcp: MCP
+mcp -> runner
+runner -> files: load
+runner -> engine: send

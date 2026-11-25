@@ -1,6 +1,0 @@
-{
-  "server.oauth": "Only the code exchange and refresh run on the server, so the client secret stays out of the bundle, instead of putting Gmail behind a backend too. Cost: sign-in and each token refresh add a server hop.",
-  "browser.gmail": "Gmail is called from the browser with the token in sessionStorage instead of through a mail backend, so no server holds mail. Cost: any script on the page can read the token, and closing the tab drops it.",
-  "browser.app": "A fixed 30 second poll, not a shorter interval, to protect Gmail quota. Cost: new mail can appear 30 s late, and a faulty effect once turned the poll into 640 requests in 11 s.",
-  "server.chat": "Four typed tools that only prefill drafts, with no send tool, so every AI action is visible and a person confirms sends. Cost: the assistant cannot finish a task alone and sees only the ten most recent emails."
-}

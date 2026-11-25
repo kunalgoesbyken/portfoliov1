@@ -1,0 +1,30 @@
+app: App + useAppStore\nReact 19, Zustand {
+  class: client
+  tooltip: "Each chat request carries the user's text and a small context: current view, selected email, active filters and ten loaded emails. When the stream finishes, useAIChat applies the tool calls to the store, so every AI action is a visible change in the interface."
+}
+
+chat: /api/chat\nstreamText, 4 tools {
+  class: service
+  tooltip: "Streams a Groq response with openEmail, navigateView, composeEmail and replyToEmail as Zod-typed tools. Each tool only returns an acknowledgement and none can send mail. The system prompt limits the model to email ids in the context."
+}
+
+groq: Groq\ngpt-oss-120b model {
+  class: model
+  tooltip: "Receives the chat history plus a compact context: current view, selected email, filters and the ten most recent emails as 100 character snippets. Replies stream back token by token."
+}
+
+composer: Composer\nconfirmation dialog {
+  class: client
+  tooltip: "Drafts from the assistant arrive here marked as written by the assistant. They go through the same composer and confirmation dialog as hand-written mail, so the user edits, presses Send and confirms."
+}
+
+gmail: GmailService\nthe only send path {
+  class: service
+  tooltip: "The only way mail leaves the app. The assistant has no send tool, so a send happens only after the user confirms."
+}
+
+app -> chat: prompt + context
+chat -> groq: stream
+chat -> app: tool calls
+app -> composer: fill draft
+composer -> gmail: send on confirm

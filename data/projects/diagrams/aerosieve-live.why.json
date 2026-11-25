@@ -1,0 +1,3 @@
+{
+  "serve": "The live path runs the same StreamSegmenter that batch uses, so verdicts cannot drift apart. Cost: a clip is judged only after its closing pause, and live audio is not loudness-leveled."
+}

@@ -47,14 +47,27 @@ GitHub webhooks update linked tasks: closing an issue or merging a pull request 
 
 It's a Next.js 15 App Router app on Vercel, running in the Mumbai region next to its Supabase Postgres database. Supabase provides sign-in, the database and realtime; Prisma is the only query layer.
 
+### Opening a page
+
+<Diagram name="taskflow-page" title="Page load" />
+
 1. `middleware.ts` refreshes the Supabase session cookie and redirects signed-out visitors away from `/dashboard`, `/tasks`, `/analytics` and `/settings`. It does not run on `/api`.
 2. Pages such as the dashboard and the timezone lanes are server components. They call `getAuthUser()` and read tasks through Prisma, so the first paint already has data.
-3. After that, client components use TanStack Query against the route handlers in `app/api`. Each handler calls `requireAuth()`, validates the body with Zod and limits task queries to tasks the caller created or is assigned.
-4. Prisma connects with database credentials, so access control is those `where` clauses in application code, not row-level security. Create and reassign save the task, a `TaskEvent` and any notification in one `prisma.$transaction`. Template-aware status changes go through `set-status`, which validates the template and updates the task without writing an event.
-5. `useRealtimeTasks` and `useRealtimeNotifications` listen to Supabase Realtime and only invalidate the query cache. The timezone lanes also use Realtime Presence to show which teammates are online.
-6. GitHub posts to a signed webhook route that updates linked tasks. `/api/shift-brief` queries recent tasks and calls Gemini. Slack has an install flow and an events endpoint.
 
-<Diagram name="taskflow-system" title="System architecture" />
+### Saving changes and outside calls
+
+<Diagram name="taskflow-api" title="API" />
+
+1. After the first paint, client components use TanStack Query against the route handlers in `app/api`. Each handler calls `requireAuth()`, validates the body with Zod and limits task queries to tasks the caller created or is assigned.
+2. Prisma connects with database credentials, so access control is those `where` clauses in application code, not row-level security. Create and reassign save the task, a `TaskEvent` and any notification in one `prisma.$transaction`. Template-aware status changes go through `set-status`, which validates the template and updates the task without writing an event.
+3. GitHub posts to a signed webhook route that updates linked tasks. `/api/shift-brief` queries recent tasks and calls Gemini. Slack has an install flow and an events endpoint.
+
+### Live updates
+
+<Diagram name="taskflow-live" title="Realtime" />
+
+1. `useRealtimeTasks` and `useRealtimeNotifications` listen to Supabase Realtime and only invalidate the query cache. The timezone lanes also use Realtime Presence to show which teammates are online.
+2. The invalidated query refetches from the route handlers, so a live update has the same shape as a normal load.
 
 <Highlights>
 <Highlight title="Realtime without a second data path" result="Live updates always render the same joined shape as the API">

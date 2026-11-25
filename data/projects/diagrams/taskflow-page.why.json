@@ -1,0 +1,3 @@
+{
+  "mw": "Middleware reads the cookie session and skips /api, while each handler calls getUser itself, instead of verifying every request in one place. Cost: one extra Supabase Auth call per API request, and the page guard is only a redirect."
+}

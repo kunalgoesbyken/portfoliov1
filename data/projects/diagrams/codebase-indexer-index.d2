@@ -1,0 +1,23 @@
+cache: File cache\ncache.bin {
+  class: store
+  tooltip: "A bincode list of path, SHA-256 and modification time per file. It is saved at the end of an index run, and files that failed to index are dropped from it so they are retried next time."
+}
+
+walk: Walker, delta\nSHA-256 {
+  class: service
+  tooltip: "walker.rs honours .gitignore, keeps supported file types and skips lockfiles. delta.rs hashes every file and compares hash and mtime with the cache, so only new or changed files continue and deleted ones are purged."
+}
+
+chunk: Chunker\ntree-sitter {
+  class: service
+  tooltip: "chunker.rs parses Rust, Go, Python, TypeScript, Java and C/C++ into whole declarations. Over 3,000 non-whitespace characters, a node is split along its children and re-merged. Markdown splits at headings, config files at the size limit."
+}
+
+embed: Embedder\nnomic INT8 {
+  class: model
+  tooltip: "embedder.rs runs nomic-embed-text v1.5 INT8 through ONNX Runtime (ort) with Hugging Face tokenizers. Chunks are sorted by length, batched eight at a time, padded to a power of two, mean-pooled and L2-normalised into 768 dimensions."
+}
+
+walk <-> cache: compare
+walk -> chunk: changed
+chunk -> embed: chunks

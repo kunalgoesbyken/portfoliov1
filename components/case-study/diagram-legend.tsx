@@ -25,23 +25,13 @@ const DECISION: LegendEntry = {
   swatch: box(1),
 };
 
-export function KindSwatch({ kind, className }: { kind: string; className: string }) {
-  const entry = LEGEND[kind];
-  if (!entry) return null;
-  return (
-    <svg width="22" height="14" viewBox="0 0 22 14" fill="none" strokeWidth="1.5" aria-hidden="true" className={`shrink-0 ${className}`}>
-      {entry.swatch}
-    </svg>
-  );
-}
-
 function LegendItem({ entry, className }: { entry: LegendEntry; className: string }) {
   return (
     <li className="inline-flex items-center gap-1.5">
       <svg width="22" height="14" viewBox="0 0 22 14" fill="none" strokeWidth="1.5" aria-hidden="true" className={className}>
         {entry.swatch}
       </svg>
-      {entry.label}
+      <span>{entry.label}</span>
     </li>
   );
 }

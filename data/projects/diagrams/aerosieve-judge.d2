@@ -1,0 +1,23 @@
+segment: aerosieve-segment\nhysteresis VAD {
+  class: service
+  tooltip: "Takes the 16 kHz mono audio from decode. A SpeechDetector scores each 32 ms window. EnergyDetector is the default and Silero via ONNX Runtime is a cargo feature. A state machine ends a clip after 500 ms of quiet, keeps 3 to 30 s, and cuts long runs at their deepest dip."
+}
+
+acoustic: aerosieve-acoustic\nscore + policy {
+  class: service
+  tooltip: "score returns WADA-SNR, RMS dBFS, clip ratio and spectral flatness, with no ML model. FilterPolicy::evaluate returns the first failing RejectReason, or none if the clip is kept."
+}
+
+shard: aerosieve-shard\nWebDataset {
+  class: service
+  tooltip: "Writes each kept clip as a .wav and .json pair in shard-*.tar, plus manifest.jsonl and stats.json, into the output directory. Shards are built in a staging directory and renamed into place when complete. Only kept clips are stored."
+}
+
+rejected: Rejected clips\nby reason {
+  class: store
+  tooltip: "Rejected clips aren't written. Their reasons are counted in the run totals and shown per clip by inspect and the live service."
+}
+
+segment -> acoustic: clips
+acoustic -> shard: kept
+acoustic -> rejected: failed

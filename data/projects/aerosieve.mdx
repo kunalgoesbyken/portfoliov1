@@ -76,16 +76,30 @@ It ran on free Kaggle GPUs in about 45 minutes. The scripts, full tables and the
 
 A Rust workspace of ten crates, plus two binding crates (`bindings/python`, `bindings/wasm`) built separately. The `aerosieve` library crate wires the stages together: `Pipeline` writes shards, `Inspector` only judges, and `LiveInspector` judges audio that arrives in pieces. `aerosieve-cli` (clap) and `aerosieve-serve` (axum) are thin front ends over it, and `aerosieve-lexical` normalizes transcripts from YAML rules.
 
-<Diagram name="aerosieve-pipeline" title="Pipeline" />
+### 1. Read the recording
 
-1. **Decode** (`aerosieve-decode`): Symphonia reads wav, mp3, flac, ogg or mp4, downmixes, and rubato resamples to 16 kHz. Loudness is nudged toward -20 dBFS with at most 3 dB of gain, and the source's own full scale is kept so clipping can still be measured.
-2. **Segment** (`aerosieve-segment`): a `SpeechDetector` gives each 32 ms window a speech probability. The default `EnergyDetector` uses signal level and needs no model. A hysteresis state machine, modelled on Silero's speech timestamps, ends a clip only after 500 ms of quiet. Clips under 3 s are dropped and longer ones are cut at their deepest internal dip, to at most 30 s.
-3. **Score** (`aerosieve-acoustic`): `score` returns four numbers with no ML model, WADA-SNR, RMS level, clip ratio and spectral flatness over the part of 300 to 3400 Hz the recording carries. `FilterPolicy::evaluate` then returns the first failing `RejectReason`, so thresholds can change without re-reading audio.
-4. **Shard** (`aerosieve-shard`): accepted clips become `.wav` and `.json` pairs in `shard-*.tar` files, built in a staging directory and renamed into place, with `manifest.jsonl` and `stats.json`. Rejected clips aren't written, but their reasons are counted in the run totals and printed by `aerosieve inspect`.
+<Diagram name="aerosieve-intake" title="Intake" />
 
-`Pipeline::process_files` inspects one batch of files per round with rayon and writes results in input order, so a parallel run matches a single-threaded one. `Segmenter::segment` is the `StreamSegmenter` fed the whole file.
+1. **Entry points.** `aerosieve-cli` (clap) with `curate` and `inspect`, and the Python and WASM bindings, are thin front ends over `Pipeline` and `Inspector`. Audio comes in as files or, from the bindings, as bytes.
+2. **Decode** (`aerosieve-decode`): Symphonia reads wav, mp3, flac, ogg or mp4, downmixes, and rubato resamples to 16 kHz. Loudness is nudged toward -20 dBFS with at most 3 dB of gain, and the source's own full scale is kept so clipping can still be measured.
 
-The live service exposes `/v1/stream`. Clients send 16-bit PCM frames over a WebSocket, each session holds a `LiveInspector`, and a verdict goes back once the pause that ends a clip is heard. Sessions (256 by default), utterance length, frame size and idle time are capped, and `/metrics` serves Prometheus text with a decision-latency histogram. The browser build compiles the same crates to WebAssembly: an `Inspection` decodes and scores once, then re-applies any `FilterPolicy` to the stored measurements.
+### 2. Cut, score and save
+
+<Diagram name="aerosieve-judge" title="Judging" />
+
+1. **Segment** (`aerosieve-segment`): a `SpeechDetector` gives each 32 ms window a speech probability. The default `EnergyDetector` uses signal level and needs no model. A hysteresis state machine, modelled on Silero's speech timestamps, ends a clip only after 500 ms of quiet. Clips under 3 s are dropped and longer ones are cut at their deepest internal dip, to at most 30 s.
+2. **Score** (`aerosieve-acoustic`): `score` returns four numbers with no ML model, WADA-SNR, RMS level, clip ratio and spectral flatness over the part of 300 to 3400 Hz the recording carries. `FilterPolicy::evaluate` then returns the first failing `RejectReason`, so thresholds can change without re-reading audio.
+3. **Shard** (`aerosieve-shard`): accepted clips become `.wav` and `.json` pairs in `shard-*.tar` files, built in a staging directory and renamed into place, with `manifest.jsonl` and `stats.json`. Rejected clips aren't written, but their reasons are counted in the run totals and printed by `aerosieve inspect`.
+
+`Pipeline::process_files` inspects one batch of files per round with rayon and writes results in input order, so a parallel run matches a single-threaded one. `Segmenter::segment` is the `StreamSegmenter` fed the whole file. The browser build compiles the same crates to WebAssembly: an `Inspection` decodes and scores once, then re-applies any `FilterPolicy` to the stored measurements.
+
+### Live streams
+
+<Diagram name="aerosieve-live" title="Live" />
+
+1. **Connect.** `aerosieve-serve` (axum) exposes `/v1/stream`. Clients send 16-bit PCM frames over a WebSocket, and each session holds a `LiveInspector`.
+2. **Judge.** The `LiveInspector` runs the same segmenter and scoring as batch mode, so a verdict goes back once the pause that ends a clip is heard.
+3. **Limits and metrics.** Sessions (256 by default), utterance length, frame size and idle time are capped, and `/metrics` serves Prometheus text with a decision-latency histogram.
 
 <Highlights>
 <Highlight title="Checked against real recognizers, not just my own benchmark" result="Rejected clips: +8.9 points WER for Whisper, +8.6 for MMS">

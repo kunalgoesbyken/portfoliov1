@@ -1,0 +1,4 @@
+{
+  "ocr": "OCR is opt-in and fires only when over 30% of pages are scanned, instead of running on every file, because Tesseract is a separate system install. Cost: a file with a few scanned pages among many text pages gets no OCR.",
+  "patches": "Two monkey-patches on pdf2docx internals instead of a fork, because the cause is dead code upstream. Cost: they hit internal names with no upper version pin, and stay active for the rest of the process."
+}

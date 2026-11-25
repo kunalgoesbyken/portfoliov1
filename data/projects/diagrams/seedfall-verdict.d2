@@ -1,0 +1,23 @@
+runtime: wazero\nengine.Runner {
+  class: service
+  tooltip: "Carries the recorded Put and Get history out of the guest through the seedfall host module, which also carries sockets and properties. Nothing needs a forked runtime or rewritten source."
+}
+
+sched: world.loop\nseeded scheduler {
+  class: service
+  tooltip: "Picks the earliest fault, restart or wake-up at each step. What it did is recorded in the result as the trace."
+}
+
+check: history checker\nPorcupine {
+  class: service
+  tooltip: "After the run, Put and Get records are checked for linearizability with Porcupine against a sequential model. With the list-append model, an in-house Elle-style checker looks for isolation anomalies in sim.Txn histories."
+}
+
+out: Seed + trace\nreplay, shrink {
+  class: client
+  tooltip: "The result holds the seed, fault list, trace and a hash over every host call. replay, shrink and verify all start from the seed, and run -check runs each seed twice and stops at the first host call that differs."
+}
+
+runtime -> check: history
+check -> out: verdict
+sched -> out: trace

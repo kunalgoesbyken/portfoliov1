@@ -1,0 +1,23 @@
+serve: aerosieve-serve\naxum WebSocket {
+  class: client
+  tooltip: "Serves /v1/stream, /metrics and /healthz. Clients send 16-bit PCM frames, and each session holds a LiveInspector. Sessions (256 by default), utterance length, frame size and idle time are capped."
+}
+
+live: LiveInspector\nsegment, score {
+  class: service
+  tooltip: "Feeds the frames to the same StreamSegmenter that batch mode uses, then scores each clip and applies the FilterPolicy. Samples are judged as received, with no loudness leveling."
+}
+
+metrics: /metrics\nPrometheus {
+  class: store
+  tooltip: "A hand-written histogram tracks decision latency."
+}
+
+verdict: Verdict\nper clip {
+  class: external
+  tooltip: "Sent back over the WebSocket once the pause that ends a clip is heard."
+}
+
+serve -> live: PCM s16le
+serve -> metrics: latency
+live -> verdict: result

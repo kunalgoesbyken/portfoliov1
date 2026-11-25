@@ -1,0 +1,3 @@
+{
+  "check": "Histories are checked against a sequential model with Porcupine instead of single-result assertions, because concurrent operations must look as if they ran one at a time. Cost: checking is NP-complete, so a seed is abandoned after 30 s."
+}

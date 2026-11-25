@@ -1,0 +1,23 @@
+auth: /auth/callback\nstate check in browser {
+  class: service
+  tooltip: "Runs in the browser. Checks the random OAuth state that initiateOAuth() stored in sessionStorage, then sends the code to the token route. Token refresh in services/auth.ts goes through the same route."
+}
+
+oauth: "/api/auth/token\nserver-only client secret" {
+  class: service
+  tooltip: "Exchanges the authorization code, and later the refresh token, for tokens at Google using GMAIL_CLIENT_SECRET, which is never sent to the browser."
+}
+
+google: Google OAuth\ntoken endpoint {
+  class: external
+  tooltip: "The sign-in redirect asks for the gmail.modify scope. The token endpoint serves the code exchange and refresh."
+}
+
+tokens: sessionStorage\ntoken-storage.ts {
+  class: store
+  tooltip: "Holds the access and refresh tokens returned by the token route. They live in sessionStorage, so a closed tab signs the user out."
+}
+
+auth -> oauth: code / refresh token
+oauth -> google: token exchange
+auth -> tokens: store tokens

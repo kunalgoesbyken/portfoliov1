@@ -1,0 +1,4 @@
+{
+  "routes": "Access control lives in Prisma where clauses (creator or assignee) instead of Postgres row-level security, so queries stay typed and simple. Cost: Prisma bypasses RLS, so a check missed in a new route exposes data.",
+  "gemini": "The Shift Brief streams Gemini output as server-sent events, so text appears at once instead of after the full response. Cost: a timeout or mid-stream failure ends the brief with an error, and nothing is cached or retried."
+}

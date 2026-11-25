@@ -1,0 +1,3 @@
+{
+  "realtime": "Realtime events only invalidate the query cache and trigger a refetch, instead of applying the payload, because payloads carry no joined rows such as the assignee. Cost: every change event costs an extra API round trip."
+}

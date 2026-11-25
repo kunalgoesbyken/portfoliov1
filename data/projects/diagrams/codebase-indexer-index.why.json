@@ -1,0 +1,4 @@
+{
+  "chunk": "tree-sitter declarations instead of fixed-size windows, because windows cut functions and duplicate context. Cost: only Rust, Go, Python, TypeScript, Java and C/C++ have grammars, and code outside declarations, such as imports, is not indexed.",
+  "embed": "A local INT8 ONNX model on the CPU instead of a hosted embedding API, so code never leaves the machine. Cost: a one-time 137 MB download, and the model loads on every command, so queries take 0.9 to 1.8 s."
+}

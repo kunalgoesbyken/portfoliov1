@@ -1,0 +1,35 @@
+exec: session.execute\nper request {
+  class: service
+  tooltip: "Takes each request from the run plan and runs the steps in order: typed variables are filled, pre-request scripts run, a fresh OAuth token is fetched if needed, the request is sent, cookies are kept, extract rules apply, then post-response scripts and assertions run."
+}
+
+pre: Pre-request\ngoja script {
+  class: service
+  tooltip: "Runs pre-request scripts with the Postman pm and Bruno bru APIs inside goja, with a time limit and a 512 MB memory watchdog. Each script gets a runtime no other script has touched."
+}
+
+engine: Send\nHTTP, gRPC, MCP {
+  class: service
+  tooltip: "session.transmit picks engine.Send for HTTP-style requests, rpc.Invoke for gRPC or mcpclient.Invoke for MCP. Cookies are kept per run."
+}
+
+post: Extract + checks\nin goja {
+  class: service
+  tooltip: "Extract rules write variables for later requests. Post-response scripts and assertions then run, and checks that need no user code share one session runtime. OpenAPI contract checks run last."
+}
+
+api: API under test {
+  class: external
+  tooltip: "Any HTTP, gRPC or MCP service, local or remote. WebSocket requests are skipped in a run."
+}
+
+reports: Reports\ntext, JSON, JUnit, HTML {
+  class: client
+  tooltip: "The report package writes text, JSON, JUnit, HTML or Markdown, with pass or fail per request and per check. The exit code is 0 for pass, 1 for a failed check, 2 for bad usage and 3 for no response."
+}
+
+exec -> pre: 1 script
+exec -> engine: 2 send
+exec -> post: 3 check
+engine -> api
+post -> reports: results

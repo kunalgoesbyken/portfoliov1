@@ -1,0 +1,3 @@
+{
+  "vectors": "An append-only log with tombstones plus a hand-written HNSW graph instead of a database, so updates never rewrite the file. Cost: the whole log is read into memory per query, and the graph is rebuilt on each changed index run."
+}

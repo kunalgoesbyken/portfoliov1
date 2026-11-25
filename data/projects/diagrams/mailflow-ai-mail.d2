@@ -1,0 +1,23 @@
+app: App + useAppStore\nReact 19, Zustand {
+  class: client
+  tooltip: "One Zustand store holds mail per mailbox, filters, the open thread and the composer. Only the user and sign-in flag are persisted. useEmails loads 30 messages at a time, a 30 second timer refetches the current view, and filtering and sorting run client side."
+}
+
+tokens: sessionStorage\ntoken-storage.ts {
+  class: store
+  tooltip: "The access token that GmailService attaches to every call. It was stored at sign-in, and closing the tab drops it."
+}
+
+gmail: GmailService\nky, Promise.allSettled {
+  class: service
+  tooltip: "Calls the Gmail REST API directly with the stored access token. Messages are fetched in parallel with Promise.allSettled, so one failed message is skipped. MIME parts are parsed into a typed model and HTML bodies are sanitised with DOMPurify before rendering."
+}
+
+google: "Gmail API\ngmail.modify scope" {
+  class: external
+  tooltip: "Called from the browser with the gmail.modify scope and the user's own access token. No server holds the mail."
+}
+
+app -> gmail: list, send
+tokens -> gmail: token
+gmail -> google: REST + Bearer

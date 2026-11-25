@@ -1,0 +1,3 @@
+{
+  "verify": "A sweep of fresh seeds sized for 95% confidence instead of one passing replay, because one pass can be luck. Cost: with no known failure rate it assumes 1% and runs 299 seeds, and the result is evidence, not proof."
+}

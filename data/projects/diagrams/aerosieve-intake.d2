@@ -1,0 +1,24 @@
+audio: Audio files\nany source {
+  class: external
+  tooltip: "wav, mp3, flac, ogg or mp4 recordings from any source. Real corpora are full of silence, hiss, clipping, test tones and phone-line audio."
+}
+
+cli: aerosieve-cli\ncurate, inspect {
+  class: client
+  tooltip: "The aerosieve binary, built with clap. curate writes shards and prints rejection counts by reason. inspect prints one verdict per clip and writes nothing. --policy loads threshold overrides from JSON. Both are thin front ends over Pipeline and Inspector."
+}
+
+bindings: Python and WASM\nbindings {
+  class: client
+  tooltip: "PyO3 and wasm-bindgen bindings: bindings/python (inspect and curate, built with maturin) and bindings/wasm (the browser demo). They take files or bytes and call Inspector. The WASM build decodes and scores once, then re-applies a policy to stored measurements on every slider move."
+}
+
+decode: aerosieve-decode\nSymphonia {
+  class: service
+  tooltip: "Symphonia decodes any container it can read, then the audio is downmixed, resampled to 16 kHz with rubato and levelled in RMS toward -20 dBFS within 3 dB. It keeps the applied gain so full_scale() can recover the source's own peak."
+}
+
+audio -> cli: files
+audio -> bindings: bytes
+cli -> decode: batch
+bindings -> decode: inspect

@@ -1,27 +1,30 @@
 "use client";
 
-import { memo, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { memo, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { DiagramPanel } from "@/components/case-study/diagram-panel";
 import { DiagramLegend } from "@/components/case-study/diagram-legend";
-import { DiagramSteps } from "@/components/case-study/diagram-steps";
 import {
+  DIAGRAM_LAYOUTS,
+  MIN_DIAGRAM_SCALE,
   applyFocus,
   kindsOf,
   nodeKeyAt,
+  pickLayout,
   readGraph,
   selectionOf,
   type DiagramGraph,
+  type DiagramLayout,
   type DiagramNode,
   type DiagramRationale,
   type DiagramSelection,
+  type DiagramSize,
 } from "@/components/case-study/diagram-graph";
 
 interface DiagramExplorerProps {
   name: string;
   title: string;
   rationale: DiagramRationale;
-  aspectRatio?: string;
-  stepCount: number;
+  sizes: Record<DiagramLayout, DiagramSize>;
 }
 
 interface SvgPair {
@@ -29,18 +32,38 @@ interface SvgPair {
   dark: string;
 }
 
-const fetchSvg = (name: string, theme: keyof SvgPair) =>
-  fetch(`/diagrams/${name}.${theme}.svg`).then((res) => (res.ok ? res.text() : Promise.reject(new Error(res.statusText))));
+const LAYOUT_GUESS: Record<DiagramLayout, string> = { wide: "max-md:hidden", tall: "md:hidden" };
 
-function useLazySvgs(name: string, rootRef: React.RefObject<HTMLElement | null>) {
-  const [svgs, setSvgs] = useState<SvgPair | null>(null);
+const fetchSvg = (name: string, layout: DiagramLayout, theme: keyof SvgPair) =>
+  fetch(`/diagrams/${name}.${layout}.${theme}.svg`).then((res) => (res.ok ? res.text() : Promise.reject(new Error(res.statusText))));
+
+const sizeStyle = ({ width, height }: DiagramSize): CSSProperties => ({
+  width: `min(100%, ${width}px)`,
+  minWidth: `${width * MIN_DIAGRAM_SCALE}px`,
+  aspectRatio: `${width} / ${height}`,
+});
+
+function useContentWidth(ref: React.RefObject<HTMLElement | null>) {
+  const [width, setWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => entry && setWidth(entry.contentRect.width));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+  return width;
+}
+
+function useLazySvgs(name: string, layout: DiagramLayout | null, rootRef: React.RefObject<HTMLElement | null>) {
+  const [loaded, setLoaded] = useState<{ layout: DiagramLayout; svgs: SvgPair } | null>(null);
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
+    if (!root || !layout) return;
     let cancelled = false;
     const load = () =>
-      Promise.all([fetchSvg(name, "light"), fetchSvg(name, "dark")])
-        .then(([light, dark]) => !cancelled && setSvgs({ light, dark }))
+      Promise.all([fetchSvg(name, layout, "light"), fetchSvg(name, layout, "dark")])
+        .then(([light, dark]) => !cancelled && setLoaded({ layout, svgs: { light, dark } }))
         .catch(() => {});
     const io = new IntersectionObserver(
       (entries) => {
@@ -55,8 +78,8 @@ function useLazySvgs(name: string, rootRef: React.RefObject<HTMLElement | null>)
       cancelled = true;
       io.disconnect();
     };
-  }, [name, rootRef]);
-  return svgs;
+  }, [name, layout, rootRef]);
+  return loaded?.layout === layout ? loaded.svgs : null;
 }
 
 const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: string; darkSvg: string }) {
@@ -68,21 +91,21 @@ const SvgLayers = memo(function SvgLayers({ lightSvg, darkSvg }: { lightSvg: str
   );
 });
 
-export function DiagramExplorer({ name, title, rationale, aspectRatio, stepCount }: DiagramExplorerProps) {
+export function DiagramExplorer({ name, title, rationale, sizes }: DiagramExplorerProps) {
   const figureRef = useRef<HTMLElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const svgs = useLazySvgs(name, figureRef);
+  const contentWidth = useContentWidth(rootRef);
+  const layout = contentWidth === null ? null : pickLayout(sizes, contentWidth);
+  const svgs = useLazySvgs(name, layout, figureRef);
   const graphRef = useRef<DiagramGraph | null>(null);
   const [hovered, setHovered] = useState<DiagramNode | null>(null);
   const [selection, setSelection] = useState<DiagramSelection | null>(null);
-  const [graph, setGraph] = useState<DiagramGraph | null>(null);
   const [legend, setLegend] = useState<ReturnType<typeof kindsOf>>({ kinds: [], hasRationale: false });
   const selectedKey = selection?.node.key ?? null;
 
   useEffect(() => {
     if (!rootRef.current || !svgs) return;
     graphRef.current = readGraph(rootRef.current, rationale);
-    setGraph(graphRef.current);
     setLegend(kindsOf(graphRef.current));
   }, [rationale, svgs]);
 
@@ -109,7 +132,7 @@ export function DiagramExplorer({ name, title, rationale, aspectRatio, stepCount
   const isInsideDiagram = (target: EventTarget | null) => target instanceof Node && !!rootRef.current?.contains(target);
 
   return (
-    <figure ref={figureRef} className="not-prose my-8 rounded-lg border border-line bg-surface-raised md:-mx-8">
+    <figure ref={figureRef} className="not-prose my-8 rounded-lg border border-line bg-surface-raised max-md:-mx-(--bleed) md:-mx-8">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 pt-3 font-custom2 text-xs">
         <span className="eyebrow text-fg-muted">{title}</span>
         <span className="text-fg-subtle" aria-live="polite">
@@ -117,7 +140,7 @@ export function DiagramExplorer({ name, title, rationale, aspectRatio, stepCount
             `${hovered.label}: click for details`
           ) : (
             <>
-              <span className="md:hidden">Tap a step for details</span>
+              <span className="md:hidden">Tap a box for details</span>
               <span className="max-md:hidden">Hover to trace connections, click a box for details</span>
             </>
           )}
@@ -129,19 +152,18 @@ export function DiagramExplorer({ name, title, rationale, aspectRatio, stepCount
         onKeyDown={onKeyDown}
         onPointerOver={onPointerOver}
         onPointerLeave={() => setHovered(null)}
-        className="diagram-explorer scrollbar-subtle overflow-x-auto p-4 max-md:hidden"
+        className="diagram-explorer scrollbar-subtle overflow-x-auto p-4 max-md:px-2"
       >
-        {svgs ? (
-          <SvgLayers lightSvg={svgs.light} darkSvg={svgs.dark} />
+        {layout ? (
+          <div aria-hidden={!svgs} className="diagram-canvas" style={sizeStyle(sizes[layout])}>
+            {svgs && <SvgLayers lightSvg={svgs.light} darkSvg={svgs.dark} />}
+          </div>
         ) : (
-          <div aria-hidden="true" className="mx-auto w-full min-w-[760px]" style={{ aspectRatio }} />
+          DIAGRAM_LAYOUTS.map((guess) => (
+            <div key={guess} aria-hidden="true" className={`diagram-canvas ${LAYOUT_GUESS[guess]}`} style={sizeStyle(sizes[guess])} />
+          ))
         )}
       </div>
-      {graph ? (
-        <DiagramSteps graph={graph} />
-      ) : (
-        <div className="md:hidden" style={{ minHeight: `${stepCount * 5.25}rem` }} aria-hidden="true" />
-      )}
       <DiagramLegend kinds={legend.kinds} hasRationale={legend.hasRationale} />
       <DiagramPanel
         title={title}

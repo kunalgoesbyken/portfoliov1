@@ -1,0 +1,30 @@
+browser: Browser\nrequests a page {
+  class: client
+  tooltip: "Asks for a page route such as /dashboard. Middleware handles the request before any page renders, and the first paint already has data. After that, client components take over with TanStack Query."
+}
+
+mw: middleware.ts\nsession guard {
+  class: service
+  tooltip: "Runs on page routes only, not on /api. Refreshes the Supabase session cookie and redirects signed-out visitors from /dashboard, /tasks, /analytics and /settings to /login."
+}
+
+pages: Server components\ndashboard, lanes, task {
+  class: service
+  tooltip: "Call getAuthUser(), then read tasks through Prisma with the same creator-or-assignee filter as the API, so the first render already has data."
+}
+
+auth: Supabase Auth
+email, GitHub OAuth {
+  class: external
+  tooltip: "Email and password plus GitHub OAuth. The middleware refreshes the session cookie against it on every page request."
+}
+
+db: Postgres\nPrisma, 7 tables {
+  class: store
+  tooltip: "Tasks, task events, notifications, users, handoff templates, GitHub tokens and Slack installations. Composite indexes on assignee and creator with updatedAt back the dashboard query."
+}
+
+browser -> mw: page request
+mw -> auth: refresh session cookie
+mw -> pages: signed in
+pages -> db: Prisma

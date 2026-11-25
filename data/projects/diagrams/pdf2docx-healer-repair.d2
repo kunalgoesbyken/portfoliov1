@@ -1,0 +1,37 @@
+draft: First-pass .docx {
+  class: store
+  tooltip: "The file pdf2docx wrote. Each pass opens it with python-docx, edits it and saves it in place."
+}
+
+post: post_processor.py\nruns 3 passes {
+  class: service
+  tooltip: "Runs the three passes in a fixed order on the same file: lists first, so links and fonts land on the split paragraphs. Each pass opens the .docx with python-docx, edits it, saves it in place and runs inside its own try block."
+}
+
+lists: list_detector.py\nWord lists {
+  class: service
+  tooltip: "Splits merged paragraphs on bullet and number prefixes, reads nesting from the left indent and applies the built-in List Bullet and List Number styles. Lettered and roman lists get a generated OOXML numbering definition, and a sequence-reset check keeps titles like 4. Results as normal paragraphs."
+}
+
+links: link_injector.py\nhyperlinks {
+  class: service
+  tooltip: "Finds http, https, ftp, www and mailto text in body paragraphs and replaces it with w:hyperlink elements backed by external relationships, with blue underlined runs."
+}
+
+fonts: font_mapper.py\nfont fallback {
+  class: service
+  tooltip: "Looks the font name up in a fallback table, then falls back by Unicode range for CJK, Arabic, Hebrew, Thai, Devanagari and Cyrillic text, then to Arial."
+}
+
+docx: Healed .docx {
+  class: store
+  tooltip: "Each pass runs inside its own try block, so one failing pass never costs the fixes from the others."
+}
+
+draft -> post: open
+post -> lists: 1
+post -> links: 2
+post -> fonts: 3
+lists -> docx: save
+links -> docx: save
+fonts -> docx: save
