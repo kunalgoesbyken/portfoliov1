@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import PageShell from "@/components/ui/page-shell";
 import { Heading } from "@/components/ui/heading";
 import { Section } from "@/components/ui/section";
@@ -9,7 +9,7 @@ import Socials from "@/components/socials";
 import Projects from "@/components/projects";
 import Timeline from "@/components/timeline";
 import GithubGraph from "@/components/githubgraph";
-import OpenSourceSummary, { proofOfWorkDescription } from "@/components/open-source-summary";
+import { proofOfWorkDescription } from "@/components/open-source-summary";
 import LazySkills from "@/components/lazy-skills";
 import { BlogList } from "@/components/blog-list";
 import { getGithubData } from "@/lib/github";
@@ -42,23 +42,20 @@ export default async function Home() {
                 <InlineList>
                   {SITE_ROLE}
                   {SITE_LOCATION}
-                  <span className="inline-flex items-center gap-1.5">
+                  <a
+                    href={SOCIAL_LINKS.booking}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hit-44 decoration-line-strong hover:text-fg inline-flex items-center gap-1.5 underline decoration-dashed underline-offset-4 transition-colors"
+                  >
                     <span aria-hidden="true" className="bg-accent size-1.5 rounded-full" />
-                    Open to work
-                  </span>
+                    Open to work, book a call
+                  </a>
                 </InlineList>
               </p>
             </div>
             <Socials />
           </div>
-        </div>
-
-        <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
-          <a href={SOCIAL_LINKS.booking} target="_blank" rel="noopener noreferrer" className="action-chip">
-            <CalendarDays aria-hidden="true" className="size-3.5 shrink-0" />
-            Book a call
-          </a>
-          <OpenSourceSummary repositories={githubData.repositories} />
         </div>
       </header>
 

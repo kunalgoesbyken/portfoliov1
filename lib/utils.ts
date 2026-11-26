@@ -35,7 +35,3 @@ const PLURAL_RULES = new Intl.PluralRules("en-US");
 
 export const countOf = (count: number, singular: string, plural: string) =>
   `${count} ${PLURAL_RULES.select(count) === "one" ? singular : plural}`;
-
-const LIST_FORMAT = new Intl.ListFormat("en-US", { type: "conjunction" });
-
-export const formatList = (items: string[]) => LIST_FORMAT.format(items);
